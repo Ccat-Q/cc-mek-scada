@@ -3,7 +3,7 @@ require("/initenv").init_env()
 local log   = require("scada-common.log")
 local util  = require("scada-common.util")
 local sim = require("sim.sim")
-local SIM_VERSION = "1.0.6"
+local SIM_VERSION = "1.0.7"
 local println = util.println
 println("-- SCADA Simulator v" .. SIM_VERSION .. " --")
 println("SIM> simulating PLC/RTU devices for the SCADA system")

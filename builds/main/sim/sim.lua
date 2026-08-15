@@ -187,7 +187,7 @@ function() return turbine.state.dumping_mode end,
 function() return types.new_tank_fluid("mekanism:steam", turbine.tanks.steam) end,
 function() return math.max(0, turbine.build.steam_cap - turbine.tanks.steam) end,
 function() return turbine.tanks.steam_fill end,
-function() return types.new_tank_fluid("mekanism:energy", turbine.tanks.energy) end,
+function() return turbine.tanks.energy end,
 function() return math.max(0, turbine.build.max_energy - turbine.tanks.energy) end,
 function() return turbine.tanks.energy_fill end
 },
