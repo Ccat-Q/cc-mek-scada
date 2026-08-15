@@ -235,9 +235,9 @@ local function clean(manifest)
 local log, cfg = nil, app..".settings"
 if fs.exists(cfg) and settings.load(cfg) then
 log = settings.get("LogPath")
-if log:sub(1, 1) == "/" then log = log:sub(2) end
+if type(log) == "string" and log:sub(1, 1) == "/" then log = log:sub(2) end
 end
-local tree = gen_tree(manifest, log)
+local tree = gen_tree(manifest, log or "")
 table.insert(tree, "install_manifest.json")
 table.insert(tree, "ccmsi.lua")
 local ls = fs.list("/")
