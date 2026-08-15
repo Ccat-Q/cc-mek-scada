@@ -73,7 +73,7 @@ if st.active and st.act_burn_rate > 0 then
 local JOULES_PER_MB = 1000000
 local equilibrium = 373.15 + (st.act_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
 self.temp_target = equilibrium
-local fuel_use = st.act_burn_rate * 20 * dt
+local fuel_use = st.act_burn_rate * 20 * dt * (self.fuel_mult or 1.0)
 st.fuel = math.max(0, st.fuel - fuel_use)
 local waste_prod = fuel_use * 0.1
 st.waste = math.min(self.build.waste_capacity, st.waste + waste_prod)
@@ -89,7 +89,7 @@ local JOULES_PER_MB = 1000000
 local max_op_temp = 373.15 + (self.build.max_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
 local k_out = (self.build.max_burn_rate * JOULES_PER_MB / self.build.heat_capacity) / (max_op_temp - 300.0)
 local heat_in = (st.act_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
-local heat_out = (st.temp - 300.0) * k_out
+local heat_out = (st.temp - 300.0) * k_out * (self.heat_out_k or 1.0)
 st.temp = st.temp + (heat_in - heat_out) * dt
 else
 st.temp = st.temp + (300.0 - st.temp) * 0.05 * dt
@@ -404,6 +404,8 @@ ess = nil
 }
 self.ess = model.new_matrix()
 self.sps = model.new_sps()
+self.heat_out_k = 1.0
+self.fuel_mult = 1.0
 for i = 1, num_units do
 local reactor = model.new_reactor(config.reactor_opts)
 local unit = {
@@ -427,6 +429,8 @@ end
 function self.update()
 local dt = 0.05
 for _, unit in ipairs(self.units) do
+unit.reactor.heat_out_k = self.heat_out_k
+unit.reactor.fuel_mult = self.fuel_mult
 unit.reactor.update()
 local boiler_steam = 0
 for _, boiler in ipairs(unit.boilers) do

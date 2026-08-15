@@ -57,4 +57,9 @@ if ui.display ~= nil and event ~= nil then
 ui.display.handle_mouse(event)
 end
 end
+function renderer.handle_key(event)
+if ui.display ~= nil and event ~= nil then
+ui.display.handle_key(event)
+end
+end
 return renderer

@@ -8,6 +8,7 @@ local util     = require("scada-common.util")
 local model    = require("sim.model")
 local databus  = require("sim.databus")
 local renderer = require("sim.renderer")
+local core = require("graphics.core")
 local sim = {}
 local PROTOCOL     = comms.PROTOCOL
 local MGMT_TYPE    = comms.MGMT_TYPE
@@ -30,6 +31,7 @@ TrustedRange = settings.get("TrustedRange") or 0,
 SimulatePLC = settings.get("SimulatePLC") ~= false,
 SimulateRTU = settings.get("SimulateRTU") ~= false,
 SimulateSPS = settings.get("SimulateSPS") ~= false,
+ShowUI = settings.get("ShowUI") ~= false,
 UnitCount = settings.get("UnitCount") or 1,
 BoilersPerUnit = settings.get("BoilersPerUnit") or 1,
 TurbinesPerUnit = settings.get("TurbinesPerUnit") or 1,
@@ -88,6 +90,8 @@ num_units = config.UnitCount,
 boilers_per_unit = { config.BoilersPerUnit },
 turbines_per_unit = { config.TurbinesPerUnit }
 })
+local plc
+local rtu
 local control = {}
 function control.set_burn(rate)
 rate = tonumber(rate) or 0
@@ -95,8 +99,10 @@ local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id
 if reactor then
 if reactor.set_burn_rate(rate) then
 log.info(util.c(log_tag, "burn rate set to ", rate, " mB/t"))
+databus.tx_log(util.c("[CTRL] burn rate set to ", rate, " mB/t"))
 else
 log.warning(util.c(log_tag, "invalid burn rate ", rate))
+databus.tx_log(util.c("[CTRL] invalid burn rate ", rate))
 end
 end
 end
@@ -105,6 +111,7 @@ local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id
 if reactor then
 reactor.scram()
 log.info(log_tag .. "reactor SCRAMMED from front panel")
+databus.tx_log("[CTRL] reactor SCRAMMED")
 end
 end
 function control.activate()
@@ -112,8 +119,10 @@ local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id
 if reactor then
 if reactor.activate() then
 log.info(log_tag .. "reactor activated from front panel")
+databus.tx_log("[CTRL] reactor activated")
 else
 log.warning(log_tag .. "cannot activate (reactor tripped)")
+databus.tx_log("[CTRL] activate failed (tripped)")
 end
 end
 end
@@ -144,7 +153,7 @@ if not ui_ok then
 log.warning(util.c(log_tag, "failed to start front panel UI: ", tostring(ui_err)))
 end
 end
-local plc = {
+plc = {
 enabled = config.SimulatePLC,
 linked = false,
 sv_addr = comms.BROADCAST,
@@ -157,7 +166,7 @@ last_status_send = 0,
 last_keepalive_send = 0,
 resend_build = true
 }
-local rtu = {
+rtu = {
 enabled = config.SimulateRTU,
 linked = false,
 sv_addr = comms.BROADCAST,
@@ -534,6 +543,7 @@ plc.linked = true
 plc.sv_addr = packet.scada_frame.src_addr()
 plc.r_seq_num = packet.scada_frame.seq_num() + 1
 log.info(log_tag .. "PLC session established with supervisor @" .. plc.sv_addr)
+databus.tx_link("plc", types.PANEL_LINK_STATE.LINKED)
 plc_send_status()
 plc_send_struct()
 plc_send_rps_status()
@@ -552,6 +562,7 @@ elseif packet.type == MGMT_TYPE.CLOSE then
 plc.linked = false
 plc.sv_addr = comms.BROADCAST
 log.info(log_tag .. "PLC session closed by supervisor")
+databus.tx_link("plc", types.PANEL_LINK_STATE.DISCONNECTED)
 end
 end
 end
@@ -588,6 +599,7 @@ rtu.linked = true
 rtu.sv_addr = packet.scada_frame.src_addr()
 rtu.r_seq_num = packet.scada_frame.seq_num() + 1
 log.info(log_tag .. "RTU session established with supervisor @" .. rtu.sv_addr)
+databus.tx_link("rtu", types.PANEL_LINK_STATE.LINKED)
 end
 else
 log.warning(util.c(log_tag, "RTU establish denied (ack=", est_ack, "), retrying..."))
@@ -603,6 +615,7 @@ elseif packet.type == MGMT_TYPE.CLOSE then
 rtu.linked = false
 rtu.sv_addr = comms.BROADCAST
 log.info(log_tag .. "RTU session closed by supervisor")
+databus.tx_link("rtu", types.PANEL_LINK_STATE.DISCONNECTED)
 elseif packet.type == MGMT_TYPE.RTU_ADVERT then
 rtu_send_mgmt(MGMT_TYPE.RTU_ADVERT, build_advertisement())
 end
@@ -634,6 +647,16 @@ plc_send_rps_status()
 if plc.resend_build then plc_send_struct() end
 end
 end
+local function ui_update()
+local unit = facility.units[plc.reactor_id]
+if unit then
+databus.tx_reactor(unit)
+for i, boiler in ipairs(unit.boilers) do databus.tx_boiler(boiler, i) end
+for i, turbine in ipairs(unit.turbines) do databus.tx_turbine(turbine, i) end
+end
+databus.tx_ess(facility.ess)
+databus.tx_sps(facility.sps)
+end
 local loop_clock = util.new_clock(0.5)
 loop_clock.start()
 log.info(log_tag .. "main loop started, waiting for timers")
@@ -651,6 +674,7 @@ facility.update()
 nic.periodic()
 try_establish()
 periodic_sends()
+ui_update()
 loop_clock.start()
 end
 elseif event == "modem_message" then
@@ -721,6 +745,11 @@ log.warning(log_tag .. "modem detached")
 nic.disconnect()
 ppm.handle_unmount(param1)
 end
+elseif event == "monitor_touch" or event == "mouse_click" or event == "mouse_up" or
+event == "mouse_drag" or event == "mouse_scroll" or event == "double_click" then
+renderer.handle_mouse(core.events.new_mouse_event(event, param1, param2, param3))
+elseif event == "key" then
+renderer.handle_key(core.events.new_key_event(event, param1, param2))
 elseif event == "terminate" then
 break
 end

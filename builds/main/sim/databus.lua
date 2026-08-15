@@ -1,14 +1,13 @@
 
 local psil = require("scada-common.psil")
-local util = require("scada-common.util")
 local databus = {}
 databus.ps = psil.create()
 local LOG_MAX = 200
 local log_buffer = {}
 local log_head = 0
 local link_state = {
-plc = 1,
-rtu = 1
+plc = 5,
+rtu = 5
 }
 function databus.tx_reactor(unit)
 local r = unit.reactor
