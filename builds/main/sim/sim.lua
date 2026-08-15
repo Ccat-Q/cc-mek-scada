@@ -514,11 +514,18 @@ rtu_send_mgmt(MGMT_TYPE.RTU_ADVERT, build_advertisement())
 end
 end
 end
+local last_est = { plc = 0, rtu = 0 }
+local ESTABLISH_RETRY_S = 2.0
 local function try_establish()
-if plc.enabled and not plc.linked and nic.is_network_up() then
+local now = util.time()
+if plc.enabled and not plc.linked and nic.is_network_up() and (now - last_est.plc) >= ESTABLISH_RETRY_S then
+last_est.plc = now
+log.info(log_tag .. "PLC ESTABLISH -> " .. plc.reactor_id)
 plc_send_mgmt(MGMT_TYPE.ESTABLISH, { comms.version, config.PLCFirmware, DEVICE_TYPE.PLC, plc.reactor_id })
 end
-if rtu.enabled and not rtu.linked and nic.is_network_up() then
+if rtu.enabled and not rtu.linked and nic.is_network_up() and (now - last_est.rtu) >= ESTABLISH_RETRY_S then
+last_est.rtu = now
+log.info(log_tag .. "RTU ESTABLISH (advert)")
 rtu_send_mgmt(MGMT_TYPE.ESTABLISH, { comms.version, config.RTUFirmware, DEVICE_TYPE.RTU, build_advertisement() })
 end
 end
@@ -533,10 +540,17 @@ end
 end
 local loop_clock = util.new_clock(0.5)
 loop_clock.start()
+log.info(log_tag .. "main loop started, waiting for timers")
+local ticks = 0
 while true do
 local event, param1, param2, param3, param4, param5 = util.pull_event()
 if event == "timer" then
 if loop_clock.is_clock(param1) then
+ticks = ticks + 1
+if ticks == 1 or ticks % 20 == 0 then
+log.info(util.c(log_tag, "tick ", ticks, " (net_up=", tostring(nic.is_network_up()),
+" plc_linked=", tostring(plc.linked), " rtu_linked=", tostring(rtu.linked), ")"))
+end
 facility.update()
 nic.periodic()
 try_establish()
