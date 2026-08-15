@@ -83,7 +83,7 @@ def make_manifest(size):
             "supervisor" : [ "system", "common", "graphics", "lockbox" ],
             "coordinator" : [ "system", "common", "graphics", "lockbox" ],
             "pocket" : [ "system", "common", "graphics", "lockbox" ],
-            "sim" : [ "system", "common", "lockbox" ]
+            "sim" : [ "system", "common", "graphics", "lockbox" ]
         },
         "sizes" : {
             # manifest file estimate
