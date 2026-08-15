@@ -522,11 +522,13 @@ if plc.enabled and not plc.linked and nic.is_network_up() and (now - last_est.pl
 last_est.plc = now
 log.info(log_tag .. "PLC ESTABLISH -> " .. plc.reactor_id)
 plc_send_mgmt(MGMT_TYPE.ESTABLISH, { comms.version, config.PLCFirmware, DEVICE_TYPE.PLC, plc.reactor_id })
+plc.seq_num = plc.seq_num - 1
 end
 if rtu.enabled and not rtu.linked and nic.is_network_up() and (now - last_est.rtu) >= ESTABLISH_RETRY_S then
 last_est.rtu = now
 log.info(log_tag .. "RTU ESTABLISH (advert)")
 rtu_send_mgmt(MGMT_TYPE.ESTABLISH, { comms.version, config.RTUFirmware, DEVICE_TYPE.RTU, build_advertisement() })
+rtu.seq_num = rtu.seq_num - 1
 end
 end
 local function periodic_sends()
