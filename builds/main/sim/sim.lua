@@ -2,6 +2,7 @@
 local comms    = require("scada-common.comms")
 local log      = require("scada-common.log")
 local network  = require("scada-common.network")
+local ppm      = require("scada-common.ppm")
 local types    = require("scada-common.types")
 local util     = require("scada-common.util")
 local model    = require("sim.model")
@@ -44,15 +45,23 @@ return config
 end
 function sim.run(config)
 local log_tag = "sim: "
+ppm.mount_all()
 local modem, modem_iface
 if config.ModemSide then
-if peripheral.isPresent(config.ModemSide) then
-modem = peripheral.wrap(config.ModemSide)
+if ppm.get_modem(config.ModemSide) then
+modem = ppm.get_modem(config.ModemSide)
 modem_iface = config.ModemSide
 end
 end
 if not modem then
-modem, modem_iface = peripheral.find("modem")
+modem, modem_iface = ppm.get_wireless_modem()
+end
+if not modem then
+local devices = ppm.get_all_devices("modem")
+if #devices > 0 then
+modem = devices[1]
+modem_iface = ppm.get_iface(modem)
+end
 end
 if not modem then
 util.println_ts("SIM> no modem found! attach a wired/wireless modem and restart.")
@@ -583,7 +592,8 @@ end
 elseif event == "peripheral" then
 if param1 == modem_iface then
 log.info(log_tag .. "modem reattached")
-modem = peripheral.wrap(param1)
+local _, dev = ppm.remount(param1)
+modem = dev
 nic.connect(modem)
 nic.closeAll()
 if plc.enabled then nic.open(config.PLC_Channel) end
@@ -593,6 +603,7 @@ elseif event == "peripheral_detach" then
 if param1 == modem_iface then
 log.warning(log_tag .. "modem detached")
 nic.disconnect()
+ppm.handle_unmount(param1)
 end
 elseif event == "terminate" then
 break
