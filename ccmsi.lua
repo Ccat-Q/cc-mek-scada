@@ -201,15 +201,13 @@ local function read_remote_manifest()
 		if ok then return true, manifest end
 	end
 
-	-- fallback: try the alternate source (proxy <-> direct)
-	local alt = nil
-	if string.find(manifest_url, PROXY_DIR, 1, true) ~= nil then
-		alt = string.gsub(manifest_url, PROXY_DIR, DEPLOY_DIR, 1)
+	-- fallback: try the alternate source (swap proxy <-> direct prefix)
+	local alt_url = string.gsub(manifest_url, PROXY_DIR, DEPLOY_DIR, 1)
+	if alt_url == manifest_url then
+		resp = http.get(string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1))
 	else
-		alt = string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1)
+		resp = http.get(alt_url)
 	end
-
-	resp = http.get(alt)
 	if resp == nil then
 		orange();pln("Failed to read installation manifest from GitHub, cannot update or install.")
 		red();pln("HTTP error, see console output");white()
