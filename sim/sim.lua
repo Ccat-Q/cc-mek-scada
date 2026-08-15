@@ -739,7 +739,11 @@ function sim.run(config)
     --#region Main Loop
 
     -- periodic link attempts (throttled to avoid re-establish storms that
-    -- the supervisor treats as session-terminating)
+    -- the supervisor treats as session-terminating). NOTE: the ESTABLISH
+    -- handshake must NOT advance the session seq_num - the supervisor
+    -- locks its expected inbound sequence to (ESTABLISH seq + 1). If we
+    -- retried ESTABLISH with an incrementing seq, the post-link frames
+    -- would be out of order and the supervisor would drop the session.
     local last_est = { plc = 0, rtu = 0 }
     local ESTABLISH_RETRY_S = 2.0
 
@@ -750,12 +754,14 @@ function sim.run(config)
             last_est.plc = now
             log.info(log_tag .. "PLC ESTABLISH -> " .. plc.reactor_id)
             plc_send_mgmt(MGMT_TYPE.ESTABLISH, { comms.version, config.PLCFirmware, DEVICE_TYPE.PLC, plc.reactor_id })
+            plc.seq_num = plc.seq_num - 1   -- do not advance seq on establish retries
         end
 
         if rtu.enabled and not rtu.linked and nic.is_network_up() and (now - last_est.rtu) >= ESTABLISH_RETRY_S then
             last_est.rtu = now
             log.info(log_tag .. "RTU ESTABLISH (advert)")
             rtu_send_mgmt(MGMT_TYPE.ESTABLISH, { comms.version, config.RTUFirmware, DEVICE_TYPE.RTU, build_advertisement() })
+            rtu.seq_num = rtu.seq_num - 1   -- do not advance seq on establish retries
         end
     end
 
