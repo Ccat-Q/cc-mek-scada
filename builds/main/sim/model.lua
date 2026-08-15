@@ -9,7 +9,7 @@ end
 function model.new_reactor(opts)
 opts = opts or {}
 local max_burn = opts.max_burn or 1000.0
-local heat_capacity = opts.heat_capacity or 100000.0
+local heat_capacity = opts.heat_capacity or 1400000.0
 local fuel_capacity = opts.fuel_capacity or 1000000.0
 local waste_capacity = opts.waste_capacity or 100000.0
 local coolant_capacity = opts.coolant_capacity or 100000.0
@@ -70,18 +70,30 @@ function self.update()
 local dt = _dt()
 local st = self.status
 if st.active and st.act_burn_rate > 0 then
-local equilibrium = 300 + (st.act_burn_rate / self.build.max_burn_rate) * 800
+local JOULES_PER_MB = 1000000
+local equilibrium = 373.15 + (st.act_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
 self.temp_target = equilibrium
 local fuel_use = st.act_burn_rate * 20 * dt
 st.fuel = math.max(0, st.fuel - fuel_use)
 local waste_prod = fuel_use * 0.1
 st.waste = math.min(self.build.waste_capacity, st.waste + waste_prod)
-st.heating_rate = st.act_burn_rate * 1000
+local waste_export = fuel_use * 0.09
+st.waste = math.max(0, st.waste - waste_export)
+st.heating_rate = st.act_burn_rate * JOULES_PER_MB
 else
 self.temp_target = 300.0
 st.heating_rate = 0
 end
-st.temp = _approach(st.temp, self.temp_target, 0.02, dt)
+if st.active and st.act_burn_rate > 0 then
+local JOULES_PER_MB = 1000000
+local max_op_temp = 373.15 + (self.build.max_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
+local k_out = (self.build.max_burn_rate * JOULES_PER_MB / self.build.heat_capacity) / (max_op_temp - 300.0)
+local heat_in = (st.act_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
+local heat_out = (st.temp - 300.0) * k_out
+st.temp = st.temp + (heat_in - heat_out) * dt
+else
+st.temp = st.temp + (300.0 - st.temp) * 0.05 * dt
+end
 if st.active then
 local target = st.burn_rate
 self._startup_progress = _approach(self._startup_progress, 1.0, 0.05, dt)
@@ -250,8 +262,11 @@ self.tanks.steam = math.min(build.steam_cap, self.tanks.steam + steam_prod)
 self.tanks.water = math.max(0, self.tanks.water - steam_prod * 0.9)
 self.tanks.water = math.min(build.water_cap, self.tanks.water + steam_prod * 0.8)
 local exchange = steam_prod * 0.05
-self.tanks.hcool = math.max(0, self.tanks.hcool - exchange)
+reactor.status.hcoolant = math.max(0, reactor.status.hcoolant - exchange)
+self.tanks.hcool = math.min(build.hcoolant_cap, self.tanks.hcool + exchange)
 self.tanks.ccool = math.min(build.ccoolant_cap, self.tanks.ccool + exchange * 0.9)
+reactor.status.coolant = math.min(reactor.build.coolant_capacity,
+reactor.status.coolant + exchange * 0.85)
 else
 self.state.boil_rate = _approach(self.state.boil_rate, 0, 0.1, dt)
 end
@@ -344,6 +359,40 @@ self.tanks.energy_fill = self.tanks.energy / build.max_energy
 end
 return self
 end
+function model.new_sps()
+local build = {
+length = 3, width = 3, height = 5,
+min_pos = { x = 0, y = 1, z = 0 }, max_pos = { x = 2, y = 5, z = 2 },
+coils = 8, input_cap = 100000.0, output_cap = 100000.0,
+max_energy = 100000000.0
+}
+local self = {
+build = build,
+formed = true,
+state = {
+process_rate = 0.0
+},
+tanks = {
+input = 50000.0, input_fill = 0.5,
+output = 50000.0, output_fill = 0.5,
+energy = 50000000.0, energy_fill = 0.5
+}
+}
+function self.update(reactor, dt)
+if reactor.status.active and reactor.status.act_burn_rate > 0 then
+self.state.process_rate = (reactor.status.act_burn_rate / reactor.build.max_burn_rate) * 100
+local proc = self.state.process_rate * dt * 0.01
+self.tanks.input = math.max(0, self.tanks.input - proc)
+self.tanks.output = math.min(build.output_cap, self.tanks.output + proc * 0.5)
+self.tanks.input = math.min(build.input_cap, self.tanks.input + proc * 0.4)
+else
+self.state.process_rate = _approach(self.state.process_rate, 0, 0.1, dt)
+end
+self.tanks.input_fill = self.tanks.input / build.input_cap
+self.tanks.output_fill = self.tanks.output / build.output_cap
+end
+return self
+end
 function model.new_facility(config)
 local num_units = config.num_units or 1
 local self = {
@@ -352,6 +401,7 @@ units = {},
 ess = nil
 }
 self.ess = model.new_matrix()
+self.sps = model.new_sps()
 for i = 1, num_units do
 local reactor = model.new_reactor(config.reactor_opts)
 local unit = {
@@ -395,6 +445,8 @@ table.insert(all_turbines, turbine)
 end
 end
 self.ess.update(all_turbines, dt)
+local first_reactor = self.units[1] and self.units[1].reactor
+if first_reactor then self.sps.update(first_reactor, dt) end
 end
 return self
 end

@@ -27,6 +27,7 @@ AuthKey = settings.get("AuthKey") or "",
 TrustedRange = settings.get("TrustedRange") or 0,
 SimulatePLC = settings.get("SimulatePLC") ~= false,
 SimulateRTU = settings.get("SimulateRTU") ~= false,
+SimulateSPS = settings.get("SimulateSPS") ~= false,
 UnitCount = settings.get("UnitCount") or 1,
 BoilersPerUnit = settings.get("BoilersPerUnit") or 1,
 TurbinesPerUnit = settings.get("TurbinesPerUnit") or 1,
@@ -119,6 +120,9 @@ table.insert(advert, { RTU_UNIT_TYPE.TURBINE_VALVE, t, u, nil })
 end
 end
 table.insert(advert, { RTU_UNIT_TYPE.IMATRIX, 1, 0, nil })
+if config.SimulateSPS then
+table.insert(advert, { RTU_UNIT_TYPE.SPS, 1, 0, nil })
+end
 return advert
 end
 local function boiler_registers(unit)
@@ -219,21 +223,49 @@ function() return matrix.tanks.energy_fill end
 }
 }
 end
+local function sps_registers(fac)
+local sps = fac.sps
+return {
+di = { function() return sps.formed end },
+ir = {
+function() return sps.build.length end,
+function() return sps.build.width end,
+function() return sps.build.height end,
+function() return sps.build.min_pos end,
+function() return sps.build.max_pos end,
+function() return sps.build.coils end,
+function() return sps.build.input_cap end,
+function() return sps.build.output_cap end,
+function() return sps.build.max_energy end,
+function() return sps.state.process_rate end,
+function() return types.new_tank_fluid("mekanism:polonium", sps.tanks.input) end,
+function() return math.max(0, sps.build.input_cap - sps.tanks.input) end,
+function() return sps.tanks.input_fill end,
+function() return types.new_tank_fluid("mekanism:antimatter", sps.tanks.output) end,
+function() return math.max(0, sps.build.output_cap - sps.tanks.output) end,
+function() return sps.tanks.output_fill end,
+function() return sps.tanks.energy end,
+function() return math.max(0, sps.build.max_energy - sps.tanks.energy) end,
+function() return sps.tanks.energy_fill end
+}
+}
+end
 local function get_registers(advert_index)
 local count_boilers = config.BoilersPerUnit
 local count_turbines = config.TurbinesPerUnit
 local idx = advert_index
+local total_devices = config.UnitCount * (count_boilers + count_turbines)
 if idx <= config.UnitCount * count_boilers then
 local unit_num = math.ceil(idx / count_boilers)
 return boiler_registers(facility.units[unit_num])
-else
+elseif idx <= total_devices then
 idx = idx - config.UnitCount * count_boilers
-if idx <= config.UnitCount * count_turbines then
 local unit_num = math.ceil(idx / count_turbines)
 return turbine_registers(facility.units[unit_num])
-else
+elseif idx == total_devices + 1 then
 return matrix_registers(facility)
-end
+else
+return sps_registers(facility)
 end
 end
 local function _send(role_channel, frame)

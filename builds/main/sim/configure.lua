@@ -32,6 +32,7 @@ AuthKey = settings.get("AuthKey"),
 TrustedRange = settings.get("TrustedRange"),
 SimulatePLC = settings.get("SimulatePLC"),
 SimulateRTU = settings.get("SimulateRTU"),
+SimulateSPS = settings.get("SimulateSPS"),
 UnitCount = settings.get("UnitCount"),
 BoilersPerUnit = settings.get("BoilersPerUnit"),
 TurbinesPerUnit = settings.get("TurbinesPerUnit"),
@@ -53,11 +54,14 @@ units = math.max(1, math.min(4, units or 1))
 local boilers = 0
 local turbines = 0
 if string.lower(tostring(rtu_en)) ~= "n" then
+print("NOTE: boiler/turbine counts MUST match the supervisor's facility")
+print("      configuration or devices will show 'bad index'.")
 boilers = prompt("Boilers per unit (1-2)", cur.BoilersPerUnit or 1, true)
 boilers = math.max(1, math.min(2, boilers or 1))
 turbines = prompt("Turbines per unit (1-3)", cur.TurbinesPerUnit or 1, true)
 turbines = math.max(1, math.min(3, turbines or 1))
 end
+local sps_en = prompt("Simulate a facility SPS? (y/n)", (cur.SimulateSPS ~= false) and "y" or "n", false)
 local modem_side = prompt("Modem side (optional, auto-detect if empty)", cur.ModemSide or "", false)
 if modem_side == "" then modem_side = nil end
 settings.set("SVR_Channel", svr)
@@ -70,6 +74,7 @@ settings.set("SimulateRTU", string.lower(tostring(rtu_en)) ~= "n")
 settings.set("UnitCount", units)
 settings.set("BoilersPerUnit", boilers)
 settings.set("TurbinesPerUnit", turbines)
+settings.set("SimulateSPS", string.lower(tostring(sps_en)) ~= "n")
 if modem_side then settings.set("ModemSide", modem_side) end
 local saved = settings.save("/sim.settings")
 println("")
