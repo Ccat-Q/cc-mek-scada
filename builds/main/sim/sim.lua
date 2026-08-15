@@ -33,8 +33,6 @@ ModemSide = settings.get("ModemSide") or nil,
 PLCFirmware = settings.get("PLCFirmware") or ("sim-plc-" .. SIM_VERSION),
 RTUFirmware = settings.get("RTUFirmware") or ("sim-rtu-" .. SIM_VERSION)
 }
-local valid = true
-if config.SimulatePLC and not (config.SimulateRTU) then valid = true end
 if not loaded then
 config._unconfigured = true
 end
@@ -190,8 +188,8 @@ write = function(v) turbine.state.dumping_mode = v end }
 }
 }
 end
-local function matrix_registers(facility)
-local matrix = facility.ess
+local function matrix_registers(fac)
+local matrix = fac.ess
 return {
 di = { function() return matrix.formed end },
 ir = {
@@ -215,7 +213,6 @@ end
 local function get_registers(advert_index)
 local count_boilers = config.BoilersPerUnit
 local count_turbines = config.TurbinesPerUnit
-local per_unit = count_boilers + count_turbines
 local idx = advert_index
 if idx <= config.UnitCount * count_boilers then
 local unit_num = math.ceil(idx / count_boilers)
@@ -294,7 +291,7 @@ table.insert(status, state_bit)
 end
 plc_send(RPLC_TYPE.RPS_STATUS, status)
 end
-local function modbus_read(adu, regs, txn_id, unit_id, func_code, start, count)
+local function modbus_read(regs, txn_id, unit_id, func_code, start, count)
 local readings = {}
 local list = nil
 if func_code == MODBUS_FCODE.READ_DISCRETE_INPUTS then
@@ -326,7 +323,7 @@ reply.make(txn_id, unit_id, bit.bor(func_code, MODBUS_FCODE.ERROR_FLAG), { MODBU
 rtu_send_modbus(reply)
 end
 end
-local function modbus_write(adu, regs, txn_id, unit_id, func_code, start, values)
+local function modbus_write(regs, txn_id, unit_id, func_code, start, values)
 local ok = true
 if func_code == MODBUS_FCODE.WRITE_SINGLE_COIL then
 local idx = start
@@ -468,11 +465,11 @@ if packet.func_code == MODBUS_FCODE.READ_DISCRETE_INPUTS or
 packet.func_code == MODBUS_FCODE.READ_INPUT_REGS or
 packet.func_code == MODBUS_FCODE.READ_COILS or
 packet.func_code == MODBUS_FCODE.READ_MUL_HOLD_REGS then
-modbus_read(packet, regs, packet.txn_id, packet.unit_id, packet.func_code, start, packet.data[2])
+modbus_read(regs, packet.txn_id, packet.unit_id, packet.func_code, start, packet.data[2])
 else
 local values = {}
 for i = 3, #packet.data do table.insert(values, packet.data[i]) end
-modbus_write(packet, regs, packet.txn_id, packet.unit_id, packet.func_code, start, values)
+modbus_write(regs, packet.txn_id, packet.unit_id, packet.func_code, start, values)
 end
 else
 local reply = comms.modbus_container()
