@@ -1,4 +1,6 @@
-# Deploy minified application, installation manifests, and shields versions
+# Rebuild minified application files and installation manifest, then commit
+# them back to the repository. Builds are served via raw.githubusercontent.com
+# (accelerated by gh-proxy in ccmsi.lua), so no GitHub Pages deployment is needed.
 name: Deploy Software System
 
 on:
@@ -8,95 +10,45 @@ on:
       - main
       - devel
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Allows committing generated builds back to the repo
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Pages
-        uses: actions/configure-pages@v6.0.0
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - name: Setup Python
-        uses: actions/setup-python@v6.3.0
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10' 
-      # Setup
+          python-version: '3.10'
       - name: Create Deployment Directories
-        if: success() || failure()
         shell: bash
-        run: mkdir -p deploy/{builds,manifests}/{main,devel}
-      # Generate manifest + shields files for main branch
-      - name: Checkout Main Branch
-        id: checkout-main
-        uses: actions/checkout@v7.0.0
-        with:
-          ref: 'main'
-          path: branch-main
-          clean: false
-      - name: "[MAIN] Generate Minified Code"
-        id: minify-main
-        if: ${{ (success() || failure()) && steps.checkout-main.outcome == 'success' }}
-        working-directory: branch-main
-        run: python build/gen_minified.py ../deploy/builds/main --deployment
-      - name: "[MAIN] Generate Installation Manifest and Shields JSON"
-        id: manifest-main
-        if: ${{ (success() || failure()) && steps.minify-main.outcome == 'success' }}
-        working-directory: branch-main
-        run: python build/gen_manifest.py ../deploy/builds/main --shields
-      - name: "[MAIN] Save Installation Manifest"
-        if: ${{ (success() || failure()) && steps.manifest-main.outcome == 'success' }}
-        working-directory: branch-main
-        run: mv install_manifest.json ../deploy/manifests/main
-      - name: "[MAIN] Save Shields"
-        if: ${{ (success() || failure()) && steps.manifest-main.outcome == 'success' }}
-        working-directory: branch-main
-        run: mv shields/*.json ../deploy/
-      # Generate manifest and build for devel branch
-      - name: Checkout Development Branch
-        id: checkout-devel
-        if: success() || failure()
-        uses: actions/checkout@v7.0.0
-        with:
-          ref: 'devel'
-          path: branch-devel
-          clean: false
-      - name: "[DEVEL] Generate Minified Code"
-        id: minify-devel
-        if: ${{ (success() || failure()) && steps.checkout-devel.outcome == 'success' }}
-        working-directory: branch-devel
-        run: python build/gen_minified.py ../deploy/builds/devel --deployment
-      - name: "[DEVEL] Generate Installation Manifest"
-        id: manifest-devel
-        if: ${{ (success() || failure()) && steps.minify-devel.outcome == 'success' }}
-        working-directory: branch-devel
-        run: python build/gen_manifest.py ../deploy/builds/devel
-      - name: "[DEVEL] Save Installation Manifest"
-        if: ${{ (success() || failure()) && steps.manifest-devel.outcome == 'success' }}
-        working-directory: branch-devel
-        run: mv install_manifest.json ../deploy/manifests/devel
-      # All artifacts ready now, upload deploy directory
-      - name: Upload Artifacts
-        id: upload-artifacts
-        if: ${{ (success() || failure()) && (steps.manifest-main.outcome == 'success' || steps.manifest-devel.outcome == 'success') }}
-        uses: actions/upload-pages-artifact@v5.0.0
-        with:
-          # Upload manifest JSON
-          path: 'deploy/'
-      - name: Deploy to GitHub Pages
-        if: ${{ (success() || failure()) && steps.upload-artifacts.outcome == 'success' }}
-        id: deployment
-        uses: actions/deploy-pages@v3.0.2-node.24
+        run: mkdir -p builds/${{ github.ref_name }} manifests/${{ github.ref_name }}
+      - name: Generate Minified Code
+        shell: bash
+        run: python build/gen_minified.py builds/${{ github.ref_name }} --deployment
+      - name: Generate Installation Manifest
+        shell: bash
+        run: python build/gen_manifest.py builds/${{ github.ref_name }}
+      - name: Move Installation Manifest
+        shell: bash
+        run: mv install_manifest.json manifests/${{ github.ref_name }}/
+      - name: Commit and Push Builds
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add builds/ manifests/
+          if git diff --cached --quiet; then
+            echo "No changes to builds, skipping commit."
+            exit 0
+          fi
+          git commit -m "chore: rebuild minified builds and manifest for ${{ github.ref_name }}"
+          git push origin ${{ github.ref_name }}

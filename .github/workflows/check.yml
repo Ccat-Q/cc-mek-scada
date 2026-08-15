@@ -24,6 +24,6 @@ jobs:
           #    512 = Loop can be executed at most once
           #    542 = An empty if branch
           # --no-max-line-length = Disable warnings for long line lengths
-          # --exclude-files ...  = Exclude lockbox library (external) and config files
+          # --exclude-files ...  = Exclude lockbox library (external), config files, and minified builds
           # --globals ...        = Override all globals overridden in .vscode/settings.json AND 'os' since CraftOS 'os' differs from Lua's 'os'
-          args: . --no-max-line-length -i 121 512 542 --exclude-files ./lockbox/* --globals os _HOST bit colors fs http keys parallel periphemu peripheral read rs settings shell term textutils window
+          args: . --no-max-line-length -i 121 512 542 --exclude-files ./lockbox/* --exclude-files ./builds/* --globals os _HOST bit colors fs http keys parallel periphemu peripheral read rs settings shell term textutils window
