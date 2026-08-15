@@ -145,21 +145,21 @@ end
 return ok, manifest
 end
 local function read_remote_manifest()
-local resp, err = http.get(manifest_url)
+local resp = http.get(manifest_url)
 if resp ~= nil then
 local ok, manifest = pcall(function () return textutils.unserializeJSON(resp.readAll()) end)
 if ok then return true, manifest end
 end
-local alt_url = nil
+local alt = nil
 if string.find(manifest_url, PROXY_DIR, 1, true) ~= nil then
-alt_url = string.gsub(manifest_url, PROXY_DIR, DEPLOY_DIR, 1)
+alt = string.gsub(manifest_url, PROXY_DIR, DEPLOY_DIR, 1)
 else
-alt_url = string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1)
+alt = string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1)
 end
-resp, err = http.get(alt_url)
+resp = http.get(alt)
 if resp == nil then
 orange();pln("Failed to read installation manifest from GitHub, cannot update or install.")
-red();pln("HTTP error: "..err);white()
+red();pln("HTTP error, see console output");white()
 return false, {}
 end
 local ok, manifest = pcall(function () return textutils.unserializeJSON(resp.readAll()) end)
@@ -185,13 +185,11 @@ local function http_get_file(file, w_path)
 for i = 1, 3 do
 local dl, err = http.get(build_url..file)
 if dl == nil then
-local alt_url = nil
 if string.find(build_url, PROXY_DIR, 1, true) ~= nil then
-alt_url = string.gsub(build_url, PROXY_DIR, DEPLOY_DIR, 1)
+dl, err = http.get(string.gsub(build_url, PROXY_DIR, DEPLOY_DIR, 1)..file)
 else
-alt_url = string.gsub(build_url, DEPLOY_DIR, PROXY_DIR, 1)
+dl, err = http.get(string.gsub(build_url, DEPLOY_DIR, PROXY_DIR, 1)..file)
 end
-dl, err = http.get(alt_url..file)
 end
 if dl then
 if i > 1 then green();pln("success!");lgray() end
