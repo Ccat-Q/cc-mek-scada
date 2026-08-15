@@ -6,7 +6,7 @@ import sys
 # definitions/globals
 #
 
-DIRS = [ 'scada-common', 'graphics', 'lockbox', 'reactor-plc', 'rtu', 'supervisor', 'coordinator', 'pocket' ]
+DIRS = [ 'scada-common', 'graphics', 'lockbox', 'reactor-plc', 'rtu', 'supervisor', 'coordinator', 'pocket', 'sim' ]
 
 # can be overridden
 OUTPUT = './_minified'
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     common_min     = component_size_min['scada-common'] + component_size_min['graphics'] + component_size_min['lockbox'] + component_size_min['root'] + os.path.getsize(f"{OUTPUT}/LICENSE")
 
     # estimated disk utilization
-    for dev in [ "reactor-plc", "rtu", "supervisor", "coordinator", "pocket" ]:
+    for dev in [ "reactor-plc", "rtu", "supervisor", "coordinator", "pocket", "sim" ]:
         size            = common + component_size[dev]
         size_min        = common_min + component_size_min[dev]
         percent         = 100 * size / computer_space

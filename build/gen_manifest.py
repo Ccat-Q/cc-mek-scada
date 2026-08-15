@@ -60,7 +60,8 @@ def make_manifest(size):
             "rtu" : get_version("./rtu/startup.lua"),
             "supervisor" : get_version("./supervisor/startup.lua"),
             "coordinator" : get_version("./coordinator/startup.lua"),
-            "pocket" : get_version("./pocket/startup.lua")
+            "pocket" : get_version("./pocket/startup.lua"),
+            "sim" : get_version("./sim/startup.lua")
         },
         "files" : {
             # common files
@@ -74,13 +75,15 @@ def make_manifest(size):
             "supervisor" : list_files("./supervisor"),
             "coordinator" : list_files("./coordinator"),
             "pocket" : list_files("./pocket"),
+            "sim" : list_files("./sim"),
         },
         "depends" : {
             "reactor-plc" : [ "system", "common", "graphics", "lockbox" ],
             "rtu" : [ "system", "common", "graphics", "lockbox" ],
             "supervisor" : [ "system", "common", "graphics", "lockbox" ],
             "coordinator" : [ "system", "common", "graphics", "lockbox" ],
-            "pocket" : [ "system", "common", "graphics", "lockbox" ]
+            "pocket" : [ "system", "common", "graphics", "lockbox" ],
+            "sim" : [ "system", "common" ]
         },
         "sizes" : {
             # manifest file estimate
@@ -96,6 +99,7 @@ def make_manifest(size):
             "supervisor" : dir_size("./supervisor"),
             "coordinator" : dir_size("./coordinator"),
             "pocket" : dir_size("./pocket"),
+            "sim" : dir_size("./sim"),
         }
     }
 

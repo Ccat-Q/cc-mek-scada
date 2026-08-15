@@ -20,6 +20,9 @@ elseif fs.exists("coordinator/startup.lua") then
 elseif fs.exists("pocket/startup.lua") then
     print("BOOT> EXEC POCKET STARTUP")
     exit_code = shell.execute("pocket/startup")
+elseif fs.exists("sim/startup.lua") then
+    print("BOOT> EXEC SIMULATOR STARTUP")
+    exit_code = shell.execute("sim/startup")
 else
     print("BOOT> NO SCADA STARTUP FOUND")
     print("BOOT> EXIT")

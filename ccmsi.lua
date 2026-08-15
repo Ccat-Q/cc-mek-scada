@@ -350,7 +350,7 @@ if #OPTS == 0 or OPTS[1] == "help" then
 		yellow();pln("               ccmsi check <branch> (skip <app>)")
 		lgray();pln(" install     - fresh install\n update      - update files\n uninstall   - delete files INCLUDING config/logs")
 		blue();print("<app>");cyan();pln(" omit to auto-detect installed app")
-		lgray();pln(" reactor-plc - Fission Reactor PLC firmware\n rtu         - RTU Gateway firmware\n supervisor  - Supervisor server application\n coordinator - Coordinator application\n pocket      - Pocket application\n installer   - CCMSI installer (update only)")
+		lgray();pln(" reactor-plc - Fission Reactor PLC firmware\n rtu         - RTU Gateway firmware\n supervisor  - Supervisor server application\n coordinator - Coordinator application\n pocket      - Pocket application\n sim         - PLC/RTU simulator application\n installer   - CCMSI installer (update only)")
 		blue();print("<branch>");cyan();pln(" omit for 'main'")
 	end
 	lgray();pln(" main (default) | devel");white()
@@ -364,7 +364,7 @@ else
 	end
 
 	local next_opt = 3
-	local apps = { "reactor-plc", "rtu", "supervisor", "coordinator", "pocket", "installer" }
+	local apps = { "reactor-plc", "rtu", "supervisor", "coordinator", "pocket", "sim", "installer" }
 	app = get_opt(OPTS[2], apps)
 	if app == nil then
 		for _, a in pairs(apps) do
