@@ -53,6 +53,12 @@ local function init(panel, config, control) -- luacheck: ignore config
     -- tab bar + multi-pane
     --
 
+    -- pane container + pane Divs (created before MultiPane so it can reference them)
+    local root_pane_div = Div{parent=panel,y=2}
+    local status_pane = Div{parent=root_pane_div,y=1}
+    local control_pane = Div{parent=root_pane_div,y=1}
+    local log_pane = Div{parent=root_pane_div,y=1}
+
     -- forward-declare the multi-pane so the tab bar callback can reference it
     local pane ---@type MultiPane
 
@@ -65,25 +71,22 @@ local function init(panel, config, control) -- luacheck: ignore config
     local tab_bar = TabBar{parent=panel,y=2,tabs=tabs,width=term_w-4,x=2,fg_bg=theme.highlight_box,
         callback=function (tab) pane.set_value(tab) end}
 
-    pane = MultiPane{parent=panel,y=4,width=term_w-2,x=1,height=term_h-6,panes={}}
+    pane = MultiPane{parent=root_pane_div,y=3,panes={status_pane, control_pane, log_pane}}
 
     --#region STATUS Pane
 
-    local status_pane = Div{parent=pane,width=term_w-2,height=term_h-6}
+    local reactor_box = Rectangle{parent=status_pane,x=1,y=1,width=math.floor((term_w-4)/2),height=13,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 
-    local reactor_box = Rectangle{parent=status_pane,x=1,y=1,width=math.floor((term_w-4)/2),height=9,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
-
-    local r_active = LED{parent=reactor_box,label="ACTIVE",colors=ind_grn}
-    local r_trip = RGBLED{parent=reactor_box,label="TRIP",colors={colors.green,colors.red,colors.yellow}}
-    reactor_box.line_break()
+    local r_active = LED{parent=reactor_box,y=1,label="ACTIVE",colors=ind_grn}
+    local r_trip = RGBLED{parent=reactor_box,y=1,label="TRIP",colors={colors.green,colors.red,colors.yellow}}
 
     r_active.register(databus.ps, "reactor_active", r_active.update)
     r_trip.register(databus.ps, "reactor_tripped", function (trip) r_trip.update(util.trinary(trip, 2, 1)) end)
 
-    local r_burn = DataIndicator{parent=reactor_box,label="BURN",format="%.1f",unit="mB/t",value=0,width=12,fg_bg=theme.field_box}
-    local r_aburn = DataIndicator{parent=reactor_box,label="ACT BURN",format="%.1f",unit="mB/t",value=0,width=14,fg_bg=theme.field_box}
-    local r_temp = DataIndicator{parent=reactor_box,label="TEMP",format="%.1f",unit="K",value=0,width=10,fg_bg=theme.field_box}
-    local r_heat = DataIndicator{parent=reactor_box,label="HEAT",format="%.0f",value=0,width=10,fg_bg=theme.field_box}
+    local r_burn = DataIndicator{parent=reactor_box,y=3,label="BURN",format="%.1f",unit="mB/t",value=0,width=12,fg_bg=theme.field_box}
+    local r_aburn = DataIndicator{parent=reactor_box,y=4,label="ACT BURN",format="%.1f",unit="mB/t",value=0,width=14,fg_bg=theme.field_box}
+    local r_temp = DataIndicator{parent=reactor_box,y=5,label="TEMP",format="%.1f",unit="K",value=0,width=10,fg_bg=theme.field_box}
+    local r_heat = DataIndicator{parent=reactor_box,y=6,label="HEAT",format="%.0f",unit="",value=0,width=10,fg_bg=theme.field_box}
 
     r_burn.register(databus.ps, "burn_rate", r_burn.update)
     r_aburn.register(databus.ps, "act_burn_rate", r_aburn.update)
@@ -91,10 +94,10 @@ local function init(panel, config, control) -- luacheck: ignore config
     r_heat.register(databus.ps, "heating_rate", r_heat.update)
 
     -- fill bars
-    local r_fuel = HorizontalBar{parent=reactor_box,label="FUEL",value=0,width=24,fg_bg=theme.field_box}
-    local r_waste = HorizontalBar{parent=reactor_box,label="WASTE",value=0,width=24,fg_bg=theme.field_box}
-    local r_cool = HorizontalBar{parent=reactor_box,label="COOL",value=0,width=24,fg_bg=theme.field_box}
-    local r_hcool = HorizontalBar{parent=reactor_box,label="HCOOL",value=0,width=24,fg_bg=theme.field_box}
+    local r_fuel = HorizontalBar{parent=reactor_box,y=8,label="FUEL",value=0,width=24,fg_bg=theme.field_box}
+    local r_waste = HorizontalBar{parent=reactor_box,y=9,label="WASTE",value=0,width=24,fg_bg=theme.field_box}
+    local r_cool = HorizontalBar{parent=reactor_box,y=10,label="COOL",value=0,width=24,fg_bg=theme.field_box}
+    local r_hcool = HorizontalBar{parent=reactor_box,y=11,label="HCOOL",value=0,width=24,fg_bg=theme.field_box}
 
     r_fuel.register(databus.ps, "fuel_fill", r_fuel.update)
     r_waste.register(databus.ps, "waste_fill", r_waste.update)
@@ -106,10 +109,10 @@ local function init(panel, config, control) -- luacheck: ignore config
 
     TextBox{parent=boiler_box,text="BOILER",fg_bg=theme.highlight_box}
 
-    local b_temp = DataIndicator{parent=boiler_box,label="TEMP",format="%.1f",unit="K",value=0,width=10,fg_bg=theme.field_box}
-    local b_boil = DataIndicator{parent=boiler_box,label="BOIL",format="%.1f",value=0,width=10,fg_bg=theme.field_box}
-    local b_steam = HorizontalBar{parent=boiler_box,label="STEAM",value=0,width=22,fg_bg=theme.field_box}
-    local b_water = HorizontalBar{parent=boiler_box,label="WATER",value=0,width=22,fg_bg=theme.field_box}
+    local b_temp = DataIndicator{parent=boiler_box,y=2,label="TEMP",format="%.1f",unit="K",value=0,width=10,fg_bg=theme.field_box}
+    local b_boil = DataIndicator{parent=boiler_box,y=3,label="BOIL",format="%.1f",unit="",value=0,width=10,fg_bg=theme.field_box}
+    local b_steam = HorizontalBar{parent=boiler_box,y=5,label="STEAM",value=0,width=22,fg_bg=theme.field_box}
+    local b_water = HorizontalBar{parent=boiler_box,y=6,label="WATER",value=0,width=22,fg_bg=theme.field_box}
 
     b_temp.register(databus.ps, "boiler_1_temp", b_temp.update)
     b_boil.register(databus.ps, "boiler_1_boil_rate", b_boil.update)
@@ -117,14 +120,14 @@ local function init(panel, config, control) -- luacheck: ignore config
     b_water.register(databus.ps, "boiler_1_water_fill", b_water.update)
 
     -- turbine box
-    local turb_box = Rectangle{parent=status_pane,x=1,y=12,width=math.floor((term_w-4)/2),height=8,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    local turb_box = Rectangle{parent=status_pane,x=1,y=15,width=math.floor((term_w-4)/2),height=8,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 
     TextBox{parent=turb_box,text="TURBINE",fg_bg=theme.highlight_box}
 
-    local t_flow = DataIndicator{parent=turb_box,label="FLOW",format="%.1f",value=0,width=10,fg_bg=theme.field_box}
-    local t_prod = DataIndicator{parent=turb_box,label="PROD",format="%.1f",unit="RF/t",value=0,width=12,fg_bg=theme.field_box}
-    local t_steam = HorizontalBar{parent=turb_box,label="STEAM",value=0,width=22,fg_bg=theme.field_box}
-    local t_energy = HorizontalBar{parent=turb_box,label="ENERGY",value=0,width=22,fg_bg=theme.field_box}
+    local t_flow = DataIndicator{parent=turb_box,y=2,label="FLOW",format="%.1f",unit="",value=0,width=10,fg_bg=theme.field_box}
+    local t_prod = DataIndicator{parent=turb_box,y=3,label="PROD",format="%.1f",unit="RF/t",value=0,width=12,fg_bg=theme.field_box}
+    local t_steam = HorizontalBar{parent=turb_box,y=5,label="STEAM",value=0,width=22,fg_bg=theme.field_box}
+    local t_energy = HorizontalBar{parent=turb_box,y=6,label="ENERGY",value=0,width=22,fg_bg=theme.field_box}
 
     t_flow.register(databus.ps, "turbine_1_flow", t_flow.update)
     t_prod.register(databus.ps, "turbine_1_prod", t_prod.update)
@@ -132,14 +135,14 @@ local function init(panel, config, control) -- luacheck: ignore config
     t_energy.register(databus.ps, "turbine_1_energy_fill", t_energy.update)
 
     -- facility box (ESS + SPS)
-    local fac_box = Rectangle{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=12,width=math.floor((term_w-4)/2),height=8,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    local fac_box = Rectangle{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=15,width=math.floor((term_w-4)/2),height=8,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 
     TextBox{parent=fac_box,text="FACILITY (ESS/SPS)",fg_bg=theme.highlight_box}
 
-    local ess_fill = HorizontalBar{parent=fac_box,label="ESS",value=0,width=22,fg_bg=theme.field_box}
-    local ess_in = DataIndicator{parent=fac_box,label="ESS IN",format="%.0f",value=0,width=10,fg_bg=theme.field_box}
-    local sps_proc = DataIndicator{parent=fac_box,label="SPS PROC",format="%.1f",value=0,width=10,fg_bg=theme.field_box}
-    local sps_in = HorizontalBar{parent=fac_box,label="SPS IN",value=0,width=20,fg_bg=theme.field_box}
+    local ess_fill = HorizontalBar{parent=fac_box,y=2,label="ESS",value=0,width=22,fg_bg=theme.field_box}
+    local ess_in = DataIndicator{parent=fac_box,y=3,label="ESS IN",format="%.0f",unit="",value=0,width=10,fg_bg=theme.field_box}
+    local sps_proc = DataIndicator{parent=fac_box,y=4,label="SPS PROC",format="%.1f",unit="",value=0,width=10,fg_bg=theme.field_box}
+    local sps_in = HorizontalBar{parent=fac_box,y=5,label="SPS IN",value=0,width=20,fg_bg=theme.field_box}
 
     ess_fill.register(databus.ps, "ess_fill", ess_fill.update)
     ess_in.register(databus.ps, "ess_input", ess_in.update)
@@ -150,7 +153,6 @@ local function init(panel, config, control) -- luacheck: ignore config
 
     --#region CONTROL Pane
 
-    local control_pane = Div{parent=pane,width=term_w-2,height=term_h-6}
 
     local burn_box = Rectangle{parent=control_pane,x=2,y=1,width=term_w-6,height=7,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 
@@ -167,7 +169,7 @@ local function init(panel, config, control) -- luacheck: ignore config
     PushButton{parent=burn_box,y=4,x=44,text="BURN -100",min_width=12,callback=function () control.nudge_burn(-100) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
 
     -- parameter tweaks box
-    local param_box = Rectangle{parent=control_pane,x=2,y=10,width=term_w-6,height=term_h-14,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    local param_box = Rectangle{parent=control_pane,x=2,y=10,width=term_w-6,height=term_h-12,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 
     TextBox{parent=param_box,text="SIMULATION PARAMETERS",fg_bg=theme.highlight_box}
 
@@ -195,7 +197,6 @@ local function init(panel, config, control) -- luacheck: ignore config
 
     --#region LOG Pane
 
-    local log_pane = Div{parent=pane,width=term_w-2,height=term_h-6}
 
     local log_box = require("graphics.elements.ListBox"){parent=log_pane,x=1,y=1,width=term_w-4,height=term_h-8,fg_bg=fp.root}
 
@@ -219,7 +220,6 @@ local function init(panel, config, control) -- luacheck: ignore config
 
     -- define panes
     pane.value = 1
-    pane.panes = { status_pane, control_pane, log_pane }
 
     return tab_bar
 end
