@@ -108,7 +108,7 @@ if st.active and st.act_burn_rate > 0 then
 coolant_drain = st.act_burn_rate * 20 * dt * 0.15
 end
 st.coolant = math.max(0, st.coolant - coolant_drain)
-st.coolant = math.min(self.build.coolant_capacity, st.coolant + coolant_drain * 0.95)
+self._hcool_produced = coolant_drain
 st.hcoolant = math.min(self.build.hcoolant_capacity, st.hcoolant + coolant_drain)
 st.fuel_fill = st.fuel / self.build.fuel_capacity
 st.waste_fill = st.waste / self.build.waste_capacity
@@ -261,12 +261,14 @@ local steam_prod = rate * dt * 0.01
 self.tanks.steam = math.min(build.steam_cap, self.tanks.steam + steam_prod)
 self.tanks.water = math.max(0, self.tanks.water - steam_prod * 0.9)
 self.tanks.water = math.min(build.water_cap, self.tanks.water + steam_prod * 0.8)
-local exchange = steam_prod * 0.05
+local exchange = reactor._hcool_produced or 0
+if exchange > 0 then
 reactor.status.hcoolant = math.max(0, reactor.status.hcoolant - exchange)
 self.tanks.hcool = math.min(build.hcoolant_cap, self.tanks.hcool + exchange)
 self.tanks.ccool = math.min(build.ccoolant_cap, self.tanks.ccool + exchange * 0.9)
 reactor.status.coolant = math.min(reactor.build.coolant_capacity,
-reactor.status.coolant + exchange * 0.85)
+reactor.status.coolant + exchange * 0.9)
+end
 else
 self.state.boil_rate = _approach(self.state.boil_rate, 0, 0.1, dt)
 end
