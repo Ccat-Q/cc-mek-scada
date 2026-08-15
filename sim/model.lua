@@ -323,9 +323,8 @@ end
 --#region Boiler Model
 
 -- create a simulated boiler
----@param reactor table reactor model (for temperature coupling)
 ---@return table boiler model object
-function model.new_boiler(reactor)
+function model.new_boiler()
     local build = {
         length = 3, width = 3, height = 18,
         min_pos = { x = 0, y = 1, z = 0 }, max_pos = { x = 2, y = 18, z = 2 },
@@ -392,9 +391,8 @@ end
 --#region Turbine Model
 
 -- create a simulated turbine
----@param reactor table reactor model (for burn coupling)
 ---@return table turbine model object
-function model.new_turbine(reactor)
+function model.new_turbine()
     local build = {
         length = 5, width = 5, height = 8,
         min_pos = { x = 0, y = 1, z = 0 }, max_pos = { x = 4, y = 8, z = 4 },
@@ -544,11 +542,11 @@ function model.new_facility(config)
         if config.turbines_per_unit then n_turbines = config.turbines_per_unit[i] or 1 end
 
         for _ = 1, n_boilers do
-            table.insert(unit.boilers, model.new_boiler(reactor))
+            table.insert(unit.boilers, model.new_boiler())
         end
 
         for _ = 1, n_turbines do
-            table.insert(unit.turbines, model.new_turbine(reactor))
+            table.insert(unit.turbines, model.new_turbine())
         end
 
         table.insert(self.units, unit)
