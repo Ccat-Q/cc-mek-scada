@@ -1,0 +1,149 @@
+
+require("/initenv").init_env()
+local comms     = require("scada-common.comms")
+local crash     = require("scada-common.crash")
+local log       = require("scada-common.log")
+local mqueue    = require("scada-common.mqueue")
+local network   = require("scada-common.network")
+local ppm       = require("scada-common.ppm")
+local util      = require("scada-common.util")
+local backplane = require("reactor-plc.backplane")
+local configure = require("reactor-plc.configure")
+local databus   = require("reactor-plc.databus")
+local plc       = require("reactor-plc.plc")
+local renderer  = require("reactor-plc.renderer")
+local threads   = require("reactor-plc.threads")
+local R_PLC_VERSION = "1.12.17"
+local println = util.println
+local println_ts = util.println_ts
+if not plc.load_config() then
+local success, error = configure.configure(true)
+if success then
+if not plc.load_config() then
+println("failed to load a valid configuration, please reconfigure")
+return
+end
+else
+println("configuration error: " .. error)
+return
+end
+end
+local config = plc.config
+log.init(config.LogPath, config.LogMode, config.LogDebug)
+log.info("========================================")
+log.info("BOOTING reactor-plc.startup v" .. R_PLC_VERSION)
+log.info("========================================")
+println(">> Fission Reactor PLC v" .. R_PLC_VERSION .. " <<")
+crash.set_env("reactor-plc", R_PLC_VERSION)
+crash.dbg_log_env()
+local function main()
+databus.tx_versions(R_PLC_VERSION, comms.version)
+databus.tx_id(config.UnitID)
+ppm.mount_all()
+if type(config.AuthKey) == "string" and string.len(config.AuthKey) > 0 then
+network.init_mac(config.AuthKey)
+end
+local __shared_memory = {
+networked = config.Networked,
+plc_state = {
+fp_ok = false,
+shutdown = false,
+degraded = true,
+no_reactor = true,
+reactor_formed = true,
+auto_ctl = false,
+limit_force_ramp = false,
+wd_modem = true,
+wl_modem = true
+},
+setpoints = {
+burn_rate_en = false,
+burn_rate = 0.0
+},
+limits = {
+reportable_max_burn = false,
+fuel_max_burn = math.huge
+},
+plc_dev = {
+reactor = nil
+},
+plc_sys = {
+rps = nil,
+plc_comms = nil,
+conn_watchdog = nil
+},
+q = {
+mq_rps = mqueue.new(),
+mq_comms_tx = mqueue.new(),
+mq_comms_rx = mqueue.new()
+},
+q_types = {
+MQ__RPS_CMD = {
+SCRAM = 1,
+DEGRADED_SCRAM = 2,
+TRIP_TIMEOUT = 3,
+RESET_REATTACH = 4
+},
+MQ__COMM_CMD = {
+SEND_STATUS = 1
+}
+}
+}
+local smem_dev = __shared_memory.plc_dev
+local smem_sys = __shared_memory.plc_sys
+local plc_state = __shared_memory.plc_state
+backplane.init(config, __shared_memory)
+if __shared_memory.networked and (not plc_state.no_reactor) and plc_state.reactor_formed and smem_dev.reactor.getStatus() then
+log.debug("startup> power-on SCRAM")
+smem_dev.reactor.scram()
+end
+local message
+plc_state.fp_ok, message = renderer.try_start_ui(config)
+if not plc_state.fp_ok then
+println_ts(util.c("UI error: ", message))
+println("startup> running without front panel")
+log.error(util.c("front panel GUI render failed with error ", message))
+log.info("startup> running in headless mode without front panel")
+end
+local function _println_no_fp(msg) if not plc_state.fp_ok then println(msg) end end
+smem_sys.rps = plc.rps_init(smem_dev.reactor, plc_state)
+log.debug("startup> rps init")
+if config.EmerCoolEnable then
+_println_no_fp("startup> emergency coolant control ready")
+log.info("startup> emergency coolant control available")
+end
+if __shared_memory.networked then
+smem_sys.conn_watchdog = util.new_watchdog(config.ConnTimeout)
+log.debug("startup> conn watchdog started")
+smem_sys.plc_comms = plc.comms(R_PLC_VERSION, backplane.active_nic(), __shared_memory)
+log.debug("startup> comms init")
+else
+_println_no_fp("startup> starting in non-networked mode")
+log.info("startup> starting without networking")
+end
+databus.tx_hw_status(plc_state)
+_println_no_fp("startup> completed")
+log.info("startup> completed")
+local main_thread = threads.thread__main(__shared_memory)
+local rps_thread  = threads.thread__rps(__shared_memory)
+if __shared_memory.networked then
+local comms_thread_tx = threads.thread__comms_tx(__shared_memory)
+local comms_thread_rx = threads.thread__comms_rx(__shared_memory)
+local sp_ctrl_thread = threads.thread__setpoint_control(__shared_memory)
+parallel.waitForAll(main_thread.p_exec, rps_thread.p_exec, comms_thread_tx.p_exec, comms_thread_rx.p_exec, sp_ctrl_thread.p_exec)
+smem_sys.plc_comms.send_status(plc_state.no_reactor, plc_state.reactor_formed)
+smem_sys.plc_comms.send_rps_status()
+smem_sys.plc_comms.close()
+else
+parallel.waitForAll(main_thread.p_exec, rps_thread.p_exec)
+end
+renderer.close_ui()
+println_ts("exited")
+log.info("exited")
+end
+if not xpcall(main, crash.handler) then
+pcall(renderer.close_ui)
+crash.exit()
+else
+log.close()
+end

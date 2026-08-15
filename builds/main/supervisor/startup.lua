@@ -1,0 +1,154 @@
+
+require("/initenv").init_env()
+local crash      = require("scada-common.crash")
+local comms      = require("scada-common.comms")
+local constants  = require("scada-common.constants")
+local log        = require("scada-common.log")
+local network    = require("scada-common.network")
+local ppm        = require("scada-common.ppm")
+local tcd        = require("scada-common.tcd")
+local types      = require("scada-common.types")
+local util       = require("scada-common.util")
+local core       = require("graphics.core")
+local backplane  = require("supervisor.backplane")
+local configure  = require("supervisor.configure")
+local databus    = require("supervisor.databus")
+local facility   = require("supervisor.facility")
+local renderer   = require("supervisor.renderer")
+local supervisor = require("supervisor.supervisor")
+local svsessions = require("supervisor.session.svsessions")
+local SUPERVISOR_VERSION = "1.12.2"
+local println = util.println
+local println_ts = util.println_ts
+if not supervisor.load_config() then
+local success, error = configure.configure(true)
+if success then
+if not supervisor.load_config() then
+println("failed to load a valid configuration, please reconfigure")
+return
+end
+else
+println("configuration error: " .. error)
+return
+end
+end
+local config = supervisor.config
+local cfv = util.new_validator()
+cfv.assert_eq(#config.CoolingConfig, config.UnitCount)
+assert(cfv.valid(), "startup> the number of reactor cooling configurations is different than the number of units")
+for i = 1, config.UnitCount do
+cfv.assert_type_table(config.CoolingConfig[i])
+assert(cfv.valid(), "startup> missing cooling entry for reactor unit " .. i)
+cfv.assert_type_int(config.CoolingConfig[i].BoilerCount)
+cfv.assert_type_int(config.CoolingConfig[i].TurbineCount)
+cfv.assert_type_bool(config.CoolingConfig[i].TankConnection)
+assert(cfv.valid(), "startup> missing boiler/turbine/tank fields for reactor unit " .. i)
+cfv.assert_range(config.CoolingConfig[i].BoilerCount, 0, 2)
+cfv.assert_range(config.CoolingConfig[i].TurbineCount, 1, 3)
+assert(cfv.valid(), "startup> out-of-range number of boilers and/or turbines provided for reactor unit " .. i)
+end
+if config.FacilityTankMode > 0 then
+assert(config.UnitCount == #config.FacilityTankDefs, "startup> the number of facility tank definitions must be equal to the number of units in facility tank mode")
+for i = 1, config.UnitCount do
+local def = config.FacilityTankDefs[i]
+cfv.assert_type_int(def)
+cfv.assert_range(def, 0, 2)
+assert(cfv.valid(), "startup> invalid facility tank definition for reactor unit " .. i)
+local entry = config.FacilityTankList[i]
+cfv.assert_type_int(entry)
+cfv.assert_range(entry, 0, 2)
+assert(cfv.valid(), "startup> invalid facility tank list entry for tank " .. i)
+local conn = config.FacilityTankConns[i]
+cfv.assert_type_int(conn)
+cfv.assert_range(conn, 0, #config.FacilityTankDefs)
+assert(cfv.valid(), "startup> invalid facility tank connection for reactor unit " .. i)
+local type = config.TankFluidTypes[i]
+cfv.assert_type_int(type)
+cfv.assert_range(type, 0, types.COOLANT_TYPE.SODIUM)
+assert(cfv.valid(), "startup> invalid tank fluid type for tank " .. i)
+end
+end
+log.init(config.LogPath, config.LogMode, config.LogDebug)
+log.info("========================================")
+log.info("BOOTING supervisor.startup v" .. SUPERVISOR_VERSION)
+log.info("========================================")
+println(">> SCADA Supervisor v" .. SUPERVISOR_VERSION .. " <<")
+crash.set_env("supervisor", SUPERVISOR_VERSION)
+crash.dbg_log_env()
+local function main()
+databus.tx_versions(SUPERVISOR_VERSION, comms.version)
+log.debug("MekanismConfig: JOULES_PER_MB = " .. constants.mek.JOULES_PER_MB)
+log.debug("MekanismConfig: TURBINE_DISPERSER_FLOW = " .. constants.mek.TURBINE_DISPERSER_FLOW)
+log.debug("MekanismConfig: TURBINE_VENT_FLOW = " .. constants.mek.TURBINE_VENT_FLOW)
+log.debug("MekanismConfig: TURBINE_GAS_PER_TANK = " .. constants.mek.TURBINE_GAS_PER_TANK)
+ppm.mount_all()
+if type(config.AuthKey) == "string" and string.len(config.AuthKey) > 0 then
+network.init_mac(config.AuthKey)
+end
+if not backplane.init(config) then return end
+local fp_ok, message = renderer.try_start_ui(config)
+if not fp_ok then
+println_ts(util.c("UI error: ", message))
+log.error(util.c("front panel GUI render failed with error ", message))
+else
+println_ts = function (_) end
+end
+local sv_facility = facility.new(config)
+local superv_comms = supervisor.comms(SUPERVISOR_VERSION, fp_ok, sv_facility)
+local MAIN_CLOCK = 0.15
+local loop_clock = util.new_clock(MAIN_CLOCK)
+local heartbeat_toggle = true
+local function loop_tick()
+if heartbeat_toggle then databus.heartbeat() end
+heartbeat_toggle = not heartbeat_toggle
+svsessions.iterate_all()
+svsessions.free_all_closed()
+databus.tx_energy_mismatch(sv_facility.has_energy_mismatch())
+loop_clock.start()
+end
+loop_clock.start()
+sv_facility.boot_recovery_init(supervisor.boot_state)
+while true do
+local event, param1, param2, param3, param4, param5 = util.pull_event()
+if event == "modem_message" then
+local packet = superv_comms.parse_packet(param1, param2, param3, param4, param5)
+if packet then superv_comms.handle_packet(packet) end
+elseif event == "timer" then
+if loop_clock.is_clock(param1) then
+loop_tick()
+elseif not svsessions.check_all_watchdogs(param1) then
+tcd.handle(param1)
+end
+elseif event == "mouse_click" or event == "mouse_up" or event == "mouse_drag" or event == "mouse_scroll" or
+event == "double_click" then
+renderer.handle_mouse(core.events.new_mouse_event(event, param1, param2, param3))
+elseif event == "peripheral" then
+local type, device = ppm.mount(param1)
+if type ~= nil and device ~= nil then
+backplane.attach(param1, type, device, println_ts)
+end
+elseif event == "peripheral_detach" then
+local type, device = ppm.handle_unmount(param1)
+if type ~= nil and device ~= nil then
+backplane.detach(param1, type, device, println_ts)
+end
+end
+if event == "terminate" or ppm.should_terminate() then
+println_ts("closing sessions...")
+log.info("terminate requested, closing sessions...")
+svsessions.close_all()
+log.info("sessions closed")
+break
+end
+end
+sv_facility.clear_boot_state()
+renderer.close_ui()
+util.println_ts("exited")
+log.info("exited")
+end
+if not xpcall(main, crash.handler) then
+pcall(renderer.close_ui)
+crash.exit()
+else
+log.close()
+end

@@ -22,9 +22,8 @@ local CCMSI_VERSION = "2.2"
 local IS_PKT = pocket ~= nil -- luacheck: ignore pocket
 
 local INSTALL_DIR = "/.install-cache"
-local DEPLOY_DIR = "https://mikaylafischler.github.io/cc-mek-scada/"
-local MANIFEST_DIR = DEPLOY_DIR.."manifests/"
-local BUILD_DIR = DEPLOY_DIR.."builds/"
+-- download source: gh-proxy accelerated raw.githubusercontent.com (Ccat-Q fork)
+local DEPLOY_DIR = "https://gh-proxy.org/https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
 
 local OPTS = { ... }
 
@@ -389,8 +388,9 @@ else
 		return
 	end
 
-	manifest_url = MANIFEST_DIR..target.."/install_manifest.json"
-	build_url = BUILD_DIR..target.."/"
+	-- raw.githubusercontent.com URLs include the branch name, so prepend it
+	manifest_url = DEPLOY_DIR..target.."/manifests/"..target.."/install_manifest.json"
+	build_url = DEPLOY_DIR..target.."/builds/"..target.."/"
 end
 
 -- main operation

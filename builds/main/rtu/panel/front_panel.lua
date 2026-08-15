@@ -1,0 +1,137 @@
+
+local types         = require("scada-common.types")
+local util          = require("scada-common.util")
+local databus       = require("rtu.databus")
+local style         = require("rtu.panel.style")
+local core          = require("graphics.core")
+local Div           = require("graphics.elements.Div")
+local Rectangle     = require("graphics.elements.Rectangle")
+local TextBox       = require("graphics.elements.TextBox")
+local DataIndicator = require("graphics.elements.indicators.DataIndicator")
+local LED           = require("graphics.elements.indicators.LED")
+local LEDPair       = require("graphics.elements.indicators.LEDPair")
+local RGBLED        = require("graphics.elements.indicators.RGBLED")
+local LINK_STATE    = types.PANEL_LINK_STATE
+local RTU_UNIT_TYPE = types.RTU_UNIT_TYPE
+local ALIGN = core.ALIGN
+local cpair = core.cpair
+local border = core.border
+local ind_grn = style.ind_grn
+local UNIT_TYPE_LABELS = { "UNKNOWN", "REDSTONE", "BOILER", "TURBINE", "DYNAMIC TANK", "IND MATRIX", "SPS", "SNA", "ENV DETECTOR", "ENERGY CORE" }
+local function init(panel, config, units)
+local s_hi_box = style.theme.highlight_box
+local disabled_fg = style.fp.disabled_fg
+local term_w, term_h = term.getSize()
+TextBox{parent=panel,y=1,text="RTU GATEWAY",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
+local system = Div{parent=panel,width=14,height=term_h-5,x=2,y=3}
+local status = LED{parent=system,label="STATUS",colors=cpair(colors.green,colors.red)}
+local heartbeat = LED{parent=system,label="HEARTBEAT",colors=ind_grn}
+system.line_break()
+status.register(databus.ps, "status", status.update)
+heartbeat.register(databus.ps, "heartbeat", heartbeat.update)
+if config.WirelessModem and config.WiredModem then
+local wd_modem = LEDPair{parent=system,label="WD MODEM",off=colors.green_off,c1=colors.yellow,c2=colors.green}
+local wl_modem = LEDPair{parent=system,label="WL MODEM",off=colors.green_off,c1=colors.yellow,c2=colors.green}
+local function wd_modem_update()
+if databus.ps.get("has_wd_modem") then
+if databus.ps.get("has_wd_net") then
+wd_modem.update(3)
+else wd_modem.update(2) end
+else wd_modem.update(1) end
+end
+local function wl_modem_update()
+if databus.ps.get("has_wl_modem") then
+if databus.ps.get("has_wl_net") then
+wl_modem.update(3)
+else wl_modem.update(2) end
+else wl_modem.update(1) end
+end
+wd_modem.register(databus.ps, "has_wd_modem", wd_modem_update)
+wd_modem.register(databus.ps, "has_wd_net", wd_modem_update)
+wl_modem.register(databus.ps, "has_wl_modem", wl_modem_update)
+wl_modem.register(databus.ps, "has_wl_net", wl_modem_update)
+else
+local modem = LEDPair{parent=system,label="MODEM",off=colors.green_off,c1=colors.yellow,c2=colors.green}
+local pfx = util.trinary(config.WirelessModem, "has_wl_", "has_wd_")
+local function modem_update()
+if databus.ps.get(pfx .. "modem") then
+if databus.ps.get(pfx .. "net") then
+modem.update(3)
+else modem.update(2) end
+else modem.update(1) end
+end
+modem.register(databus.ps, pfx .. "modem", modem_update)
+modem.register(databus.ps, pfx .. "net", modem_update)
+end
+if not style.colorblind then
+local network = RGBLED{parent=system,label="NETWORK",colors={colors.green,colors.red,colors.yellow,colors.orange,style.ind_bkg}}
+network.update(types.PANEL_LINK_STATE.DISCONNECTED)
+network.register(databus.ps, "link_state", network.update)
+else
+local nt_lnk = LEDPair{parent=system,label="NT LINKED",off=style.ind_bkg,c1=colors.red,c2=colors.green}
+local nt_ver = LEDPair{parent=system,label="NT VERSION",off=style.ind_bkg,c1=colors.red,c2=colors.green}
+nt_lnk.register(databus.ps, "link_state", function (state)
+local value = 2
+if state == LINK_STATE.DISCONNECTED then
+value = 1
+elseif state == LINK_STATE.LINKED then
+value = 3
+end
+nt_lnk.update(value)
+end)
+nt_ver.register(databus.ps, "link_state", function (state)
+local value = 3
+if state == LINK_STATE.BAD_VERSION then
+value = 2
+elseif state == LINK_STATE.DISCONNECTED then
+value = 1
+end
+nt_ver.update(value)
+end)
+end
+system.line_break()
+local rt_main = LED{parent=system,label="RT MAIN",colors=ind_grn}
+local rt_comm = LED{parent=system,label="RT COMMS",colors=ind_grn}
+system.line_break()
+rt_main.register(databus.ps, "routine__main", rt_main.update)
+rt_comm.register(databus.ps, "routine__comms", rt_comm.update)
+local hw_labels = Rectangle{parent=panel,x=2,y=term_h-6,width=14,height=5,border=border(1,s_hi_box.bkg,true),even_inner=true}
+local comp_id = util.sprintf("%03d", os.getComputerID())
+TextBox{parent=hw_labels,text="FW "..databus.ps.get("version"),fg_bg=s_hi_box}
+TextBox{parent=hw_labels,text="NT "..databus.ps.get("comms_version"),fg_bg=s_hi_box}
+TextBox{parent=hw_labels,text="SN "..comp_id.."-RTU",fg_bg=s_hi_box}
+TextBox{parent=panel,x=2,y=term_h-1,text="SPEAKERS",width=8,fg_bg=style.fp.text_fg}
+local speaker_count = DataIndicator{parent=panel,x=11,y=term_h-1,label="",format="%3d",value=0,width=3,fg_bg=style.theme.field_box}
+speaker_count.register(databus.ps, "speaker_count", speaker_count.update)
+local threads = Div{parent=panel,width=8,height=term_h-3,x=17,y=3}
+local list_length = math.min(#units, term_h - 3)
+for i = 1, list_length do
+TextBox{parent=threads,y=i,text=util.sprintf("%02d",i)}
+local rt_unit = LED{parent=threads,x=4,y=i,label="RT",colors=util.trinary(units[i].type~=RTU_UNIT_TYPE.REDSTONE,ind_grn,cpair(style.ind_bkg,style.ind_bkg))}
+rt_unit.register(databus.ps, "routine__unit_" .. i, rt_unit.update)
+end
+local unit_hw_statuses = Div{parent=panel,height=term_h-3,x=25,y=3}
+local relay_counter = 0
+for i = 1, list_length do
+local unit = units[i]
+local is_rs = unit.type == RTU_UNIT_TYPE.REDSTONE
+local unit_hw = RGBLED{parent=unit_hw_statuses,y=i,label="",colors={colors.red,colors.orange,colors.yellow,colors.green}}
+unit_hw.register(databus.ps, "unit_hw_" .. i, unit_hw.update)
+local function get_name()
+if is_rs then
+local is_local = unit.name == "redstone_local"
+relay_counter = relay_counter + util.trinary(is_local, 0, 1)
+return util.c("REDSTONE", util.trinary(is_local, "", " RELAY " .. relay_counter))
+else
+return util.c(UNIT_TYPE_LABELS[unit.type + 1], " ", util.trinary(util.is_int(unit.index), unit.index, ""))
+end
+end
+local name_box = TextBox{parent=unit_hw_statuses,y=i,x=3,text=get_name(),width=util.trinary(is_rs,24,15)}
+name_box.register(databus.ps, "unit_type_" .. i, function () name_box.set_value(get_name()) end)
+if unit.reactor then
+local for_unit = util.trinary(unit.reactor == 0, "\x1a FACIL ", "\x1a UNIT " .. unit.reactor)
+TextBox{parent=unit_hw_statuses,y=i,x=term_w-32,text=for_unit,fg_bg=disabled_fg}
+end
+end
+end
+return init

@@ -1,0 +1,226 @@
+
+local util = require("scada-common.util")
+local DBG_TAG, INF_TAG, WRN_TAG, ERR_TAG, FTL_TAG = "[DBG] ", "[INF] ", "[WRN] ", "[ERR] ", "[FTL] "
+local COLON, FUNC, ARROW = ":", "():", " > "
+local MIN_SPACE    = 2048
+local OUT_OF_SPACE = "Out of space"
+local TIME_FMT     = "%F %T "
+local log = {}
+local MODE = { APPEND = 0, NEW = 1 }
+log.MODE = MODE
+log.MIN_SPACE = MIN_SPACE
+local _log = {
+not_ready = true,
+path = "/log.txt",
+mode = MODE.APPEND,
+debug = false,
+file = nil,
+dmesg_out = nil,
+dmesg_restore_coord = { 1, 1 },
+dmesg_scroll_count = 0
+}
+local free_space = fs.getFreeSpace
+local function check_out_of_space(err_msg)
+return (free_space(_log.path) < MIN_SPACE) or ((err_msg ~= nil) and (string.find(err_msg, OUT_OF_SPACE) ~= nil))
+end
+local function write_log(msg_bits)
+if _log.not_ready then return end
+local time_stamp = os.date(TIME_FMT)
+local stamped    = util.c(time_stamp, table.unpack(msg_bits))
+local status, result = pcall(function ()
+_log.file.writeLine(stamped)
+_log.file.flush()
+end)
+if check_out_of_space() then
+_log.file.close()
+fs.delete(_log.path)
+log.init(_log.path, _log.mode, _log.debug, _log.dmesg_out)
+_log.file.writeLine(time_stamp .. WRN_TAG .. "recycled log file")
+_log.file.writeLine(stamped)
+_log.file.flush()
+elseif (not status) and (result ~= nil) then
+util.println("unexpected error writing to the log file: " .. result)
+end
+end
+function log.init(path, write_mode, include_debug, dmesg_redirect)
+local err_msg
+_log.path = path
+_log.mode = write_mode
+_log.debug = include_debug
+_log.file, err_msg = fs.open(path, util.trinary(_log.mode == MODE.APPEND, "a", "w"))
+if dmesg_redirect then
+_log.dmesg_out = dmesg_redirect
+else
+_log.dmesg_out = term.current()
+end
+local out_of_space = check_out_of_space(err_msg)
+if _log.file == nil or out_of_space then
+if out_of_space then
+if fs.exists(_log.path) then
+fs.delete(_log.path)
+_log.file, err_msg = fs.open(path, util.trinary(_log.mode == MODE.APPEND, "a", "w"))
+if _log.file then
+_log.file.writeLine(os.date(TIME_FMT) .. WRN_TAG .. "init recycled log file")
+_log.file.flush()
+else error("failed to setup the log file: " .. err_msg) end
+else error("failed to make space for the log file, please delete unused files") end
+else error("unexpected error setting up the log file: " .. err_msg) end
+end
+_log.not_ready = false
+end
+function log.close() _log.file.close() end
+function log.direct_dmesg(window) _log.dmesg_out = window end
+function log.dmesg(msg, tag, tag_color)
+local ts_coord = { x1 = 2, x2 = 3, y = 1 }
+msg = util.strval(msg)
+tag = util.strval(tag or "")
+local t_stamp = string.format("%12.2f", os.clock())
+local out = _log.dmesg_out
+if out ~= nil then
+local out_w, out_h = out.getSize()
+local lines = { msg }
+if string.len(msg) > out_w then
+local remaining = true
+local s_start = 1
+local s_end = out_w
+local i = 1
+lines = {}
+while remaining do
+local line = string.sub(msg, s_start, s_end)
+if line == "" then
+remaining = false
+else
+lines[i] = line
+s_start = s_end + 1
+s_end = s_end + out_w
+i = i + 1
+end
+end
+end
+local cur_x, cur_y = out.getCursorPos()
+if cur_x > 1 then
+if cur_y == out_h then
+out.scroll(1)
+out.setCursorPos(1, cur_y)
+_log.dmesg_scroll_count = _log.dmesg_scroll_count + 1
+else
+out.setCursorPos(1, cur_y + 1)
+end
+end
+local initial_color = out.getTextColor()
+out.setTextColor(colors.white)
+out.write("[")
+out.setTextColor(colors.lightGray)
+out.write(t_stamp)
+ts_coord.x2, ts_coord.y = out.getCursorPos()
+ts_coord.x2 = ts_coord.x2 - 1
+out.setTextColor(colors.white)
+out.write("] ")
+if tag ~= "" then
+out.write("[")
+if tag_color then out.setTextColor(tag_color) end
+out.write(tag)
+out.setTextColor(colors.white)
+out.write("] ")
+end
+out.setTextColor(initial_color)
+for i = 1, #lines do
+cur_x, cur_y = out.getCursorPos()
+if i > 1 and cur_x > 1 then
+if cur_y == out_h then
+out.scroll(1)
+out.setCursorPos(1, cur_y)
+_log.dmesg_scroll_count = _log.dmesg_scroll_count + 1
+else
+out.setCursorPos(1, cur_y + 1)
+end
+end
+out.write(lines[i])
+end
+_log.dmesg_restore_coord = { out.getCursorPos() }
+write_log{"[", t_stamp, "] [", tag, "] ", msg}
+end
+return ts_coord
+end
+function log.dmesg_working(msg, tag, tag_color)
+local ts_coord = log.dmesg(msg, tag, tag_color)
+local initial_scroll = _log.dmesg_scroll_count
+local out = _log.dmesg_out
+local width = (ts_coord.x2 - ts_coord.x1) + 1
+if out ~= nil then
+local initial_color = out.getTextColor()
+local counter = 0
+local function update(sec_remaining)
+local new_y = ts_coord.y - (_log.dmesg_scroll_count - initial_scroll)
+if new_y < 1 then return end
+local time = util.sprintf("%ds", sec_remaining)
+local available = width - (string.len(time) + 2)
+local progress = ""
+out.setCursorPos(ts_coord.x1, new_y)
+out.write(" ")
+if counter % 4 == 0 then
+progress = "|"
+elseif counter % 4 == 1 then
+progress = "/"
+elseif counter % 4 == 2 then
+progress = "-"
+elseif counter % 4 == 3 then
+progress = "\\"
+end
+out.setTextColor(colors.blue)
+out.write(progress)
+out.setTextColor(colors.lightGray)
+out.write(util.spaces(available) .. time)
+out.setTextColor(initial_color)
+counter = counter + 1
+out.setCursorPos(table.unpack(_log.dmesg_restore_coord))
+end
+local function done(ok)
+local new_y = ts_coord.y - (_log.dmesg_scroll_count - initial_scroll)
+if new_y < 1 then return end
+out.setCursorPos(ts_coord.x1, new_y)
+if ok or ok == nil then
+out.setTextColor(colors.green)
+out.write(util.pad("DONE", width))
+else
+out.setTextColor(colors.red)
+out.write(util.pad("FAIL", width))
+end
+out.setTextColor(initial_color)
+out.setCursorPos(table.unpack(_log.dmesg_restore_coord))
+end
+return update, done
+else
+return function () end, function () end
+end
+end
+function log.debug(msg, trace)
+if _log.debug then
+if trace then
+local info = debug.getinfo(2)
+if info.name ~= nil then
+write_log{DBG_TAG, info.short_src, COLON, info.name, FUNC, info.currentline, ARROW, msg}
+else
+write_log{DBG_TAG, info.short_src, COLON, info.currentline, ARROW, msg}
+end
+else
+write_log{DBG_TAG, msg}
+end
+end
+end
+function log.info(msg) write_log{INF_TAG, msg} end
+function log.warning(msg) write_log{WRN_TAG, msg} end
+function log.error(msg, trace)
+if trace then
+local info = debug.getinfo(2)
+if info.name ~= nil then
+write_log{ERR_TAG, info.short_src, COLON, info.name, FUNC, info.currentline, ARROW, msg}
+else
+write_log{ERR_TAG, info.short_src, COLON, info.currentline, ARROW, msg}
+end
+else
+write_log{ERR_TAG, msg}
+end
+end
+function log.fatal(msg) write_log{FTL_TAG, msg} end
+return log

@@ -1,0 +1,227 @@
+
+local _2_PI        = 2 * math.pi -- 2 whole pies, hope you're hungry
+local _DRATE       = 48000
+local _MAX_VAL     = 127 / 2
+local _05s_SAMPLES = 24000
+local audio = {}
+local TONE = {
+T_340Hz_Int_2Hz = 1,
+T_544Hz_440Hz_Alt = 2,
+T_660Hz_Int_125ms = 3,
+T_745Hz_Int_1Hz = 4,
+T_800Hz_Int = 5,
+T_800Hz_1000Hz_Alt = 6,
+T_1000Hz_Int = 7,
+T_1800Hz_Int_4Hz = 8
+}
+audio.TONE = TONE
+local tone_data = {
+{ {}, {}, {}, {} },
+{ {}, {}, {}, {} },
+{ {}, {}, {}, {} },
+{ {}, {}, {}, {} },
+{ {}, {}, {}, {} },
+{ {}, {}, {}, {} },
+{ {}, {}, {}, {} },
+{ {}, {}, {}, {} }
+}
+local function ms_to_samples(ms) return math.floor(ms * 48) end
+local function gen_tone_1()
+local t, dt = 0, _2_PI * 340 / _DRATE
+for i = 1, _05s_SAMPLES do
+local val = math.floor(math.sin(t) * _MAX_VAL)
+tone_data[1][1][i] = val
+tone_data[1][3][i] = val
+tone_data[1][2][i] = 0
+tone_data[1][4][i] = 0
+t = (t + dt) % _2_PI
+end
+end
+local function gen_tone_2()
+local t1, dt1 = 0, _2_PI * 544 / _DRATE
+local t2, dt2 = 0, _2_PI * 440 / _DRATE
+local alternate_at = ms_to_samples(100)
+for i = 1, _05s_SAMPLES do
+local value
+if i <= alternate_at then
+value = math.floor(math.sin(t1) * _MAX_VAL)
+t1 = (t1 + dt1) % _2_PI
+else
+value = math.floor(math.sin(t2) * _MAX_VAL)
+t2 = (t2 + dt2) % _2_PI
+end
+tone_data[2][1][i] = value
+tone_data[2][2][i] = value
+tone_data[2][3][i] = value
+tone_data[2][4][i] = value
+end
+end
+local function gen_tone_3()
+local elapsed_samples = 0
+local alternate_after = ms_to_samples(125)
+local alternate_at = alternate_after
+local mode = true
+local t, dt = 0, _2_PI * 660 / _DRATE
+for set = 1, 4 do
+for i = 1, _05s_SAMPLES do
+if mode then
+local val = math.floor(math.sin(t) * _MAX_VAL)
+tone_data[3][set][i] = val
+t = (t + dt) % _2_PI
+else
+t = 0
+tone_data[3][set][i] = 0
+end
+if elapsed_samples == alternate_at then
+mode = not mode
+alternate_at = elapsed_samples + alternate_after
+end
+elapsed_samples = elapsed_samples + 1
+end
+end
+end
+local function gen_tone_4()
+local t, dt = 0, _2_PI * 745 / _DRATE
+for i = 1, _05s_SAMPLES do
+local val = math.floor(math.sin(t) * _MAX_VAL)
+tone_data[4][1][i] = val
+tone_data[4][3][i] = val
+tone_data[4][2][i] = 0
+tone_data[4][4][i] = 0
+t = (t + dt) % _2_PI
+end
+end
+local function gen_tone_5()
+local t, dt = 0, _2_PI * 800 / _DRATE
+local stop_at = ms_to_samples(250)
+for i = 1, _05s_SAMPLES do
+local val = math.floor(math.sin(t) * _MAX_VAL)
+if i > stop_at then
+tone_data[5][1][i] = val
+else
+tone_data[5][1][i] = 0
+end
+tone_data[5][2][i] = 0
+tone_data[5][3][i] = 0
+tone_data[5][4][i] = 0
+t = (t + dt) % _2_PI
+end
+end
+local function gen_tone_6()
+local t1, dt1 = 0, _2_PI * 1000 / _DRATE
+local t2, dt2 = 0, _2_PI * 800 / _DRATE
+local alternate_at = ms_to_samples(250)
+for i = 1, _05s_SAMPLES do
+local val
+if i <= alternate_at then
+val = math.floor(math.sin(t1) * _MAX_VAL)
+t1 = (t1 + dt1) % _2_PI
+else
+val = math.floor(math.sin(t2) * _MAX_VAL)
+t2 = (t2 + dt2) % _2_PI
+end
+tone_data[6][1][i] = val
+tone_data[6][2][i] = val
+tone_data[6][3][i] = val
+tone_data[6][4][i] = val
+end
+end
+local function gen_tone_7()
+local t, dt = 0, _2_PI * 1000 / _DRATE
+for i = 1, _05s_SAMPLES do
+local val = math.floor(math.sin(t) * _MAX_VAL)
+tone_data[7][1][i] = val
+tone_data[7][2][i] = val
+tone_data[7][3][i] = 0
+tone_data[7][4][i] = 0
+t = (t + dt) % _2_PI
+end
+end
+local function gen_tone_8()
+local t, dt = 0, _2_PI * 1800 / _DRATE
+local off_at = ms_to_samples(250)
+for i = 1, _05s_SAMPLES do
+local val = 0
+if i <= off_at then
+val = math.floor(math.sin(t) * _MAX_VAL)
+t = (t + dt) % _2_PI
+end
+tone_data[8][1][i] = val
+tone_data[8][2][i] = val
+tone_data[8][3][i] = val
+tone_data[8][4][i] = val
+end
+end
+function audio.generate_tones()
+gen_tone_1()
+gen_tone_2()
+gen_tone_3()
+gen_tone_4()
+gen_tone_5()
+gen_tone_6()
+gen_tone_7()
+gen_tone_8()
+end
+local function limit(output)
+return math.max(-128, math.min(127, output))
+end
+local function clear(buffer)
+for i = 1, 4 do
+for s = 1, _05s_SAMPLES do buffer[i][s] = 0 end
+end
+end
+function audio.new_stream()
+local self = {
+any_active = false,
+need_recompute = false,
+next_block = 1,
+quad_buffer = { {}, {}, {}, {} },
+tone_active = { false, false, false, false, false, false, false, false }
+}
+clear(self.quad_buffer)
+local public = {}
+function public.set_active(index, active)
+if self.tone_active[index] ~= nil then
+if self.tone_active[index] ~= active then self.need_recompute = true end
+self.tone_active[index] = active
+end
+end
+function public.is_active(index)
+return self.tone_active[index] or false
+end
+function public.stop()
+for i = 1, #self.tone_active do
+self.tone_active[i] = false
+end
+self.next_block = 1
+clear(self.quad_buffer)
+end
+function public.is_recompute_needed() return self.need_recompute end
+function public.compute_buffer()
+clear(self.quad_buffer)
+self.need_recompute = false
+self.any_active = false
+for id = 1, #tone_data do
+if self.tone_active[id] then
+self.any_active = true
+for i = 1, 4 do
+local buffer = self.quad_buffer[i]
+local values = tone_data[id][i]
+for s = 1, _05s_SAMPLES do self.quad_buffer[i][s] = limit(buffer[s] + values[s]) end
+end
+end
+end
+end
+function public.any_active() return self.any_active end
+function public.has_next_block() return #self.quad_buffer[self.next_block] > 0 end
+function public.get_next_block()
+local block = self.quad_buffer[self.next_block]
+self.next_block = self.next_block + 1
+if self.next_block > 4 then
+self.next_block = 1
+end
+return block
+end
+return public
+end
+return audio

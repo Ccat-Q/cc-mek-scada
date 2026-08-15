@@ -1,0 +1,31 @@
+
+local types   = require("scada-common.types")
+local style   = require("supervisor.panel.style")
+local core    = require("graphics.core")
+local Div     = require("graphics.elements.Div")
+local TextBox = require("graphics.elements.TextBox")
+local ALIGN = core.ALIGN
+local cpair = core.cpair
+local function init(parent, fail_code, msg, details)
+local root = Div{parent=parent,x=2,y=2,height=4,width=parent.get_width()-2}
+local entry = Div{parent=root,x=2,y=1,height=3,fg_bg=style.theme.highlight_box_bright}
+local fg_bg = cpair(colors.black, colors.yellow)
+local tag = "MISSING"
+if fail_code == types.RTU_LINK_FAIL.OUT_OF_RANGE then
+fg_bg = cpair(colors.black, colors.orange)
+tag = "BAD INDEX"
+elseif fail_code == types.RTU_LINK_FAIL.DUPLICATE then
+fg_bg = cpair(colors.black, colors.red)
+tag = "DUPLICATE"
+elseif fail_code == types.RTU_LINK_FAIL.MISMATCH then
+fg_bg = cpair(colors.black, colors.red)
+tag = "MISMATCH"
+end
+TextBox{parent=entry,y=1,text="",width=11,fg_bg=fg_bg}
+TextBox{parent=entry,text=tag,alignment=ALIGN.CENTER,width=11,fg_bg=fg_bg}
+TextBox{parent=entry,text="",width=11,fg_bg=fg_bg}
+TextBox{parent=entry,x=13,y=2,text=msg}
+if details then TextBox{parent=entry,x=13,y=3,text=details,fg_bg=style.fp.label_fg} end
+return root
+end
+return init
