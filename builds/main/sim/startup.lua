@@ -1,4 +1,5 @@
 
+require("/initenv").init_env()
 local util = require("scada-common.util")
 local sim = require("sim.sim")
 local SIM_VERSION = "1.0.0"
