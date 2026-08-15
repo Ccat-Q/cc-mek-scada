@@ -439,6 +439,7 @@ if packet.type == MGMT_TYPE.ESTABLISH then
 if packet.length >= 1 then
 local est_ack = packet.data[1]
 if est_ack == ESTABLISH_ACK.ALLOW then
+if not plc.linked then
 plc.linked = true
 plc.sv_addr = packet.scada_frame.src_addr()
 plc.r_seq_num = packet.scada_frame.seq_num() + 1
@@ -446,6 +447,7 @@ log.info(log_tag .. "PLC session established with supervisor @" .. plc.sv_addr)
 plc_send_status()
 plc_send_struct()
 plc_send_rps_status()
+end
 else
 log.warning(util.c(log_tag, "PLC establish denied (ack=", est_ack, "), retrying..."))
 plc.linked = false
@@ -491,10 +493,12 @@ if packet.type == MGMT_TYPE.ESTABLISH then
 if packet.length >= 1 then
 local est_ack = packet.data[1]
 if est_ack == ESTABLISH_ACK.ALLOW then
+if not rtu.linked then
 rtu.linked = true
 rtu.sv_addr = packet.scada_frame.src_addr()
 rtu.r_seq_num = packet.scada_frame.seq_num() + 1
 log.info(log_tag .. "RTU session established with supervisor @" .. rtu.sv_addr)
+end
 else
 log.warning(util.c(log_tag, "RTU establish denied (ack=", est_ack, "), retrying..."))
 rtu.linked = false
@@ -571,8 +575,11 @@ elseif frame.protocol() == PROTOCOL.SCADA_MGMT then
 pkt = comms.mgmt_container().decode(frame)
 end
 if pkt then
-if plc.r_seq_num == nil then
+if not plc.linked then
+handle_plc_packet(pkt)
+elseif plc.r_seq_num == nil then
 plc.r_seq_num = frame.seq_num() + 1
+handle_plc_packet(pkt)
 elseif plc.r_seq_num ~= frame.seq_num() then
 log.warning(util.c(log_tag, "PLC seq out-of-order: next=", plc.r_seq_num, ", got=", frame.seq_num()))
 plc.linked = false
@@ -591,8 +598,11 @@ elseif frame.protocol() == PROTOCOL.SCADA_MGMT then
 pkt = comms.mgmt_container().decode(frame)
 end
 if pkt then
-if rtu.r_seq_num == nil then
+if not rtu.linked then
+handle_rtu_packet(pkt)
+elseif rtu.r_seq_num == nil then
 rtu.r_seq_num = frame.seq_num() + 1
+handle_rtu_packet(pkt)
 elseif rtu.r_seq_num ~= frame.seq_num() then
 log.warning(util.c(log_tag, "RTU seq out-of-order: next=", rtu.r_seq_num, ", got=", frame.seq_num()))
 rtu.linked = false
