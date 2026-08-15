@@ -522,22 +522,20 @@ plc_send_rps_status()
 if plc.resend_build then plc_send_struct() end
 end
 end
-local last_loop = 0
+local loop_clock = util.new_clock(0.5)
+loop_clock.start()
 while true do
-local event_data = { os.pullEvent() }
-local event = event_data[1]
-local now = util.time()
-if (now - last_loop) >= 0.1 then
-last_loop = now
+local event, param1, param2, param3, param4, param5 = util.pull_event()
+if event == "timer" then
+if loop_clock.is_clock(param1) then
 facility.update()
 nic.periodic()
 try_establish()
 periodic_sends()
+loop_clock.start()
 end
-if event == "modem_message" then
-local side, sender, reply_to, message, distance =
-event_data[2], event_data[3], event_data[4], event_data[5], event_data[6]
-local frame = nic.receive(side, sender, reply_to, message, distance)
+elseif event == "modem_message" then
+local frame = nic.receive(param1, param2, param3, param4, param5)
 if frame then
 local l_chan = frame.local_channel()
 if l_chan == config.PLC_Channel then
@@ -583,18 +581,16 @@ end
 end
 end
 elseif event == "peripheral" then
-local iface = event_data[2]
-if iface == modem_iface then
+if param1 == modem_iface then
 log.info(log_tag .. "modem reattached")
-modem = peripheral.wrap(iface)
+modem = peripheral.wrap(param1)
 nic.connect(modem)
 nic.closeAll()
 if plc.enabled then nic.open(config.PLC_Channel) end
 if rtu.enabled then nic.open(config.RTU_Channel) end
 end
 elseif event == "peripheral_detach" then
-local iface = event_data[2]
-if iface == modem_iface then
+if param1 == modem_iface then
 log.warning(log_tag .. "modem detached")
 nic.disconnect()
 end
