@@ -31,6 +31,8 @@ local types    = require("scada-common.types")
 local util     = require("scada-common.util")
 
 local model    = require("sim.model")
+local databus  = require("sim.databus")
+local renderer = require("sim.renderer")
 
 local sim = {}
 
@@ -159,6 +161,82 @@ function sim.run(config)
         boilers_per_unit = { config.BoilersPerUnit },
         turbines_per_unit = { config.TurbinesPerUnit }
     })
+
+    --#endregion
+
+    --#region Control Callbacks (front panel actions)
+
+    -- control table passed to the front panel UI
+    local control = {}
+
+    -- set the burn rate setpoint
+    function control.set_burn(rate)
+        rate = tonumber(rate) or 0
+        local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id].reactor
+        if reactor then
+            if reactor.set_burn_rate(rate) then
+                log.info(util.c(log_tag, "burn rate set to ", rate, " mB/t"))
+            else
+                log.warning(util.c(log_tag, "invalid burn rate ", rate))
+            end
+        end
+    end
+
+    -- SCRAM the reactor
+    function control.scram()
+        local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id].reactor
+        if reactor then
+            reactor.scram()
+            log.info(log_tag .. "reactor SCRAMMED from front panel")
+        end
+    end
+
+    -- activate the reactor
+    function control.activate()
+        local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id].reactor
+        if reactor then
+            if reactor.activate() then
+                log.info(log_tag .. "reactor activated from front panel")
+            else
+                log.warning(log_tag .. "cannot activate (reactor tripped)")
+            end
+        end
+    end
+
+    -- nudge the burn rate by a delta
+    function control.nudge_burn(delta)
+        local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id].reactor
+        if reactor then
+            local new_rate = math.max(0, reactor.status.burn_rate + delta)
+            if reactor.set_burn_rate(new_rate) then
+                log.info(util.c(log_tag, "burn rate nudged to ", new_rate, " mB/t"))
+            end
+        end
+    end
+
+    -- nudge the temperature heat-out coefficient
+    function control.nudge_heat(delta)
+        if facility.heat_out_k then
+            facility.heat_out_k = math.max(0.01, facility.heat_out_k + delta)
+            log.info(util.c(log_tag, "heat responsiveness -> ", string.format("%.3f", facility.heat_out_k)))
+        end
+    end
+
+    -- nudge the fuel multiplier
+    function control.nudge_fuel(delta)
+        if facility.fuel_mult then
+            facility.fuel_mult = math.max(0.1, facility.fuel_mult + delta)
+            log.info(util.c(log_tag, "fuel multiplier -> ", string.format("%.2f", facility.fuel_mult)))
+        end
+    end
+
+    -- start the front panel UI
+    if config.ShowUI ~= false then
+        local ui_ok, ui_err = renderer.try_start_ui(config, control)
+        if not ui_ok then
+            log.warning(util.c(log_tag, "failed to start front panel UI: ", tostring(ui_err)))
+        end
+    end
 
     --#endregion
 

@@ -174,17 +174,21 @@ function model.new_reactor(opts)
             st.act_burn_rate = _approach(st.act_burn_rate, 0, 0.2, dt)
         end
 
-        -- coolant: coolant level is affected by boiling (moves to boilers)
-        -- heat removal: coolant heated by reactor heat, cooled by boiler return
+        -- coolant: coolant is heated by the reactor into heated coolant,
+        -- which the boiler exchanges back into coolant (closed loop).
+        -- The reactor holds hcoolant only transiently; the boiler draws it.
         local coolant_drain = 0
         if st.active and st.act_burn_rate > 0 then
             coolant_drain = st.act_burn_rate * 20 * dt * 0.15
         end
-        st.coolant = math.max(0, st.coolant - coolant_drain)
-        -- boiler returns coolant (simplified: reactor draws from a loop)
-        st.coolant = math.min(self.build.coolant_capacity, st.coolant + coolant_drain * 0.95)
 
-        -- heated coolant builds up, converted in boilers
+        -- coolant is consumed by heating into hcoolant
+        st.coolant = math.max(0, st.coolant - coolant_drain)
+
+        -- hcoolant accumulates from reactor heating; the boiler consumes it
+        -- (see boiler.update). Store the amount produced this tick for the
+        -- boiler to draw.
+        self._hcool_produced = coolant_drain
         st.hcoolant = math.min(self.build.hcoolant_capacity, st.hcoolant + coolant_drain)
 
         -- recompute fill percentages
@@ -391,15 +395,18 @@ function model.new_boiler()
             -- water replenished (simplified: water input)
             self.tanks.water = math.min(build.water_cap, self.tanks.water + steam_prod * 0.8)
 
-            -- heat exchange: draws heated coolant from the reactor, converts
-            -- to cooled coolant; keeps the reactor's hcoolant from filling up
-            local exchange = steam_prod * 0.05
-            reactor.status.hcoolant = math.max(0, reactor.status.hcoolant - exchange)
-            self.tanks.hcool = math.min(build.hcoolant_cap, self.tanks.hcool + exchange)
-            self.tanks.ccool = math.min(build.ccoolant_cap, self.tanks.ccool + exchange * 0.9)
-            -- cooled coolant returns to the reactor as coolant
-            reactor.status.coolant = math.min(reactor.build.coolant_capacity,
-                reactor.status.coolant + exchange * 0.85)
+            -- closed-loop heat exchange: the boiler draws ALL the heated
+            -- coolant the reactor produced this tick and returns it as
+            -- cooled coolant, keeping hcoolant from accumulating
+            local exchange = reactor._hcool_produced or 0
+            if exchange > 0 then
+                reactor.status.hcoolant = math.max(0, reactor.status.hcoolant - exchange)
+                self.tanks.hcool = math.min(build.hcoolant_cap, self.tanks.hcool + exchange)
+                self.tanks.ccool = math.min(build.ccoolant_cap, self.tanks.ccool + exchange * 0.9)
+                -- cooled coolant returns to the reactor as coolant
+                reactor.status.coolant = math.min(reactor.build.coolant_capacity,
+                    reactor.status.coolant + exchange * 0.9)
+            end
         else
             -- boiler idle: boil rate falls off
             self.state.boil_rate = _approach(self.state.boil_rate, 0, 0.1, dt)
