@@ -647,15 +647,17 @@ function sim.run(config)
                 if packet.length >= 1 then
                     local est_ack = packet.data[1]
                     if est_ack == ESTABLISH_ACK.ALLOW then
-                        plc.linked = true
-                        plc.sv_addr = packet.scada_frame.src_addr()
-                        plc.r_seq_num = packet.scada_frame.seq_num() + 1
-                        log.info(log_tag .. "PLC session established with supervisor @" .. plc.sv_addr)
+                        if not plc.linked then
+                            plc.linked = true
+                            plc.sv_addr = packet.scada_frame.src_addr()
+                            plc.r_seq_num = packet.scada_frame.seq_num() + 1
+                            log.info(log_tag .. "PLC session established with supervisor @" .. plc.sv_addr)
 
-                        -- send initial status/struct/rps to get supervisor out of retry
-                        plc_send_status()
-                        plc_send_struct()
-                        plc_send_rps_status()
+                            -- send initial status/struct/rps to get supervisor out of retry
+                            plc_send_status()
+                            plc_send_struct()
+                            plc_send_rps_status()
+                        end
                     else
                         log.warning(util.c(log_tag, "PLC establish denied (ack=", est_ack, "), retrying..."))
                         plc.linked = false
@@ -709,10 +711,12 @@ function sim.run(config)
                 if packet.length >= 1 then
                     local est_ack = packet.data[1]
                     if est_ack == ESTABLISH_ACK.ALLOW then
-                        rtu.linked = true
-                        rtu.sv_addr = packet.scada_frame.src_addr()
-                        rtu.r_seq_num = packet.scada_frame.seq_num() + 1
-                        log.info(log_tag .. "RTU session established with supervisor @" .. rtu.sv_addr)
+                        if not rtu.linked then
+                            rtu.linked = true
+                            rtu.sv_addr = packet.scada_frame.src_addr()
+                            rtu.r_seq_num = packet.scada_frame.seq_num() + 1
+                            log.info(log_tag .. "RTU session established with supervisor @" .. rtu.sv_addr)
+                        end
                     else
                         log.warning(util.c(log_tag, "RTU establish denied (ack=", est_ack, "), retrying..."))
                         rtu.linked = false
@@ -820,9 +824,15 @@ function sim.run(config)
                     end
 
                     if pkt then
-                        -- check sequence number for PLC session
-                        if plc.r_seq_num == nil then
+                        -- while not linked, skip strict seq checking: the
+                        -- supervisor ACKs every ESTABLISH retry (each with a
+                        -- fresh seq), so out-of-order ACKs are normal during
+                        -- the handshake. Only enforce seq once linked.
+                        if not plc.linked then
+                            handle_plc_packet(pkt)
+                        elseif plc.r_seq_num == nil then
                             plc.r_seq_num = frame.seq_num() + 1
+                            handle_plc_packet(pkt)
                         elseif plc.r_seq_num ~= frame.seq_num() then
                             log.warning(util.c(log_tag, "PLC seq out-of-order: next=", plc.r_seq_num, ", got=", frame.seq_num()))
                             -- sequence desync: close and re-establish
@@ -843,9 +853,15 @@ function sim.run(config)
                     end
 
                     if pkt then
-                        -- check sequence number for RTU session
-                        if rtu.r_seq_num == nil then
+                        -- while not linked, skip strict seq checking: the
+                        -- supervisor ACKs every ESTABLISH retry (each with a
+                        -- fresh seq), so out-of-order ACKs are normal during
+                        -- the handshake. Only enforce seq once linked.
+                        if not rtu.linked then
+                            handle_rtu_packet(pkt)
+                        elseif rtu.r_seq_num == nil then
                             rtu.r_seq_num = frame.seq_num() + 1
+                            handle_rtu_packet(pkt)
                         elseif rtu.r_seq_num ~= frame.seq_num() then
                             log.warning(util.c(log_tag, "RTU seq out-of-order: next=", rtu.r_seq_num, ", got=", frame.seq_num()))
                             rtu.linked = false
