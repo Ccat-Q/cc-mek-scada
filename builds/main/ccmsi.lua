@@ -16,10 +16,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]--
 
 local ccs = require("cc.strings")
-local CCMSI_VERSION = "2.2"
+local CCMSI_VERSION = "2.3"
 local IS_PKT = pocket ~= nil
 local INSTALL_DIR = "/.install-cache"
-local DEPLOY_DIR = "https://gh-proxy.org/https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
+local DEPLOY_DIR = "https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
+local PROXY_DIR = "https://gh-proxy.org/https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
 local OPTS = { ... }
 local mode, app, target, build_url, manifest_url
 local out_w, out_h = term.getSize()
@@ -145,6 +146,17 @@ return ok, manifest
 end
 local function read_remote_manifest()
 local resp, err = http.get(manifest_url)
+if resp ~= nil then
+local ok, manifest = pcall(function () return textutils.unserializeJSON(resp.readAll()) end)
+if ok then return true, manifest end
+end
+local alt_url = nil
+if string.find(manifest_url, PROXY_DIR, 1, true) ~= nil then
+alt_url = string.gsub(manifest_url, PROXY_DIR, DEPLOY_DIR, 1)
+else
+alt_url = string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1)
+end
+resp, err = http.get(alt_url)
 if resp == nil then
 orange();pln("Failed to read installation manifest from GitHub, cannot update or install.")
 red();pln("HTTP error: "..err);white()
@@ -172,6 +184,15 @@ end
 local function http_get_file(file, w_path)
 for i = 1, 3 do
 local dl, err = http.get(build_url..file)
+if dl == nil then
+local alt_url = nil
+if string.find(build_url, PROXY_DIR, 1, true) ~= nil then
+alt_url = string.gsub(build_url, PROXY_DIR, DEPLOY_DIR, 1)
+else
+alt_url = string.gsub(build_url, DEPLOY_DIR, PROXY_DIR, 1)
+end
+dl, err = http.get(alt_url..file)
+end
 if dl then
 if i > 1 then green();pln("success!");lgray() end
 local f = fs.open(w_path..file, "w")
