@@ -8,17 +8,21 @@
 
 require("/initenv").init_env()
 
-local util = require("scada-common.util")
+local log   = require("scada-common.log")
+local util  = require("scada-common.util")
 
 local sim = require("sim.sim")
 
-local SIM_VERSION = "1.0.2"
+local SIM_VERSION = "1.0.3"
 
 local println = util.println
 
 -- boot header
 println("-- SCADA Simulator v" .. SIM_VERSION .. " --")
 println("SIM> simulating PLC/RTU devices for the SCADA system")
+
+-- initialize logging so the simulator can leave a trace for diagnostics
+log.init("/log.txt", log.MODE.NEW, false)
 
 -- load configuration
 local config = sim.load_config()
