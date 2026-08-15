@@ -40,7 +40,7 @@ function model.new_reactor(opts)
 
     -- structural / build parameters (static)
     local max_burn = opts.max_burn or 1000.0          -- mB/t max burn rate
-    local heat_capacity = opts.heat_capacity or 100000.0
+    local heat_capacity = opts.heat_capacity or 1400000.0  -- large so full-power temp stays realistic
     local fuel_capacity = opts.fuel_capacity or 1000000.0  -- mB
     local waste_capacity = opts.waste_capacity or 100000.0  -- mB
     local coolant_capacity = opts.coolant_capacity or 100000.0
@@ -115,8 +115,11 @@ function model.new_reactor(opts)
         local st = self.status
 
         if st.active and st.act_burn_rate > 0 then
-            -- reactor is running: temperature rises toward burn-rate equilibrium
-            local equilibrium = 300 + (st.act_burn_rate / self.build.max_burn_rate) * 800
+            -- reactor is running: temperature equilibrium follows burn rate,
+            -- matching the supervisor's expected operational temperature
+            -- (temp = BASE_BOIL + burn_rate * JOULES_PER_MB / heat_capacity)
+            local JOULES_PER_MB = 1000000
+            local equilibrium = 373.15 + (st.act_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
             self.temp_target = equilibrium
 
             -- fuel consumption: burn rate in mB/t * 20 t/s
@@ -127,16 +130,37 @@ function model.new_reactor(opts)
             local waste_prod = fuel_use * 0.1
             st.waste = math.min(self.build.waste_capacity, st.waste + waste_prod)
 
-            -- heating rate estimate (RF/t)
-            st.heating_rate = st.act_burn_rate * 1000
+            -- waste export: the processing chain (SNA/plutonium) draws waste
+            -- out at a rate proportional to burn rate, keeping it from filling
+            local waste_export = fuel_use * 0.09
+            st.waste = math.max(0, st.waste - waste_export)
+
+            -- heating rate estimate (J/t, matches supervisor expectations)
+            st.heating_rate = st.act_burn_rate * JOULES_PER_MB
         else
             -- reactor idle: temperature decays toward ambient
             self.temp_target = 300.0
             st.heating_rate = 0
         end
 
-        -- temperature approach
-        st.temp = _approach(st.temp, self.temp_target, 0.02, dt)
+        -- temperature rises with the heating rate and cools toward ambient.
+        -- Equilibrium temp matches the supervisor's expected operational temp:
+        -- temp_eq = BASE_BOIL + burn_rate * JOULES_PER_MB / heat_cap.
+        -- A proportional heat-out term with coefficient K makes the dynamics
+        -- settle at that equilibrium: dT/dt = heat_in - K*(T - 300) with
+        -- K = (max_burn * JOULES_PER_MB / heat_cap) / (max_op_temp - 300).
+        if st.active and st.act_burn_rate > 0 then
+            local JOULES_PER_MB = 1000000
+            -- expected equilibrium at full power (~1000K operational)
+            local max_op_temp = 373.15 + (self.build.max_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
+            local k_out = (self.build.max_burn_rate * JOULES_PER_MB / self.build.heat_capacity) / (max_op_temp - 300.0)
+            local heat_in = (st.act_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
+            local heat_out = (st.temp - 300.0) * k_out
+            st.temp = st.temp + (heat_in - heat_out) * dt
+        else
+            -- reactor idle: cool toward ambient
+            st.temp = st.temp + (300.0 - st.temp) * 0.05 * dt
+        end
 
         -- actual burn rate approaches setpoint (startup ramp)
         if st.active then
@@ -367,10 +391,15 @@ function model.new_boiler()
             -- water replenished (simplified: water input)
             self.tanks.water = math.min(build.water_cap, self.tanks.water + steam_prod * 0.8)
 
-            -- heat exchange: hcoolant consumed, ccoolant produced
+            -- heat exchange: draws heated coolant from the reactor, converts
+            -- to cooled coolant; keeps the reactor's hcoolant from filling up
             local exchange = steam_prod * 0.05
-            self.tanks.hcool = math.max(0, self.tanks.hcool - exchange)
+            reactor.status.hcoolant = math.max(0, reactor.status.hcoolant - exchange)
+            self.tanks.hcool = math.min(build.hcoolant_cap, self.tanks.hcool + exchange)
             self.tanks.ccool = math.min(build.ccoolant_cap, self.tanks.ccool + exchange * 0.9)
+            -- cooled coolant returns to the reactor as coolant
+            reactor.status.coolant = math.min(reactor.build.coolant_capacity,
+                reactor.status.coolant + exchange * 0.85)
         else
             -- boiler idle: boil rate falls off
             self.state.boil_rate = _approach(self.state.boil_rate, 0, 0.1, dt)
@@ -507,6 +536,56 @@ end
 
 --#endregion
 
+--#region SPS Model
+
+-- create a simulated SPS (supercritical phase shifter)
+---@return table sps model object
+function model.new_sps()
+    local build = {
+        length = 3, width = 3, height = 5,
+        min_pos = { x = 0, y = 1, z = 0 }, max_pos = { x = 2, y = 5, z = 2 },
+        coils = 8, input_cap = 100000.0, output_cap = 100000.0,
+        max_energy = 100000000.0
+    }
+
+    local self = {
+        build = build,
+        formed = true,
+        state = {
+            process_rate = 0.0
+        },
+        tanks = {
+            input = 50000.0, input_fill = 0.5,
+            output = 50000.0, output_fill = 0.5,
+            energy = 50000000.0, energy_fill = 0.5
+        }
+    }
+
+    -- update SPS (processes polonium from SNA into antimatter)
+    function self.update(reactor, dt)
+        if reactor.status.active and reactor.status.act_burn_rate > 0 then
+            -- process rate follows reactor burn rate
+            self.state.process_rate = (reactor.status.act_burn_rate / reactor.build.max_burn_rate) * 100
+
+            -- input consumed, output produced
+            local proc = self.state.process_rate * dt * 0.01
+            self.tanks.input = math.max(0, self.tanks.input - proc)
+            self.tanks.output = math.min(build.output_cap, self.tanks.output + proc * 0.5)
+            -- input replenished by the SNA chain
+            self.tanks.input = math.min(build.input_cap, self.tanks.input + proc * 0.4)
+        else
+            self.state.process_rate = _approach(self.state.process_rate, 0, 0.1, dt)
+        end
+
+        self.tanks.input_fill = self.tanks.input / build.input_cap
+        self.tanks.output_fill = self.tanks.output / build.output_cap
+    end
+
+    return self
+end
+
+--#endregion
+
 --#region Facility Model
 
 -- create a full simulated facility: reactors, boilers, turbines, ESS
@@ -521,8 +600,9 @@ function model.new_facility(config)
         ess = nil        ---@type table
     }
 
-    -- create ESS first
+    -- create ESS and SPS
     self.ess = model.new_matrix()
+    self.sps = model.new_sps()
 
     -- create units (each: reactor + boilers + turbines)
     for i = 1, num_units do
@@ -584,6 +664,10 @@ function model.new_facility(config)
             end
         end
         self.ess.update(all_turbines, dt)
+
+        -- update SPS from the first reactor
+        local first_reactor = self.units[1] and self.units[1].reactor
+        if first_reactor then self.sps.update(first_reactor, dt) end
     end
 
     return self
