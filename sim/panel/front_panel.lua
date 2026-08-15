@@ -30,7 +30,6 @@ local TabBar = require("graphics.elements.controls.TabBar")
 
 local ALIGN = core.ALIGN
 
-local cpair = core.cpair
 local border = core.border
 
 local PANEL_LINK_STATE = require("scada-common.types").PANEL_LINK_STATE
@@ -41,7 +40,7 @@ local ind_grn = style.ind_grn
 ---@param panel DisplayBox main displaybox
 ---@param config sim_config simulator configuration
 ---@param control table control callbacks { set_burn, scram, activate, set_param }
-local function init(panel, config, control)
+local function init(panel, config, control) -- luacheck: ignore config
     local theme = style.theme
     local fp = style.fp
 
@@ -54,16 +53,19 @@ local function init(panel, config, control)
     -- tab bar + multi-pane
     --
 
+    -- forward-declare the multi-pane so the tab bar callback can reference it
+    local pane ---@type MultiPane
+
     local tabs = {
-        { name = "STATUS", color = fp.tab_fg_bg },
-        { name = "CONTROL", color = fp.tab_fg_bg },
-        { name = "LOG", color = fp.tab_fg_bg }
+        { name = "STATUS", color = theme.highlight_box },
+        { name = "CONTROL", color = theme.highlight_box },
+        { name = "LOG", color = theme.highlight_box }
     }
 
-    local tab_bar = TabBar{parent=panel,y=2,tabs=tabs,width=term_w-4,x=2,fg_bg=fp.tab_bar_bg,
+    local tab_bar = TabBar{parent=panel,y=2,tabs=tabs,width=term_w-4,x=2,fg_bg=theme.highlight_box,
         callback=function (tab) pane.set_value(tab) end}
 
-    local pane = MultiPane{parent=panel,y=4,width=term_w-2,x=1,height=term_h-6,panes={}}
+    pane = MultiPane{parent=panel,y=4,width=term_w-2,x=1,height=term_h-6,panes={}}
 
     --#region STATUS Pane
 
@@ -157,12 +159,12 @@ local function init(panel, config, control)
     TextBox{parent=burn_box,y=2,text="Burn rate (mB/t):",width=18,fg_bg=fp.text_fg}
     local burn_field = require("graphics.elements.form.NumberField"){parent=burn_box,x=21,y=2,label="",width=8,default=0,min=0,max=1000,fg_bg=theme.field_box}
 
-    local apply_burn = PushButton{parent=burn_box,x=31,y=2,text="APPLY",callback=function () control.set_burn(burn_field.get_value()) end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
+    PushButton{parent=burn_box,x=31,y=2,text="APPLY",callback=function () control.set_burn(tonumber(burn_field.value)) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
 
-    local btn_scram = PushButton{parent=burn_box,y=4,x=2,text="SCRAM",min_width=10,callback=function () control.scram() end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
-    local btn_start = PushButton{parent=burn_box,y=4,x=16,text="START",min_width=10,callback=function () control.activate() end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
-    local btn_burnup = PushButton{parent=burn_box,y=4,x=30,text="BURN +100",min_width=12,callback=function () control.nudge_burn(100) end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
-    local btn_burndn = PushButton{parent=burn_box,y=4,x=44,text="BURN -100",min_width=12,callback=function () control.nudge_burn(-100) end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
+    PushButton{parent=burn_box,y=4,x=2,text="SCRAM",min_width=10,callback=function () control.scram() end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
+    PushButton{parent=burn_box,y=4,x=16,text="START",min_width=10,callback=function () control.activate() end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
+    PushButton{parent=burn_box,y=4,x=30,text="BURN +100",min_width=12,callback=function () control.nudge_burn(100) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
+    PushButton{parent=burn_box,y=4,x=44,text="BURN -100",min_width=12,callback=function () control.nudge_burn(-100) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
 
     -- parameter tweaks box
     local param_box = Rectangle{parent=control_pane,x=2,y=10,width=term_w-6,height=term_h-14,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
@@ -182,12 +184,12 @@ local function init(panel, config, control)
 
     -- quick param adjustments
     TextBox{parent=param_box,y=4,text="Heating responsiveness:",width=24,fg_bg=fp.text_fg}
-    local btn_heat_hi = PushButton{parent=param_box,x=26,y=4,text="+",min_width=3,callback=function () control.nudge_heat(0.05) end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
-    local btn_heat_lo = PushButton{parent=param_box,x=31,y=4,text="-",min_width=3,callback=function () control.nudge_heat(-0.05) end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
+    PushButton{parent=param_box,x=26,y=4,text="+",min_width=3,callback=function () control.nudge_heat(0.05) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
+    PushButton{parent=param_box,x=31,y=4,text="-",min_width=3,callback=function () control.nudge_heat(-0.05) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
 
     TextBox{parent=param_box,y=5,text="Fuel multiplier:",width=24,fg_bg=fp.text_fg}
-    local btn_fuel_hi = PushButton{parent=param_box,x=26,y=5,text="+",min_width=3,callback=function () control.nudge_fuel(0.1) end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
-    local btn_fuel_lo = PushButton{parent=param_box,x=31,y=5,text="-",min_width=3,callback=function () control.nudge_fuel(-0.1) end,fg_bg=fp.btn_fg_bg,active_fg_bg=fp.btn_act_fg_bg}
+    PushButton{parent=param_box,x=26,y=5,text="+",min_width=3,callback=function () control.nudge_fuel(0.1) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
+    PushButton{parent=param_box,x=31,y=5,text="-",min_width=3,callback=function () control.nudge_fuel(-0.1) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
 
     --#endregion
 
@@ -196,7 +198,6 @@ local function init(panel, config, control)
     local log_pane = Div{parent=pane,width=term_w-2,height=term_h-6}
 
     local log_box = require("graphics.elements.ListBox"){parent=log_pane,x=1,y=1,width=term_w-4,height=term_h-8,fg_bg=fp.root}
-    local log_lines = {}  ---@type TextBox[]
 
     -- subscribe to new log lines and refresh the list
     local newest_shown = 0
@@ -205,10 +206,9 @@ local function init(panel, config, control)
         local lines = databus.get_log(newest_shown + 1, 30)
         if #lines > 0 then
             for _, line in ipairs(lines) do
-                table.insert(log_lines, TextBox{parent=log_box,text=line.text,fg_bg=fp.root})
+                TextBox{parent=log_box,text=line.text,fg_bg=fp.root}
                 newest_shown = line.idx
             end
-            log_box.refresh_metrics()
         end
     end
 

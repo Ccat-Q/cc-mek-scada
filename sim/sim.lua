@@ -34,6 +34,8 @@ local model    = require("sim.model")
 local databus  = require("sim.databus")
 local renderer = require("sim.renderer")
 
+local core = require("graphics.core")
+
 local sim = {}
 
 local PROTOCOL     = comms.PROTOCOL
@@ -67,6 +69,7 @@ function sim.load_config()
         SimulatePLC = settings.get("SimulatePLC") ~= false,  -- luacheck: ignore settings
         SimulateRTU = settings.get("SimulateRTU") ~= false,  -- luacheck: ignore settings
         SimulateSPS = settings.get("SimulateSPS") ~= false,  -- luacheck: ignore settings
+        ShowUI = settings.get("ShowUI") ~= false,            -- luacheck: ignore settings
         UnitCount = settings.get("UnitCount") or 1,          -- luacheck: ignore settings
         BoilersPerUnit = settings.get("BoilersPerUnit") or 1, -- luacheck: ignore settings
         TurbinesPerUnit = settings.get("TurbinesPerUnit") or 1, -- luacheck: ignore settings
@@ -166,6 +169,10 @@ function sim.run(config)
 
     --#region Control Callbacks (front panel actions)
 
+    -- forward-declare session state so callbacks can reference it
+    local plc ---@type table|nil
+    local rtu ---@type table|nil
+
     -- control table passed to the front panel UI
     local control = {}
 
@@ -176,8 +183,10 @@ function sim.run(config)
         if reactor then
             if reactor.set_burn_rate(rate) then
                 log.info(util.c(log_tag, "burn rate set to ", rate, " mB/t"))
+                databus.tx_log(util.c("[CTRL] burn rate set to ", rate, " mB/t"))
             else
                 log.warning(util.c(log_tag, "invalid burn rate ", rate))
+                databus.tx_log(util.c("[CTRL] invalid burn rate ", rate))
             end
         end
     end
@@ -188,6 +197,7 @@ function sim.run(config)
         if reactor then
             reactor.scram()
             log.info(log_tag .. "reactor SCRAMMED from front panel")
+            databus.tx_log("[CTRL] reactor SCRAMMED")
         end
     end
 
@@ -197,8 +207,10 @@ function sim.run(config)
         if reactor then
             if reactor.activate() then
                 log.info(log_tag .. "reactor activated from front panel")
+                databus.tx_log("[CTRL] reactor activated")
             else
                 log.warning(log_tag .. "cannot activate (reactor tripped)")
+                databus.tx_log("[CTRL] activate failed (tripped)")
             end
         end
     end
@@ -243,7 +255,7 @@ function sim.run(config)
     --#region Session State
 
     -- PLC session state
-    local plc = {
+    plc = {
         enabled = config.SimulatePLC,
         linked = false,
         sv_addr = comms.BROADCAST,
@@ -258,7 +270,7 @@ function sim.run(config)
     }
 
     -- RTU session state
-    local rtu = {
+    rtu = {
         enabled = config.SimulateRTU,
         linked = false,
         sv_addr = comms.BROADCAST,
@@ -767,6 +779,7 @@ function sim.run(config)
                             plc.sv_addr = packet.scada_frame.src_addr()
                             plc.r_seq_num = packet.scada_frame.seq_num() + 1
                             log.info(log_tag .. "PLC session established with supervisor @" .. plc.sv_addr)
+                            databus.tx_link("plc", types.PANEL_LINK_STATE.LINKED)
 
                             -- send initial status/struct/rps to get supervisor out of retry
                             plc_send_status()
@@ -787,6 +800,7 @@ function sim.run(config)
                 plc.linked = false
                 plc.sv_addr = comms.BROADCAST
                 log.info(log_tag .. "PLC session closed by supervisor")
+                databus.tx_link("plc", types.PANEL_LINK_STATE.DISCONNECTED)
             end
         end
     end
@@ -831,6 +845,7 @@ function sim.run(config)
                             rtu.sv_addr = packet.scada_frame.src_addr()
                             rtu.r_seq_num = packet.scada_frame.seq_num() + 1
                             log.info(log_tag .. "RTU session established with supervisor @" .. rtu.sv_addr)
+                            databus.tx_link("rtu", types.PANEL_LINK_STATE.LINKED)
                         end
                     else
                         log.warning(util.c(log_tag, "RTU establish denied (ack=", est_ack, "), retrying..."))
@@ -846,6 +861,7 @@ function sim.run(config)
                 rtu.linked = false
                 rtu.sv_addr = comms.BROADCAST
                 log.info(log_tag .. "RTU session closed by supervisor")
+                databus.tx_link("rtu", types.PANEL_LINK_STATE.DISCONNECTED)
             elseif packet.type == MGMT_TYPE.RTU_ADVERT then
                 -- supervisor requests capabilities again
                 rtu_send_mgmt(MGMT_TYPE.RTU_ADVERT, build_advertisement())
@@ -897,6 +913,18 @@ function sim.run(config)
         end
     end
 
+    -- publish live state to the front panel UI
+    local function ui_update()
+        local unit = facility.units[plc.reactor_id]
+        if unit then
+            databus.tx_reactor(unit)
+            for i, boiler in ipairs(unit.boilers) do databus.tx_boiler(boiler, i) end
+            for i, turbine in ipairs(unit.turbines) do databus.tx_turbine(turbine, i) end
+        end
+        databus.tx_ess(facility.ess)
+        databus.tx_sps(facility.sps)
+    end
+
     -- main loop (timer-driven, matching real RTU/PLC device loops)
     local loop_clock = util.new_clock(0.5)
 
@@ -920,6 +948,7 @@ function sim.run(config)
                 nic.periodic()
                 try_establish()
                 periodic_sends()
+                ui_update()
 
                 -- schedule next tick
                 loop_clock.start()
@@ -1006,6 +1035,13 @@ function sim.run(config)
                 nic.disconnect()
                 ppm.handle_unmount(param1)
             end
+        elseif event == "monitor_touch" or event == "mouse_click" or event == "mouse_up" or
+               event == "mouse_drag" or event == "mouse_scroll" or event == "double_click" then
+            -- handle a mouse event for the front panel UI
+            renderer.handle_mouse(core.events.new_mouse_event(event, param1, param2, param3))
+        elseif event == "key" then
+            -- keyboard events handled by the UI element tree
+            renderer.handle_key(core.events.new_key_event(event, param1, param2))
         elseif event == "terminate" then
             break
         end

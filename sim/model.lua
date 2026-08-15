@@ -122,8 +122,8 @@ function model.new_reactor(opts)
             local equilibrium = 373.15 + (st.act_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
             self.temp_target = equilibrium
 
-            -- fuel consumption: burn rate in mB/t * 20 t/s
-            local fuel_use = st.act_burn_rate * 20 * dt
+            -- fuel consumption: burn rate in mB/t * 20 t/s, scaled by fuel_mult
+            local fuel_use = st.act_burn_rate * 20 * dt * (self.fuel_mult or 1.0)
             st.fuel = math.max(0, st.fuel - fuel_use)
 
             -- waste accumulation (roughly 1/10 of fuel by volume)
@@ -155,7 +155,7 @@ function model.new_reactor(opts)
             local max_op_temp = 373.15 + (self.build.max_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
             local k_out = (self.build.max_burn_rate * JOULES_PER_MB / self.build.heat_capacity) / (max_op_temp - 300.0)
             local heat_in = (st.act_burn_rate * JOULES_PER_MB) / self.build.heat_capacity
-            local heat_out = (st.temp - 300.0) * k_out
+            local heat_out = (st.temp - 300.0) * k_out * (self.heat_out_k or 1.0)
             st.temp = st.temp + (heat_in - heat_out) * dt
         else
             -- reactor idle: cool toward ambient
@@ -611,6 +611,10 @@ function model.new_facility(config)
     self.ess = model.new_matrix()
     self.sps = model.new_sps()
 
+    -- tunable simulation parameters (front panel control)
+    self.heat_out_k = 1.0   -- temperature heat-out coefficient multiplier
+    self.fuel_mult = 1.0    -- fuel consumption multiplier
+
     -- create units (each: reactor + boilers + turbines)
     for i = 1, num_units do
         local reactor = model.new_reactor(config.reactor_opts)
@@ -644,6 +648,10 @@ function model.new_facility(config)
         local dt = 0.05 -- nominal step; individual models track their own time
 
         for _, unit in ipairs(self.units) do
+            -- inject tunable parameters
+            unit.reactor.heat_out_k = self.heat_out_k
+            unit.reactor.fuel_mult = self.fuel_mult
+
             unit.reactor.update()
 
             -- boiler steam output drives turbine steam input

@@ -97,4 +97,12 @@ function renderer.handle_mouse(event)
     end
 end
 
+-- handle a keyboard event
+---@param event key_interaction|nil
+function renderer.handle_key(event)
+    if ui.display ~= nil and event ~= nil then
+        ui.display.handle_key(event)
+    end
+end
+
 return renderer

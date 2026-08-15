@@ -7,7 +7,6 @@
 --
 
 local psil = require("scada-common.psil")
-local util = require("scada-common.util")
 
 ---@class sim_databus
 local databus = {}
@@ -20,10 +19,10 @@ local LOG_MAX = 200
 local log_buffer = {}
 local log_head = 0
 
--- current link state
+-- current link state (starts disconnected)
 local link_state = {
-    plc = 1,   -- PANEL_LINK_STATE values (1=disconnected)
-    rtu = 1
+    plc = 5,   -- PANEL_LINK_STATE.DISCONNECTED
+    rtu = 5
 }
 
 -- publish the reactor status block

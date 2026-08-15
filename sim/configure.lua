@@ -56,6 +56,7 @@ function configure.configure()
             SimulatePLC = settings.get("SimulatePLC"),
             SimulateRTU = settings.get("SimulateRTU"),
             SimulateSPS = settings.get("SimulateSPS"),
+            ShowUI = settings.get("ShowUI"),
             UnitCount = settings.get("UnitCount"),
             BoilersPerUnit = settings.get("BoilersPerUnit"),
             TurbinesPerUnit = settings.get("TurbinesPerUnit"),
@@ -95,6 +96,7 @@ function configure.configure()
     end
 
     local sps_en = prompt("Simulate a facility SPS? (y/n)", (cur.SimulateSPS ~= false) and "y" or "n", false)
+    local ui_en = prompt("Show front panel UI? (y/n)", (cur.ShowUI ~= false) and "y" or "n", false)
 
     local modem_side = prompt("Modem side (optional, auto-detect if empty)", cur.ModemSide or "", false)
     if modem_side == "" then modem_side = nil end
@@ -111,6 +113,7 @@ function configure.configure()
     settings.set("BoilersPerUnit", boilers)
     settings.set("TurbinesPerUnit", turbines)
     settings.set("SimulateSPS", string.lower(tostring(sps_en)) ~= "n")
+    settings.set("ShowUI", string.lower(tostring(ui_en)) ~= "n")
     if modem_side then settings.set("ModemSide", modem_side) end
 
     local saved = settings.save("/sim.settings")
