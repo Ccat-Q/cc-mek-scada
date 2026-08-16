@@ -55,8 +55,14 @@ function renderer.try_start_ui(config, control)
             -- start flasher callback task
             flasher.run()
         else
+            -- show the error on the terminal instead of clearing it away
             msg = core.extract_assert_msg(msg)
-            renderer.close_ui()
+            term.setTextColor(colors.white)
+            term.setBackgroundColor(colors.black)
+            term.clear()
+            term.setCursorPos(1, 1)
+            print("SIM UI ERROR: " .. tostring(msg))
+            print("Check /log.txt for details")
         end
     end
 
