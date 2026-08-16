@@ -16,7 +16,6 @@ local style = require("sim.panel.style")
 local core = require("graphics.core")
 
 local Div = require("graphics.elements.Div")
-local Rectangle = require("graphics.elements.Rectangle")
 local TextBox = require("graphics.elements.TextBox")
 local MultiPane = require("graphics.elements.MultiPane")
 
@@ -29,8 +28,6 @@ local PushButton = require("graphics.elements.controls.PushButton")
 local TabBar = require("graphics.elements.controls.TabBar")
 
 local ALIGN = core.ALIGN
-
-local border = core.border
 
 local PANEL_LINK_STATE = require("scada-common.types").PANEL_LINK_STATE
 
