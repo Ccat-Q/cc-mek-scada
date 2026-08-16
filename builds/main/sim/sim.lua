@@ -7,8 +7,7 @@ local types    = require("scada-common.types")
 local util     = require("scada-common.util")
 local model    = require("sim.model")
 local databus  = require("sim.databus")
-local renderer = require("sim.renderer")
-local core = require("graphics.core")
+local tui      = require("sim.tui")
 local sim = {}
 local PROTOCOL     = comms.PROTOCOL
 local MGMT_TYPE    = comms.MGMT_TYPE
@@ -147,12 +146,6 @@ facility.fuel_mult = math.max(0.1, facility.fuel_mult + delta)
 log.info(util.c(log_tag, "fuel multiplier -> ", string.format("%.2f", facility.fuel_mult)))
 end
 end
-if config.ShowUI ~= false then
-local ui_ok, ui_err = renderer.try_start_ui(config, control)
-if not ui_ok then
-log.warning(util.c(log_tag, "failed to start front panel UI: ", tostring(ui_err)))
-end
-end
 plc = {
 enabled = config.SimulatePLC,
 linked = false,
@@ -175,6 +168,11 @@ r_seq_num = nil,
 txn_id = 0,
 last_keepalive_send = 0
 }
+if config.ShowUI ~= false then
+tui.set_version(SIM_VERSION)
+tui.init(config, facility, plc, rtu, control)
+tui.draw()
+end
 local function build_advertisement()
 local advert = {}
 local unit_count = config.UnitCount
@@ -648,14 +646,7 @@ if plc.resend_build then plc_send_struct() end
 end
 end
 local function ui_update()
-local unit = facility.units[plc.reactor_id]
-if unit then
-databus.tx_reactor(unit)
-for i, boiler in ipairs(unit.boilers) do databus.tx_boiler(boiler, i) end
-for i, turbine in ipairs(unit.turbines) do databus.tx_turbine(turbine, i) end
-end
-databus.tx_ess(facility.ess)
-databus.tx_sps(facility.sps)
+if config.ShowUI ~= false then tui.draw() end
 end
 local loop_clock = util.new_clock(0.5)
 loop_clock.start()
@@ -745,11 +736,13 @@ log.warning(log_tag .. "modem detached")
 nic.disconnect()
 ppm.handle_unmount(param1)
 end
-elseif event == "monitor_touch" or event == "mouse_click" or event == "mouse_up" or
-event == "mouse_drag" or event == "mouse_scroll" or event == "double_click" then
-renderer.handle_mouse(core.events.new_mouse_event(event, param1, param2, param3))
 elseif event == "key" then
-renderer.handle_key(core.events.new_key_event(event, param1, param2))
+if config.ShowUI ~= false then
+local handled = tui.handle_key(param1)
+if not handled then
+break
+end
+end
 elseif event == "terminate" then
 break
 end
