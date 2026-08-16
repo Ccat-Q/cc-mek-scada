@@ -1,8 +1,6 @@
 
-local util = require("scada-common.util")
 local databus = require("sim.databus")
 local tui = {}
-local config
 local facility
 local plc
 local rtu
@@ -11,7 +9,7 @@ local SIM_VERSION = ""
 local tab = 1
 function tui.set_version(version) SIM_VERSION = version end
 function tui.init(cfg, fac, plc_state, rtu_state, ctl)
-config, facility, plc, rtu, control = cfg, fac, plc_state, rtu_state, ctl
+facility, plc, rtu, control = fac, plc_state, rtu_state, ctl
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -136,7 +134,7 @@ return true
 elseif key == keys.q then
 return false
 elseif key == keys.b then
-local w, h = term.getSize()
+local _, h = term.getSize()
 term.setCursorPos(1, h)
 term.clearLine()
 write("Burn rate (mB/t): ")
