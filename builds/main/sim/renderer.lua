@@ -31,7 +31,12 @@ if status then
 flasher.run()
 else
 msg = core.extract_assert_msg(msg)
-renderer.close_ui()
+term.setTextColor(colors.white)
+term.setBackgroundColor(colors.black)
+term.clear()
+term.setCursorPos(1, 1)
+print("SIM UI ERROR: " .. tostring(msg))
+print("Check /log.txt for details")
 end
 end
 return status, msg
