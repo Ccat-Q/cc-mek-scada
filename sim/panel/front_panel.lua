@@ -75,7 +75,11 @@ local function init(panel, config, control) -- luacheck: ignore config
 
     --#region STATUS Pane
 
-    local reactor_box = Rectangle{parent=status_pane,x=1,y=1,width=math.floor((term_w-4)/2),height=11,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    -- Div containers auto-size to their content (no fixed heights, so the
+    -- layout can never overflow the terminal)
+    local half_w = math.floor((term_w - 4) / 2)
+
+    local reactor_box = Div{parent=status_pane,x=1,y=1,width=half_w}
 
     local r_active = LED{parent=reactor_box,y=1,label="ACTIVE",colors=ind_grn}
     local r_trip = RGBLED{parent=reactor_box,y=1,label="TRIP",colors={colors.green,colors.red,colors.yellow}}
@@ -105,7 +109,7 @@ local function init(panel, config, control) -- luacheck: ignore config
     r_hcool.register(databus.ps, "hcoolant_fill", r_hcool.update)
 
     -- boiler box
-    local boiler_box = Rectangle{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=1,width=math.floor((term_w-4)/2),height=7,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    local boiler_box = Div{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=1,width=math.floor((term_w-4)/2),}
 
     TextBox{parent=boiler_box,text="BOILER",fg_bg=theme.highlight_box}
 
@@ -120,7 +124,7 @@ local function init(panel, config, control) -- luacheck: ignore config
     b_water.register(databus.ps, "boiler_1_water_fill", b_water.update)
 
     -- turbine box
-    local turb_box = Rectangle{parent=status_pane,x=1,y=13,width=math.floor((term_w-4)/2),height=7,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    local turb_box = Div{parent=status_pane,x=1,y=13,width=math.floor((term_w-4)/2),}
 
     TextBox{parent=turb_box,text="TURBINE",fg_bg=theme.highlight_box}
 
@@ -135,7 +139,7 @@ local function init(panel, config, control) -- luacheck: ignore config
     t_energy.register(databus.ps, "turbine_1_energy_fill", t_energy.update)
 
     -- facility box (ESS + SPS)
-    local fac_box = Rectangle{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=9,width=math.floor((term_w-4)/2),height=7,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    local fac_box = Div{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=9,width=math.floor((term_w-4)/2),}
 
     TextBox{parent=fac_box,text="FACILITY (ESS/SPS)",fg_bg=theme.highlight_box}
 
@@ -154,7 +158,7 @@ local function init(panel, config, control) -- luacheck: ignore config
     --#region CONTROL Pane
 
 
-    local burn_box = Rectangle{parent=control_pane,x=2,y=1,width=term_w-6,height=7,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    local burn_box = Div{parent=control_pane,x=2,y=1,width=term_w-6,}
 
     TextBox{parent=burn_box,text="REACTOR CONTROL",fg_bg=theme.highlight_box}
 
@@ -169,7 +173,7 @@ local function init(panel, config, control) -- luacheck: ignore config
     PushButton{parent=burn_box,y=4,x=44,text="BURN -100",min_width=12,callback=function () control.nudge_burn(-100) end,fg_bg=theme.highlight_box,active_fg_bg=theme.field_box}
 
     -- parameter tweaks box
-    local param_box = Rectangle{parent=control_pane,x=2,y=10,width=term_w-6,height=term_h-12,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+    local param_box = Div{parent=control_pane,x=2,y=10,width=term_w-6}
 
     TextBox{parent=param_box,text="SIMULATION PARAMETERS",fg_bg=theme.highlight_box}
 
