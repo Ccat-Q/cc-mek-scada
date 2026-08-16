@@ -13,7 +13,7 @@ local util  = require("scada-common.util")
 
 local sim = require("sim.sim")
 
-local SIM_VERSION = "1.0.14"
+local SIM_VERSION = "1.0.15"
 
 local println = util.println
 

@@ -32,9 +32,7 @@ local util     = require("scada-common.util")
 
 local model    = require("sim.model")
 local databus  = require("sim.databus")
-local renderer = require("sim.renderer")
-
-local core = require("graphics.core")
+local tui      = require("sim.tui")
 
 local sim = {}
 
@@ -242,14 +240,6 @@ function sim.run(config)
         end
     end
 
-    -- start the front panel UI
-    if config.ShowUI ~= false then
-        local ui_ok, ui_err = renderer.try_start_ui(config, control)
-        if not ui_ok then
-            log.warning(util.c(log_tag, "failed to start front panel UI: ", tostring(ui_err)))
-        end
-    end
-
     --#endregion
 
     --#region Session State
@@ -279,6 +269,13 @@ function sim.run(config)
         txn_id = 0,
         last_keepalive_send = 0
     }
+
+    -- start the TUI (terminal user interface)
+    if config.ShowUI ~= false then
+        tui.set_version(SIM_VERSION)
+        tui.init(config, facility, plc, rtu, control)
+        tui.draw()
+    end
 
     --#endregion
 
@@ -915,14 +912,8 @@ function sim.run(config)
 
     -- publish live state to the front panel UI
     local function ui_update()
-        local unit = facility.units[plc.reactor_id]
-        if unit then
-            databus.tx_reactor(unit)
-            for i, boiler in ipairs(unit.boilers) do databus.tx_boiler(boiler, i) end
-            for i, turbine in ipairs(unit.turbines) do databus.tx_turbine(turbine, i) end
-        end
-        databus.tx_ess(facility.ess)
-        databus.tx_sps(facility.sps)
+        -- redraw the TUI (it reads facility state directly)
+        if config.ShowUI ~= false then tui.draw() end
     end
 
     -- main loop (timer-driven, matching real RTU/PLC device loops)
@@ -1035,13 +1026,15 @@ function sim.run(config)
                 nic.disconnect()
                 ppm.handle_unmount(param1)
             end
-        elseif event == "monitor_touch" or event == "mouse_click" or event == "mouse_up" or
-               event == "mouse_drag" or event == "mouse_scroll" or event == "double_click" then
-            -- handle a mouse event for the front panel UI
-            renderer.handle_mouse(core.events.new_mouse_event(event, param1, param2, param3))
         elseif event == "key" then
-            -- keyboard events handled by the UI element tree
-            renderer.handle_key(core.events.new_key_event(event, param1, param2))
+            -- keyboard events for the TUI
+            if config.ShowUI ~= false then
+                local handled = tui.handle_key(param1)
+                if not handled then
+                    -- only the quit key returns false; exit the simulator
+                    break
+                end
+            end
         elseif event == "terminate" then
             break
         end
