@@ -7,14 +7,12 @@
 -- avoids the graphics library for maximum robustness.
 --
 
-local util = require("scada-common.util")
 local databus = require("sim.databus")
 
 ---@class sim_tui
 local tui = {}
 
 -- state references set at init
-local config ---@type table|nil
 local facility ---@type table|nil
 local plc ---@type table|nil
 local rtu ---@type table|nil
@@ -35,8 +33,8 @@ function tui.set_version(version) SIM_VERSION = version end
 ---@param plc_state table PLC session state
 ---@param rtu_state table RTU session state
 ---@param ctl table control callbacks
-function tui.init(cfg, fac, plc_state, rtu_state, ctl)
-    config, facility, plc, rtu, control = cfg, fac, plc_state, rtu_state, ctl
+function tui.init(cfg, fac, plc_state, rtu_state, ctl) -- luacheck: ignore cfg
+    facility, plc, rtu, control = fac, plc_state, rtu_state, ctl
 
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
@@ -207,10 +205,10 @@ function tui.handle_key(key)
         return false -- allow quit
     elseif key == keys.b then
         -- prompt for a burn rate (blocking read)
-        local w, h = term.getSize()
+        local _, h = term.getSize()
         term.setCursorPos(1, h)
         term.clearLine()
-        write("Burn rate (mB/t): ")
+        write("Burn rate (mB/t): ") -- luacheck: ignore write
         local value = tonumber(read())
         term.clearLine()
         if value then control.set_burn(value) end
