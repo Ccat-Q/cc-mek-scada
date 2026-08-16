@@ -35,7 +35,7 @@ local tabs = {
 local tab_bar = TabBar{parent=panel,y=2,tabs=tabs,width=term_w-4,x=2,fg_bg=theme.highlight_box,
 callback=function (tab) pane.set_value(tab) end}
 pane = MultiPane{parent=root_pane_div,y=3,panes={status_pane, control_pane, log_pane}}
-local reactor_box = Rectangle{parent=status_pane,x=1,y=1,width=math.floor((term_w-4)/2),height=13,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+local reactor_box = Rectangle{parent=status_pane,x=1,y=1,width=math.floor((term_w-4)/2),height=11,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 local r_active = LED{parent=reactor_box,y=1,label="ACTIVE",colors=ind_grn}
 local r_trip = RGBLED{parent=reactor_box,y=1,label="TRIP",colors={colors.green,colors.red,colors.yellow}}
 r_active.register(databus.ps, "reactor_active", r_active.update)
@@ -56,27 +56,27 @@ r_fuel.register(databus.ps, "fuel_fill", r_fuel.update)
 r_waste.register(databus.ps, "waste_fill", r_waste.update)
 r_cool.register(databus.ps, "coolant_fill", r_cool.update)
 r_hcool.register(databus.ps, "hcoolant_fill", r_hcool.update)
-local boiler_box = Rectangle{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=1,width=math.floor((term_w-4)/2),height=9,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+local boiler_box = Rectangle{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=1,width=math.floor((term_w-4)/2),height=7,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 TextBox{parent=boiler_box,text="BOILER",fg_bg=theme.highlight_box}
 local b_temp = DataIndicator{parent=boiler_box,y=2,label="TEMP",format="%.1f",unit="K",value=0,width=10,fg_bg=theme.field_box}
 local b_boil = DataIndicator{parent=boiler_box,y=3,label="BOIL",format="%.1f",unit="",value=0,width=10,fg_bg=theme.field_box}
-local b_steam = HorizontalBar{parent=boiler_box,y=5,label="STEAM",value=0,width=22,fg_bg=theme.field_box}
-local b_water = HorizontalBar{parent=boiler_box,y=6,label="WATER",value=0,width=22,fg_bg=theme.field_box}
+local b_steam = HorizontalBar{parent=boiler_box,y=4,label="STEAM",value=0,width=22,fg_bg=theme.field_box}
+local b_water = HorizontalBar{parent=boiler_box,y=5,label="WATER",value=0,width=22,fg_bg=theme.field_box}
 b_temp.register(databus.ps, "boiler_1_temp", b_temp.update)
 b_boil.register(databus.ps, "boiler_1_boil_rate", b_boil.update)
 b_steam.register(databus.ps, "boiler_1_steam_fill", b_steam.update)
 b_water.register(databus.ps, "boiler_1_water_fill", b_water.update)
-local turb_box = Rectangle{parent=status_pane,x=1,y=15,width=math.floor((term_w-4)/2),height=8,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+local turb_box = Rectangle{parent=status_pane,x=1,y=13,width=math.floor((term_w-4)/2),height=7,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 TextBox{parent=turb_box,text="TURBINE",fg_bg=theme.highlight_box}
 local t_flow = DataIndicator{parent=turb_box,y=2,label="FLOW",format="%.1f",unit="",value=0,width=10,fg_bg=theme.field_box}
 local t_prod = DataIndicator{parent=turb_box,y=3,label="PROD",format="%.1f",unit="RF/t",value=0,width=12,fg_bg=theme.field_box}
-local t_steam = HorizontalBar{parent=turb_box,y=5,label="STEAM",value=0,width=22,fg_bg=theme.field_box}
-local t_energy = HorizontalBar{parent=turb_box,y=6,label="ENERGY",value=0,width=22,fg_bg=theme.field_box}
+local t_steam = HorizontalBar{parent=turb_box,y=4,label="STEAM",value=0,width=22,fg_bg=theme.field_box}
+local t_energy = HorizontalBar{parent=turb_box,y=5,label="ENERGY",value=0,width=22,fg_bg=theme.field_box}
 t_flow.register(databus.ps, "turbine_1_flow", t_flow.update)
 t_prod.register(databus.ps, "turbine_1_prod", t_prod.update)
 t_steam.register(databus.ps, "turbine_1_steam_fill", t_steam.update)
 t_energy.register(databus.ps, "turbine_1_energy_fill", t_energy.update)
-local fac_box = Rectangle{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=15,width=math.floor((term_w-4)/2),height=8,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
+local fac_box = Rectangle{parent=status_pane,x=math.floor((term_w-4)/2)+3,y=9,width=math.floor((term_w-4)/2),height=7,border=border(1,theme.highlight_box.bkg,true),even_inner=true}
 TextBox{parent=fac_box,text="FACILITY (ESS/SPS)",fg_bg=theme.highlight_box}
 local ess_fill = HorizontalBar{parent=fac_box,y=2,label="ESS",value=0,width=22,fg_bg=theme.field_box}
 local ess_in = DataIndicator{parent=fac_box,y=3,label="ESS IN",format="%.0f",unit="",value=0,width=10,fg_bg=theme.field_box}
