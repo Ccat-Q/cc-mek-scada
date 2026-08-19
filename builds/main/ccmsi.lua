@@ -20,7 +20,7 @@ local CCMSI_VERSION = "2.3"
 local IS_PKT = pocket ~= nil
 local INSTALL_DIR = "/.install-cache"
 local DEPLOY_DIR = "https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
-local PROXY_DIR = "https://gh-proxy.org/https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
+local PROXY_DIR = "https://gh.halonice.com/https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
 local OPTS = { ... }
 local mode, app, target, build_url, manifest_url
 local out_w, out_h = term.getSize()
@@ -322,8 +322,8 @@ if target ~= "main" and target ~= "devel" then
 red();pln("无效的分支目标。");white()
 return
 end
-manifest_url = DEPLOY_DIR..target.."/manifests/"..target.."/install_manifest.json"
-build_url = DEPLOY_DIR..target.."/builds/"..target.."/"
+manifest_url = PROXY_DIR..target.."/manifests/"..target.."/install_manifest.json"
+build_url = PROXY_DIR..target.."/builds/"..target.."/"
 end
 local ok, r_manifest, l_manifest
 if mode == "check" then

@@ -22,10 +22,11 @@ local CCMSI_VERSION = "2.3"
 local IS_PKT = pocket ~= nil -- luacheck: ignore pocket
 
 local INSTALL_DIR = "/.install-cache"
--- download sources: primary is direct raw.githubusercontent.com (always
--- fresh), fallback is gh-proxy accelerated (may serve stale CDN cache)
+-- download sources: primary is the gh.halonice.com accelerated proxy (fast,
+-- may serve stale CDN cache), fallback is direct raw.githubusercontent.com
+-- (always fresh)
 local DEPLOY_DIR = "https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
-local PROXY_DIR = "https://gh-proxy.org/https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
+local PROXY_DIR = "https://gh.halonice.com/https://raw.githubusercontent.com/Ccat-Q/cc-mek-scada/"
 
 local OPTS = { ... }
 
@@ -416,8 +417,9 @@ else
 	end
 
 	-- raw.githubusercontent.com URLs include the branch name, so prepend it
-	manifest_url = DEPLOY_DIR..target.."/manifests/"..target.."/install_manifest.json"
-	build_url = DEPLOY_DIR..target.."/builds/"..target.."/"
+	-- proxy first for speed; http_get_file/read_remote_manifest fall back to direct
+	manifest_url = PROXY_DIR..target.."/manifests/"..target.."/install_manifest.json"
+	build_url = PROXY_DIR..target.."/builds/"..target.."/"
 end
 
 -- main operation
