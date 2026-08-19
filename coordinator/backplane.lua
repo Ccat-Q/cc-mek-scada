@@ -230,7 +230,7 @@ function backplane.init(config, __shared_memory)
         log_boot("报警扬声器已连接")
 
         local sounder_start = util.time_ms()
-        sounder.init(_bp.speaker, config.SpeakerVolume)
+        sounder.init(_bp.speaker, ppm.get_iface(_bp.speaker), config.SpeakerVolume)
 
         log_boot("音调生成耗时 " .. (util.time_ms() - sounder_start) .. "ms")
         log_sys("报警器已配置")
@@ -371,7 +371,7 @@ function backplane.attach(type, device, iface)
 
         log.info("BKPLN: SPEAKER LINK_UP " .. iface)
 
-        sounder.reconnect(device)
+        sounder.reconnect(device, iface)
 
         log_sys("报警扬声器已重新连接")
 
@@ -507,6 +507,8 @@ function backplane.detach(type, device, iface)
         ---@cast device Speaker
 
         log.info("BKPLN: SPEAKER LINK_DOWN " .. iface)
+
+        sounder.detach()
 
         log_sys("报警扬声器已断开")
 

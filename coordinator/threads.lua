@@ -127,8 +127,8 @@ function threads.thread__main(smem)
                     tcd.handle(param1)
                 end
             elseif event == "speaker_audio_empty" then
-                -- handle speaker buffer emptied
-                sounder.continue()
+                -- handle speaker buffer emptied (param1 is the speaker's interface name)
+                sounder.continue(param1)
             elseif event == "monitor_touch" or event == "mouse_click" or event == "mouse_up" or
                    event == "mouse_drag" or event == "mouse_scroll" or event == "double_click" then
                 -- handle a mouse event
