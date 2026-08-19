@@ -152,7 +152,7 @@ if ok then return true, manifest end
 end
 local alt_url = string.gsub(manifest_url, PROXY_DIR, DEPLOY_DIR, 1)
 if alt_url == manifest_url then
-resp = http.get(string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1))
+resp = http.get((string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1)))
 else
 resp = http.get(alt_url)
 end

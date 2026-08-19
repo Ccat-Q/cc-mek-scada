@@ -204,7 +204,8 @@ local function read_remote_manifest()
 	-- fallback: try the alternate source (swap proxy <-> direct prefix)
 	local alt_url = string.gsub(manifest_url, PROXY_DIR, DEPLOY_DIR, 1)
 	if alt_url == manifest_url then
-		resp = http.get(string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1))
+		-- wrap gsub in parens so only the string (not the replacement count) is passed to http.get
+		resp = http.get((string.gsub(manifest_url, DEPLOY_DIR, PROXY_DIR, 1)))
 	else
 		resp = http.get(alt_url)
 	end
