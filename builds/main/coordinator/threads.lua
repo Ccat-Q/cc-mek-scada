@@ -75,7 +75,7 @@ elseif not apisessions.check_all_watchdogs(param1) then
 tcd.handle(param1)
 end
 elseif event == "speaker_audio_empty" then
-sounder.continue()
+sounder.continue(param1)
 elseif event == "monitor_touch" or event == "mouse_click" or event == "mouse_up" or
 event == "mouse_drag" or event == "mouse_scroll" or event == "double_click" then
 renderer.handle_mouse(core.events.new_mouse_event(event, param1, param2, param3))

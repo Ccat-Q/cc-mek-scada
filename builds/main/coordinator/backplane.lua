@@ -139,7 +139,7 @@ else
 log.info("BKPLN: SPEAKER LINK_UP " .. ppm.get_iface(_bp.speaker))
 log_boot("报警扬声器已连接")
 local sounder_start = util.time_ms()
-sounder.init(_bp.speaker, config.SpeakerVolume)
+sounder.init(_bp.speaker, ppm.get_iface(_bp.speaker), config.SpeakerVolume)
 log_boot("音调生成耗时 " .. (util.time_ms() - sounder_start) .. "ms")
 log_sys("报警器已配置")
 ioctl.fp_has_speaker(true)
@@ -224,7 +224,7 @@ log_sys(util.c("未使用的监视器 ", iface, " 已连接"))
 end
 elseif type == "speaker" then
 log.info("BKPLN: SPEAKER LINK_UP " .. iface)
-sounder.reconnect(device)
+sounder.reconnect(device, iface)
 log_sys("报警扬声器已重新连接")
 ioctl.fp_has_speaker(true)
 end
@@ -315,6 +315,7 @@ log_sys("丢失了一台未使用的监视器")
 end
 elseif type == "speaker" then
 log.info("BKPLN: SPEAKER LINK_DOWN " .. iface)
+sounder.detach()
 log_sys("报警扬声器已断开")
 ioctl.fp_has_speaker(false)
 end

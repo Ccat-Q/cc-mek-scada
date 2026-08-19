@@ -214,12 +214,16 @@ end
 end
 function public.any_active() return self.any_active end
 function public.has_next_block() return #self.quad_buffer[self.next_block] > 0 end
-function public.get_next_block()
-local block = self.quad_buffer[self.next_block]
+function public.peek_next_block() return self.quad_buffer[self.next_block] end
+function public.advance_next_block()
 self.next_block = self.next_block + 1
 if self.next_block > 4 then
 self.next_block = 1
 end
+end
+function public.get_next_block()
+local block = public.peek_next_block()
+public.advance_next_block()
 return block
 end
 return public
