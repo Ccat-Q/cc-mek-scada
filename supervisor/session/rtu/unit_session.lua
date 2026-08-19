@@ -87,7 +87,7 @@ function unit_session.new(session_id, unit_id, advert, out_queue, log_tag, txn_t
 
                 if txn_type == nil then
                     -- couldn't find this transaction
-                    log.debug(log_tag .. "MODBUS: expired or spurious transaction reply (txn_id " .. adu.txn_id .. ")")
+                    log.debug(log_tag .. "MODBUS: 过期或虚假的事务应答 (txn_id " .. adu.txn_id .. ")")
                     return false, adu.txn_id
                 end
 
@@ -95,15 +95,15 @@ function unit_session.new(session_id, unit_id, advert, out_queue, log_tag, txn_t
                     -- transaction incomplete or failed
                     local ex = adu.data[1]
                     if ex == MODBUS_EXCODE.ILLEGAL_FUNCTION then
-                        log.error(log_tag .. "MODBUS: illegal function" .. txn_tag)
+                        log.error(log_tag .. "MODBUS: 非法功能" .. txn_tag)
                     elseif ex == MODBUS_EXCODE.ILLEGAL_DATA_ADDR then
-                        log.error(log_tag .. "MODBUS: illegal data address" .. txn_tag)
+                        log.error(log_tag .. "MODBUS: 非法数据地址" .. txn_tag)
                     elseif ex == MODBUS_EXCODE.SERVER_DEVICE_FAIL then
                         if self.device_fail then
-                            log.debug(log_tag .. "MODBUS: repeated device failure" .. txn_tag)
+                            log.debug(log_tag .. "MODBUS: 设备重复故障" .. txn_tag)
                         else
                             self.device_fail = true
-                            log.warning(log_tag .. "MODBUS: device failure" .. txn_tag)
+                            log.warning(log_tag .. "MODBUS: 设备故障" .. txn_tag)
                         end
                     elseif ex == MODBUS_EXCODE.ACKNOWLEDGE then
                         -- will have to wait on reply, renew the transaction
@@ -111,19 +111,19 @@ function unit_session.new(session_id, unit_id, advert, out_queue, log_tag, txn_t
                     elseif ex == MODBUS_EXCODE.SERVER_DEVICE_BUSY then
                         -- will have to try again later
                         self.last_busy = util.time_ms()
-                        log.warning(log_tag .. "MODBUS: device busy" .. txn_tag)
+                        log.warning(log_tag .. "MODBUS: 设备忙" .. txn_tag)
                     elseif ex == MODBUS_EXCODE.NEG_ACKNOWLEDGE then
                         -- general failure
-                        log.error(log_tag .. "MODBUS: negative acknowledge (bad request)" .. txn_tag)
+                        log.error(log_tag .. "MODBUS: 否定应答(非法请求)" .. txn_tag)
                     elseif ex == MODBUS_EXCODE.GATEWAY_PATH_UNAVAILABLE then
                         -- RTU gateway has no known unit with the given ID
-                        log.error(log_tag .. "MODBUS: gateway path unavailable (unknown unit)" .. txn_tag)
+                        log.error(log_tag .. "MODBUS: 网关路径不可用(未知机组)" .. txn_tag)
                     elseif ex ~= nil then
                         -- unsupported exception code
-                        log.debug(log_tag .. "MODBUS: unsupported error " .. ex .. txn_tag)
+                        log.debug(log_tag .. "MODBUS: 不支持的错误 " .. ex .. txn_tag)
                     else
                         -- nil exception code
-                        log.debug(log_tag .. "MODBUS: nil exception code" .. txn_tag)
+                        log.debug(log_tag .. "MODBUS: 空异常码" .. txn_tag)
                     end
                 else
                     -- clear device fail flag
@@ -133,10 +133,10 @@ function unit_session.new(session_id, unit_id, advert, out_queue, log_tag, txn_t
                     return txn_type, adu.txn_id
                 end
             else
-                log.error(log_tag .. "wrong unit ID: " .. adu.unit_id, true)
+                log.error(log_tag .. "机组 ID 错误: " .. adu.unit_id, true)
             end
         else
-            log.error(log_tag .. "illegal packet type " .. adu.scada_frame.protocol(), true)
+            log.error(log_tag .. "非法数据包类型 " .. adu.scada_frame.protocol(), true)
         end
 
         -- error or transaction in progress, return false
@@ -151,13 +151,13 @@ function unit_session.new(session_id, unit_id, advert, out_queue, log_tag, txn_t
     -- log a transaction reply length mismatch
     ---@param txn_type integer transaction type
     function protected.log_length_mismatch(txn_type)
-        log.debug(log_tag .. "MODBUS transaction reply length mismatch (" .. txn_tags[txn_type] .. ")")
+        log.debug(log_tag .. "MODBUS 事务应答长度不匹配 (" .. txn_tags[txn_type] .. ")")
     end
 
     -- log a transaction resolution failure
     ---@param txn_type integer? transaction type
     function protected.log_resolve_fail(txn_type)
-        log.error(log_tag .. "unknown transaction " .. util.trinary(txn_type == nil, "reply", util.c("type ", txn_type)))
+        log.error(log_tag .. "未知事务 " .. util.trinary(txn_type == nil, "应答", util.c("类型 ", txn_type)))
     end
 
     -- get the public interface

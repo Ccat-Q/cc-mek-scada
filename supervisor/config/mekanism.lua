@@ -88,10 +88,10 @@ function mekanism.create(tool_ctl, main_pane, cfg_sys, mek_cfg, style)
 
     local mek_pane = MultiPane{parent=mek_cfg,y=4,panes={mek_c_1,mek_c_2,mek_c_3}}
 
-    TextBox{parent=mek_cfg,y=2,text=" Mekanism Configuration",fg_bg=cpair(colors.white,colors.brown)}
+    TextBox{parent=mek_cfg,y=2,text=" Mekanism 配置",fg_bg=cpair(colors.white,colors.brown)}
 
-    TextBox{parent=mek_c_1,y=1,height=3,text="To ensure calculations and behavior are correct, please select your Mekanism configuration. In most cases, you should use the default."}
-    TextBox{parent=mek_c_1,y=5,height=3,text="If your modpack is listed, select it. If you or your pack creator manually changed Mekanism settings, please select Custom."}
+    TextBox{parent=mek_c_1,y=1,height=3,text="为确保计算和行为正确，请选择您的 Mekanism 配置。在大多数情况下，您应使用默认配置。"}
+    TextBox{parent=mek_c_1,y=5,height=3,text="如果您的整合包在列表中，请选择它。如果您或您的整合包作者手动更改了 Mekanism 设置，请选择自定义。"}
 
     local initial = #profile_names
 
@@ -102,7 +102,7 @@ function mekanism.create(tool_ctl, main_pane, cfg_sys, mek_cfg, style)
         end
     end
 
-    TextBox{parent=mek_c_1,x=33,y=7,text="new!",fg_bg=cpair(colors.red,colors._INHERIT)}  ---@todo remove NEW tag on next revision
+    TextBox{parent=mek_c_1,x=33,y=7,text="新!",fg_bg=cpair(colors.red,colors._INHERIT)}  ---@todo remove NEW tag on next revision
     local profile = RadioButton{parent=mek_c_1,y=9,default=initial,options=profile_names,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.brown}
 
     local function submit_profile()
@@ -125,10 +125,10 @@ function mekanism.create(tool_ctl, main_pane, cfg_sys, mek_cfg, style)
 
     tool_ctl.mek_profile = profile
 
-    PushButton{parent=mek_c_1,y=14,text="\x1b Back",callback=function()main_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-    PushButton{parent=mek_c_1,x=44,y=14,text="Next \x1a",callback=submit_profile,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mek_c_1,y=14,text="\x1b 返回",callback=function()main_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mek_c_1,x=44,y=14,text="下一步 \x1a",callback=submit_profile,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
-    TextBox{parent=mek_c_2,y=1,height=4,text="For Custom, check config/Mekanism/generators.toml on your server/world and fill in the following fields. This path or config names may vary by Mekanism version (e.g. gas instead of chemical)."}
+    TextBox{parent=mek_c_2,y=1,height=4,text="对于自定义，请在您的服务器/世界中检查 config/Mekanism/generators.toml 并填写以下字段。此路径或配置名称可能因 Mekanism 版本而异（例如 gas 而非 chemical）。"}
 
     local last_section = ""
 
@@ -143,10 +143,10 @@ function mekanism.create(tool_ctl, main_pane, cfg_sys, mek_cfg, style)
         local field = TextBox{parent=mek_c_2,height=1,text="  "..key[3].." ="}
 
         tool_ctl.custom_configs[key[1]] = NumberField{parent=mek_c_2,y=field.get_y(),x=string.len(key[3])+6,width=10,default=ini_cfg.MekanismConfig[key[1]],allow_decimal=true,fg_bg=bw_fg_bg}
-        TextBox{parent=mek_c_2,x=string.len(key[3])+17,y=field.get_y(),text="new!",fg_bg=cpair(colors.red,colors._INHERIT)}  ---@todo remove NEW tag on next revision
+        TextBox{parent=mek_c_2,x=string.len(key[3])+17,y=field.get_y(),text="新!",fg_bg=cpair(colors.red,colors._INHERIT)}  ---@todo remove NEW tag on next revision
     end
 
-    local cfg_err = TextBox{parent=mek_c_2,x=8,y=14,width=35,text="Please fill out all fields.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+    local cfg_err = TextBox{parent=mek_c_2,x=8,y=14,width=35,text="请填写所有字段。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 
     local function submit_custom_profile()
         for _, key in ipairs(mekanism.ordered_keys) do
@@ -164,24 +164,24 @@ function mekanism.create(tool_ctl, main_pane, cfg_sys, mek_cfg, style)
         mek_pane.set_value(3)
     end
 
-    PushButton{parent=mek_c_2,y=14,text="\x1b Back",callback=function()mek_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-    PushButton{parent=mek_c_2,x=44,y=14,text="Next \x1a",callback=submit_custom_profile,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mek_c_2,y=14,text="\x1b 返回",callback=function()mek_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mek_c_2,x=44,y=14,text="下一步 \x1a",callback=submit_custom_profile,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
-    TextBox{parent=mek_c_3,y=1,height=3,text="Some modpacks also change the nuclear waste to product ratios. These are usually 10:1, where 10mB waste makes 1mB plutonium or polonium."}
+    TextBox{parent=mek_c_3,y=1,height=3,text="某些整合包还会更改核废料与产品的比率。这些通常是 10:1，即 10mB 废料可制成 1mB 钚或钋。"}
 
-    TextBox{parent=mek_c_3,y=5,text="Nuclear Waste to Plutonium     :"}
+    TextBox{parent=mek_c_3,y=5,text="核废料转钚        :"}
     tool_ctl.waste_ratios[1] = NumberField{parent=mek_c_3,y=5,x=28,width=4,default=ini_cfg.MekanismWasteToPu[1],min=1,max=99,allow_decimal=false,align_right=true,fg_bg=bw_fg_bg}
     tool_ctl.waste_ratios[2] = NumberField{parent=mek_c_3,y=5,x=33,width=4,default=ini_cfg.MekanismWasteToPu[2],min=1,max=99,allow_decimal=false,fg_bg=bw_fg_bg}
-    TextBox{parent=mek_c_3,x=38,y=5,text="new!",fg_bg=cpair(colors.red,colors._INHERIT)}  ---@todo remove NEW tag on next revision
+    TextBox{parent=mek_c_3,x=38,y=5,text="新!",fg_bg=cpair(colors.red,colors._INHERIT)}  ---@todo remove NEW tag on next revision
 
-    TextBox{parent=mek_c_3,y=6,text="Nuclear Waste to Polonium      :"}
+    TextBox{parent=mek_c_3,y=6,text="核废料转钋        :"}
     tool_ctl.waste_ratios[3] = NumberField{parent=mek_c_3,y=6,x=28,width=4,default=ini_cfg.MekanismWasteToPo[1],min=1,max=99,allow_decimal=false,align_right=true,fg_bg=bw_fg_bg}
     tool_ctl.waste_ratios[4] = NumberField{parent=mek_c_3,y=6,x=33,width=4,default=ini_cfg.MekanismWasteToPo[2],min=1,max=99,allow_decimal=false,fg_bg=bw_fg_bg}
-    TextBox{parent=mek_c_3,x=38,y=6,text="new!",fg_bg=cpair(colors.red,colors._INHERIT)}  ---@todo remove NEW tag on next revision
+    TextBox{parent=mek_c_3,x=38,y=6,text="新!",fg_bg=cpair(colors.red,colors._INHERIT)}  ---@todo remove NEW tag on next revision
 
-    TextBox{parent=mek_c_3,y=8,height=2,text="Tip: the easist way to check these are their receipes in JEI.",fg_bg=g_lg_fg_bg}
+    TextBox{parent=mek_c_3,y=8,height=2,text="提示：检查这些值最简单的方法是在 JEI 中查看它们的配方。",fg_bg=g_lg_fg_bg}
 
-    local ratio_err = TextBox{parent=mek_c_3,x=8,y=14,width=35,text="Please fill out all fields.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+    local ratio_err = TextBox{parent=mek_c_3,x=8,y=14,width=35,text="请填写所有字段。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 
     local function submit_waste_ratios()
         local values = {}
@@ -204,8 +204,8 @@ function mekanism.create(tool_ctl, main_pane, cfg_sys, mek_cfg, style)
         main_pane.set_value(4)
     end
 
-    PushButton{parent=mek_c_3,y=14,text="\x1b Back",callback=function()mek_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-    PushButton{parent=mek_c_3,x=44,y=14,text="Next \x1a",callback=submit_waste_ratios,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mek_c_3,y=14,text="\x1b 返回",callback=function()mek_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mek_c_3,x=44,y=14,text="下一步 \x1a",callback=submit_waste_ratios,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
     --#endregion
 

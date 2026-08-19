@@ -309,8 +309,8 @@ end
 function public.close()
 _close()
 _send_mgmt(MGMT_TYPE.CLOSE, {})
-println("connection to coordinator " .. id .. " closed by server")
-log.info(log_tag .. "session closed by server")
+println("与协调器的连接 " .. id .. " 已由服务器关闭")
+log.info(log_tag .. "会话已由服务器关闭")
 end
 function public.iterate()
 if self.connected then
@@ -356,8 +356,8 @@ break
 end
 end
 if not self.connected then
-println("connection to coordinator closed by remote host")
-log.info(log_tag .. "session closed by remote host")
+println("与协调器的连接已由远程主机关闭")
+log.info(log_tag .. "会话已由远程主机关闭")
 return self.connected
 end
 local elapsed = util.time() - self.periodics.last_update

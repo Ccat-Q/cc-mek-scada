@@ -37,18 +37,18 @@ tank_assign = util.trinary(is_fac, "F-" .. f_tank_count, "U-" .. i)
 break
 end
 end
-TextBox{parent=tank_div,y=1,text="Dynamic Tank "..tank_assign,alignment=ALIGN.CENTER}
+TextBox{parent=tank_div,y=1,text="动态储罐 "..tank_assign,alignment=ALIGN.CENTER}
 local status = StateIndicator{parent=tank_div,x=5,y=3,states=style.dtank.states,value=1,min_width=12}
 status.register(ps, "DynamicTankStateStatus", status.update)
-TextBox{parent=tank_div,y=5,text="Fill",width=10,fg_bg=label}
+TextBox{parent=tank_div,y=5,text="填充",width=10,fg_bg=label}
 local tank_pcnt = DataIndicator{parent=tank_div,x=14,y=5,label="",format="%5.2f",value=100,unit="%",lu_colors=lu_col,width=8,fg_bg=text_fg}
 local tank_amnt = DataIndicator{parent=tank_div,label="",format="%18d",value=0,commas=true,unit="mB",lu_colors=lu_col,width=21,fg_bg=text_fg}
 local is_water = fac.tank_fluid_types[tank_id] == COOLANT_TYPE.WATER
-TextBox{parent=tank_div,y=8,text=util.trinary(is_water,"Water","Sodium").." Level",width=12,fg_bg=label}
+TextBox{parent=tank_div,y=8,text=util.trinary(is_water,"水","钠").."位",width=12,fg_bg=label}
 local level = HorizontalBar{parent=tank_div,y=9,bar_fg_bg=cpair(util.trinary(is_water,colors.blue,colors.lightBlue),colors.gray),height=1,width=21}
-TextBox{parent=tank_div,y=11,text="Tank Fill Mode",width=14,fg_bg=label}
-local can_fill = IconIndicator{parent=tank_div,y=12,label="Fill",states=mode_ind_s}
-local can_empty = IconIndicator{parent=tank_div,y=13,label="Empty",states=mode_ind_s}
+TextBox{parent=tank_div,y=11,text="储罐充注模式",width=14,fg_bg=label}
+local can_fill = IconIndicator{parent=tank_div,y=12,label="充注",states=mode_ind_s}
+local can_empty = IconIndicator{parent=tank_div,y=13,label="排空",states=mode_ind_s}
 local function _can_fill(mode)
 can_fill.update((mode == CONTAINER_MODE.BOTH) or (mode == CONTAINER_MODE.FILL))
 end

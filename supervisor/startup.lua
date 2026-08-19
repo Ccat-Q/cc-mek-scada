@@ -39,11 +39,11 @@ if not supervisor.load_config() then
     local success, error = configure.configure(true)
     if success then
         if not supervisor.load_config() then
-            println("failed to load a valid configuration, please reconfigure")
+            println("未加载到有效配置，请重新配置")
             return
         end
     else
-        println("configuration error: " .. error)
+        println("配置错误：" .. error)
         return
     end
 end
@@ -53,43 +53,43 @@ local config = supervisor.config
 local cfv = util.new_validator()
 
 cfv.assert_eq(#config.CoolingConfig, config.UnitCount)
-assert(cfv.valid(), "startup> the number of reactor cooling configurations is different than the number of units")
+assert(cfv.valid(), "startup> 反应堆冷却配置数量与机组数量不一致")
 
 for i = 1, config.UnitCount do
     cfv.assert_type_table(config.CoolingConfig[i])
-    assert(cfv.valid(), "startup> missing cooling entry for reactor unit " .. i)
+    assert(cfv.valid(), "startup> 反应堆机组 " .. i .. " 缺少冷却配置")
     cfv.assert_type_int(config.CoolingConfig[i].BoilerCount)
     cfv.assert_type_int(config.CoolingConfig[i].TurbineCount)
     cfv.assert_type_bool(config.CoolingConfig[i].TankConnection)
-    assert(cfv.valid(), "startup> missing boiler/turbine/tank fields for reactor unit " .. i)
+    assert(cfv.valid(), "startup> 反应堆机组 " .. i .. " 缺少锅炉/涡轮机/储罐字段")
     cfv.assert_range(config.CoolingConfig[i].BoilerCount, 0, 2)
     cfv.assert_range(config.CoolingConfig[i].TurbineCount, 1, 3)
-    assert(cfv.valid(), "startup> out-of-range number of boilers and/or turbines provided for reactor unit " .. i)
+    assert(cfv.valid(), "startup> 为反应堆机组 " .. i .. " 提供的锅炉和/或涡轮机数量超出范围")
 end
 
 if config.FacilityTankMode > 0 then
-    assert(config.UnitCount == #config.FacilityTankDefs, "startup> the number of facility tank definitions must be equal to the number of units in facility tank mode")
+    assert(config.UnitCount == #config.FacilityTankDefs, "startup> 在设施储罐模式下，设施储罐定义数量必须等于机组数量")
 
     for i = 1, config.UnitCount do
         local def = config.FacilityTankDefs[i]
         cfv.assert_type_int(def)
         cfv.assert_range(def, 0, 2)
-        assert(cfv.valid(), "startup> invalid facility tank definition for reactor unit " .. i)
+        assert(cfv.valid(), "startup> 反应堆机组 " .. i .. " 的设施储罐定义无效")
 
         local entry = config.FacilityTankList[i]
         cfv.assert_type_int(entry)
         cfv.assert_range(entry, 0, 2)
-        assert(cfv.valid(), "startup> invalid facility tank list entry for tank " .. i)
+        assert(cfv.valid(), "startup> 储罐 " .. i .. " 的设施储罐列表项无效")
 
         local conn = config.FacilityTankConns[i]
         cfv.assert_type_int(conn)
         cfv.assert_range(conn, 0, #config.FacilityTankDefs)
-        assert(cfv.valid(), "startup> invalid facility tank connection for reactor unit " .. i)
+        assert(cfv.valid(), "startup> 反应堆机组 " .. i .. " 的设施储罐连接无效")
 
         local type = config.TankFluidTypes[i]
         cfv.assert_type_int(type)
         cfv.assert_range(type, 0, types.COOLANT_TYPE.SODIUM)
-        assert(cfv.valid(), "startup> invalid tank fluid type for tank " .. i)
+        assert(cfv.valid(), "startup> 储罐 " .. i .. " 的储罐流体类型无效")
     end
 end
 
@@ -100,7 +100,7 @@ end
 log.init(config.LogPath, config.LogMode, config.LogDebug)
 
 log.info("========================================")
-log.info("BOOTING supervisor.startup v" .. SUPERVISOR_VERSION)
+log.info("正在启动 supervisor.startup v" .. SUPERVISOR_VERSION)
 log.info("========================================")
 println(">> SCADA Supervisor v" .. SUPERVISOR_VERSION .. " <<")
 
@@ -141,7 +141,7 @@ local function main()
 
     if not fp_ok then
         println_ts(util.c("UI error: ", message))
-        log.error(util.c("front panel GUI render failed with error ", message))
+        log.error(util.c("前面板 GUI 渲染失败，错误 ", message))
     else
         -- redefine println_ts local to not print as we have the front panel running
         println_ts = function (_) end
@@ -227,10 +227,10 @@ local function main()
 
         -- check for termination request
         if event == "terminate" or ppm.should_terminate() then
-            println_ts("closing sessions...")
-            log.info("terminate requested, closing sessions...")
+            println_ts("正在关闭会话...")
+            log.info("已请求终止，正在关闭会话...")
             svsessions.close_all()
-            log.info("sessions closed")
+            log.info("会话已关闭")
             break
         end
     end
@@ -239,8 +239,8 @@ local function main()
 
     renderer.close_ui()
 
-    util.println_ts("exited")
-    log.info("exited")
+    util.println_ts("已退出")
+    log.info("已退出")
 end
 
 if not xpcall(main, crash.handler) then

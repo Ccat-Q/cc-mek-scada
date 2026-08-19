@@ -28,9 +28,9 @@ local CENTER = core.ALIGN.CENTER
 
 -- changes to the config data/format to let the user know
 local changes = {
-    { "v0.9.2", { "Added temperature scale options" } },
-    { "v0.11.3", { "Added energy scale options" } },
-    { "v0.13.2", { "Added option for Po/Pu pellet green/cyan pairing" } }
+    { "v0.9.2", { "新增温度单位选项" } },
+    { "v0.11.3", { "新增能量单位选项" } },
+    { "v0.13.2", { "新增 Po/Pu 颗粒绿/青配色选项" } }
 }
 
 ---@class pkt_configurator
@@ -91,18 +91,18 @@ local settings_cfg = {}
 
 -- all settings fields, their nice names, and their default values
 local fields = {
-    { "GreenPuPellet", "Pellet Colors", false },
-    { "TempScale", "Temperature Scale", types.TEMP_SCALE.KELVIN },
-    { "EnergyScale", "Energy Scale", types.ENERGY_SCALE.FE },
-    { "SVR_Channel", "SVR Channel", 16240 },
-    { "CRD_Channel", "CRD Channel", 16243 },
-    { "PKT_Channel", "PKT Channel", 16244 },
-    { "ConnTimeout", "Connection Timeout", 5 },
-    { "TrustedRange", "Trusted Range", 0 },
-    { "AuthKey", "Facility Auth Key" , ""},
-    { "LogMode", "Log Mode", log.MODE.APPEND },
-    { "LogPath", "Log Path", "/log.txt" },
-    { "LogDebug", "Log Debug Messages", false }
+    { "GreenPuPellet", "颗粒颜色", false },
+    { "TempScale", "温度单位", types.TEMP_SCALE.KELVIN },
+    { "EnergyScale", "能量单位", types.ENERGY_SCALE.FE },
+    { "SVR_Channel", "SVR 频道", 16240 },
+    { "CRD_Channel", "CRD 频道", 16243 },
+    { "PKT_Channel", "PKT 频道", 16244 },
+    { "ConnTimeout", "连接超时", 5 },
+    { "TrustedRange", "信任范围", 0 },
+    { "AuthKey", "设施认证密钥" , ""},
+    { "LogMode", "日志模式", log.MODE.APPEND },
+    { "LogPath", "日志路径", "/log.txt" },
+    { "LogDebug", "日志调试消息", false }
 }
 
 -- load data from the settings file
@@ -155,10 +155,10 @@ local function config_view(display)
 
     local y_start = 7
 
-    TextBox{parent=main_page,x=2,y=2,height=4,text="Welcome to the Pocket configurator! Please select one of the following options."}
+    TextBox{parent=main_page,x=2,y=2,height=4,text="欢迎使用 Pocket 配置器！请选择以下选项之一。"}
 
     if tool_ctl.ask_config then
-        TextBox{parent=main_page,x=2,y=y_start,height=4,width=49,text="Please configure before starting up.",fg_bg=cpair(colors.red,colors.lightGray)}
+        TextBox{parent=main_page,x=2,y=y_start,height=4,width=49,text="启动前请先完成配置。",fg_bg=cpair(colors.red,colors.lightGray)}
         y_start = y_start + 3
     end
 
@@ -170,12 +170,12 @@ local function config_view(display)
     end
 
     if fs.exists("/pocket/config.lua") then
-        PushButton{parent=main_page,x=2,y=y_start,min_width=22,text="Import Legacy Config",callback=function()tool_ctl.load_legacy()end,fg_bg=cpair(colors.black,colors.cyan),active_fg_bg=btn_act_fg_bg}
+        PushButton{parent=main_page,x=2,y=y_start,min_width=22,text="导入旧版配置",callback=function()tool_ctl.load_legacy()end,fg_bg=cpair(colors.black,colors.cyan),active_fg_bg=btn_act_fg_bg}
         y_start = y_start + 2
     end
 
-    PushButton{parent=main_page,x=2,y=y_start,min_width=18,text="Configure Device",callback=function()main_pane.set_value(2)end,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg}
-    tool_ctl.view_cfg = PushButton{parent=main_page,x=2,y=y_start+2,min_width=20,text="View Configuration",callback=view_config,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+    PushButton{parent=main_page,x=2,y=y_start,min_width=18,text="配置设备",callback=function()main_pane.set_value(2)end,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg}
+    tool_ctl.view_cfg = PushButton{parent=main_page,x=2,y=y_start+2,min_width=20,text="查看配置",callback=view_config,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
 
     if not tool_ctl.has_config then tool_ctl.view_cfg.disable() end
 
@@ -184,21 +184,21 @@ local function config_view(display)
         exit()
     end
 
-    PushButton{parent=main_page,x=2,y=y_start+4,min_width=12,text="Change Log",callback=function()main_pane.set_value(6)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=main_page,x=2,y=y_start+4,min_width=12,text="更新日志",callback=function()main_pane.set_value(6)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
     if tool_ctl.ask_config then
-        PushButton{parent=main_page,x=2,y=18,min_width=6,text="Exit",callback=exit,dis_fg_bg=btn_dis_fg_bg}.disable()
-        PushButton{parent=main_page,x=18,y=18,min_width=8,text="Resume",callback=exit,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg}
+        PushButton{parent=main_page,x=2,y=18,min_width=6,text="退出",callback=exit,dis_fg_bg=btn_dis_fg_bg}.disable()
+        PushButton{parent=main_page,x=18,y=18,min_width=8,text="恢复",callback=exit,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg}
     else
-        PushButton{parent=main_page,x=2,y=18,min_width=6,text="Exit",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg}
-        PushButton{parent=main_page,x=17,y=18,min_width=9,text="Startup",callback=startup,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+        PushButton{parent=main_page,x=2,y=18,min_width=6,text="退出",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg}
+        PushButton{parent=main_page,x=17,y=18,min_width=9,text="启动",callback=startup,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
     end
 
     --#endregion
 
     -- #region Disk Space Warning
 
-    TextBox{parent=disk_warn,y=2,text=" Insufficent Disk Space",fg_bg=cpair(colors.white,colors.black)}
+    TextBox{parent=disk_warn,y=2,text=" 磁盘空间不足",fg_bg=cpair(colors.white,colors.black)}
 
     local disk_page = Div{parent=disk_warn,x=2,y=4,width=24}
 
@@ -206,32 +206,32 @@ local function config_view(display)
         fs.delete(ini_cfg.LogPath)
 
         local space = fs.getFreeSpace("/")
-        tool_ctl.dw_free_space.set_value(space.." bytes free")
+        tool_ctl.dw_free_space.set_value(space.." 字节可用")
 
         if not fs.exists(ini_cfg.LogPath) then
-            tool_ctl.dw_log_size.set_value("0 byte log file")
+            tool_ctl.dw_log_size.set_value("0 字节日志文件")
             tool_ctl.dw_del_log_btn.disable()
         end
 
         if space >= req_space then tool_ctl.dw_continue.enable() end
     end
 
-    TextBox{parent=disk_page,height=5,text="There is not enough space to safely configure. Saving the configuration may fail."}
+    TextBox{parent=disk_page,height=5,text="没有足够空间进行安全配置。保存配置可能会失败。"}
 
-    tool_ctl.dw_free_space = TextBox{parent=disk_page,height=1,text=fs.getFreeSpace("/").." bytes free",fg_bg=cpair(colors.gray,colors._INHERIT)}
-    TextBox{parent=disk_page,height=1,text=req_space.." bytes required",fg_bg=cpair(colors.gray,colors._INHERIT)}
+    tool_ctl.dw_free_space = TextBox{parent=disk_page,height=1,text=fs.getFreeSpace("/").." 字节可用",fg_bg=cpair(colors.gray,colors._INHERIT)}
+    TextBox{parent=disk_page,height=1,text=req_space.." 字节所需",fg_bg=cpair(colors.gray,colors._INHERIT)}
 
     if fs.exists(ini_cfg.LogPath) then
-        tool_ctl.dw_log_size = TextBox{parent=disk_page,y=8,height=1,text=fs.getSize(ini_cfg.LogPath).." byte log file",fg_bg=cpair(colors.gray,colors._INHERIT)}
+        tool_ctl.dw_log_size = TextBox{parent=disk_page,y=8,height=1,text=fs.getSize(ini_cfg.LogPath).." 字节日志文件",fg_bg=cpair(colors.gray,colors._INHERIT)}
 
-        TextBox{parent=disk_page,y=10,height=2,text="You may delete the log file to free up space."}
-        tool_ctl.dw_del_log_btn = PushButton{parent=disk_page,y=13,min_width=17,text="Delete Log File",callback=delete_log,fg_bg=cpair(colors.black,colors.orange),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+        TextBox{parent=disk_page,y=10,height=2,text="你可以删除日志文件以释放空间。"}
+        tool_ctl.dw_del_log_btn = PushButton{parent=disk_page,y=13,min_width=17,text="删除日志文件",callback=delete_log,fg_bg=cpair(colors.black,colors.orange),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
     else
-        TextBox{parent=disk_page,y=9,height=5,text="The log file wasn't found, so you'll need to manually make space. Please remove any unrelated files."}
+        TextBox{parent=disk_page,y=9,height=5,text="未找到日志文件，你需要手动腾出空间。请删除任何无关文件。"}
     end
 
-    PushButton{parent=disk_page,y=15,min_width=6,text="Exit",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg}
-    tool_ctl.dw_continue = PushButton{parent=disk_page,x=15,y=15,min_width=10,text="Continue",callback=function()main_pane.set_value(1)end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+    PushButton{parent=disk_page,y=15,min_width=6,text="退出",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg}
+    tool_ctl.dw_continue = PushButton{parent=disk_page,x=15,y=15,min_width=10,text="继续",callback=function()main_pane.set_value(1)end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
     tool_ctl.dw_continue.disable()
 
     -- #endregion
@@ -249,7 +249,7 @@ local function config_view(display)
 
     local cl = Div{parent=changelog,x=2,y=4,width=24}
 
-    TextBox{parent=changelog,y=2,text=" Config Change Log",fg_bg=bw_fg_bg}
+    TextBox{parent=changelog,y=2,text=" 配置更新日志",fg_bg=bw_fg_bg}
 
     local c_log = ListBox{parent=cl,y=1,height=13,width=24,scroll_height=100,fg_bg=bw_fg_bg,nav_fg_bg=g_lg_fg_bg,nav_active=cpair(colors.black,colors.gray)}
 
@@ -262,7 +262,7 @@ local function config_view(display)
         end
     end
 
-    PushButton{parent=cl,y=15,text="\x1b Back",callback=function()main_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=cl,y=15,text="\x1b 返回",callback=function()main_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
     --#endregion
 end

@@ -14,7 +14,7 @@ end
 function tcd.dispatch_unique(time, f)
 for timer, entry in pairs(registry) do
 if entry.callback == f then
-log.debug(util.c("TCD: aborting duplicate timer callback [timer: ", timer, ", ", f, "]"))
+log.debug(util.c("TCD: 中止重复的定时器回调 [timer: ", timer, ", ", f, "]"))
 util.cancel_timer(timer)
 registry[timer] = nil
 end
@@ -45,10 +45,10 @@ function tcd.diagnostics()
 for timer, entry in pairs(registry) do
 if entry.expiry < util.time_s() then
 local overtime = util.time_s() - entry.expiry
-log.debug(util.c("TCD: unserviced timer ", timer, " for callback ", entry.callback, " is at least ", overtime, "s late"))
+log.debug(util.c("TCD: 未处理的定时器 ", timer, " 的回调 ", entry.callback, " 至少延迟 ", overtime, " 秒"))
 else
 local time = entry.expiry - util.time_s()
-log.debug(util.c("TCD: pending timer ", timer, " for callback ", entry.callback, " (call after ", entry.duration, "s, expires ", time, ")"))
+log.debug(util.c("TCD: 待处理定时器 ", timer, " 的回调 ", entry.callback, "（", entry.duration, " 秒后调用，剩余 ", time, " 秒）"))
 end
 end
 end

@@ -30,10 +30,10 @@ local PERIODICS = {
 function envd.new(session_id, unit_id, advert, out_queue)
     -- checks
     if advert.type ~= RTU_UNIT_TYPE.ENV_DETECTOR then
-        log.error("attempt to instantiate envd RTU for type " .. types.rtu_type_to_string(advert.type))
+        log.error("尝试为类型 " .. types.rtu_type_to_string(advert.type) .. " 实例化 envd RTU")
         return nil
     elseif not util.is_int(advert.index) then
-        log.error("attempt to instantiate envd RTU without index")
+        log.error("尝试在没有索引的情况下实例化 envd RTU")
         return nil
     end
 

@@ -61,14 +61,14 @@ local function draw_computer_crash(exit)
     TextBox{parent=warning,text="\x8f\x8f\x8f\x8f\x8f\x8f\x8f\x8f\x8f\x8f\x8f",width=11,fg_bg=core.cpair(colors.yellow,colors.lightGray)}
     TextBox{parent=warning,x=6,y=3,text=" \n \x83",width=1,fg_bg=core.cpair(colors.yellow,colors.white)}
 
-    TextBox{parent=display,x=13,y=2,text="Critical Software Fault Encountered",alignment=core.ALIGN.CENTER,fg_bg=core.cpair(colors.yellow,colors._INHERIT)}
-    TextBox{parent=display,x=15,y=4,text="Please consider reporting this on the cc-mek-scada Discord or GitHub.",width=36,alignment=core.ALIGN.CENTER}
-    TextBox{parent=display,x=14,y=7,text="refer to the log file for more info",alignment=core.ALIGN.CENTER,fg_bg=core.cpair(colors.gray,colors._INHERIT)}
+    TextBox{parent=display,x=13,y=2,text="检测到严重软件故障",alignment=core.ALIGN.CENTER,fg_bg=core.cpair(colors.yellow,colors._INHERIT)}
+    TextBox{parent=display,x=15,y=4,text="请考虑在 cc-mek-scada 的 Discord 或 GitHub 上报告此问题。",width=36,alignment=core.ALIGN.CENTER}
+    TextBox{parent=display,x=14,y=7,text="详情请参阅日志文件",alignment=core.ALIGN.CENTER,fg_bg=core.cpair(colors.gray,colors._INHERIT)}
 
     local box = Rectangle{parent=display,x=2,y=9,width=display.get_width()-2,height=8,border=core.border(1,colors.gray,true),thin=true,fg_bg=core.cpair(colors.black,colors.white)}
     TextBox{parent=box,text=err}
 
-    PushButton{parent=display,x=23,y=18,text=" Exit ",callback=exit,active_fg_bg=core.cpair(colors.white,colors.gray),fg_bg=core.cpair(colors.black,colors.red)}
+    PushButton{parent=display,x=23,y=18,text=" 退出 ",callback=exit,active_fg_bg=core.cpair(colors.white,colors.gray),fg_bg=core.cpair(colors.black,colors.red)}
 
     return display
 end
@@ -95,14 +95,14 @@ local function draw_pocket_crash(exit)
     TextBox{parent=warning,x=4,y=2,text="\x90",width=1,fg_bg=core.cpair(colors.lightGray,colors.yellow)}
     TextBox{parent=warning,x=4,y=3,text="\x85",width=1,fg_bg=core.cpair(colors.lightGray,colors.yellow)}
 
-    TextBox{parent=display,x=10,y=2,text=" Critical Software Fault",width=16,alignment=core.ALIGN.CENTER,fg_bg=core.cpair(colors.yellow,colors._INHERIT)}
-    TextBox{parent=display,x=2,y=5,text="Consider reporting this on the cc-mek-scada Discord or GitHub.",width=36,alignment=core.ALIGN.CENTER}
+    TextBox{parent=display,x=10,y=2,text=" 严重软件故障",width=16,alignment=core.ALIGN.CENTER,fg_bg=core.cpair(colors.yellow,colors._INHERIT)}
+    TextBox{parent=display,x=2,y=5,text="请考虑在 cc-mek-scada 的 Discord 或 GitHub 上报告此问题。",width=36,alignment=core.ALIGN.CENTER}
 
     local box = Rectangle{parent=display,y=9,width=display.get_width(),height=8,fg_bg=core.cpair(colors.black,colors.white)}
     TextBox{parent=box,text=err}
 
-    PushButton{parent=display,x=11,y=18,text=" Exit ",callback=exit,active_fg_bg=core.cpair(colors.white,colors.gray),fg_bg=core.cpair(colors.black,colors.red)}
-    TextBox{parent=display,x=2,y=20,text="see logs for details",width=24,alignment=core.ALIGN.CENTER,fg_bg=core.cpair(colors.gray,colors._INHERIT)}
+    PushButton{parent=display,x=11,y=18,text=" 退出 ",callback=exit,active_fg_bg=core.cpair(colors.white,colors.gray),fg_bg=core.cpair(colors.black,colors.red)}
+    TextBox{parent=display,x=2,y=20,text="详情请参阅日志",width=24,alignment=core.ALIGN.CENTER,fg_bg=core.cpair(colors.gray,colors._INHERIT)}
 
     return display
 end
@@ -114,13 +114,13 @@ function crash.dbg_log_env() log_versions(log.debug) end
 ---@param error string error message
 function crash.handler(error)
     err = error
-    log.info("=====> FATAL SOFTWARE FAULT <=====")
+    log.info("=====> 致命软件故障 <=====")
     log.fatal(error)
     log.info("----------------------------------")
     log_versions(log.info)
     log.info("----------------------------------")
-    log.info(debug.traceback("--- begin debug trace ---", 1))
-    log.info("--- end debug trace ---")
+    log.info(debug.traceback("--- 开始调试追踪 ---", 1))
+    log.info("--- 结束调试追踪 ---")
 end
 
 -- final error print on failed xpcall, app exits here
@@ -157,7 +157,7 @@ function crash.exit()
 
     -- default text failure message
     if not handled then
-        util.println("fatal error occured in main application:")
+        util.println("主应用程序发生致命错误：")
         error(err, 0)
     end
 end

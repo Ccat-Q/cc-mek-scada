@@ -37,10 +37,10 @@ TANKS = 500
 local WRITE_BUSY_WAIT = 1000
 function dynamicv.new(session_id, unit_id, advert, out_queue)
 if advert.type ~= RTU_UNIT_TYPE.DYNAMIC_VALVE then
-log.error("attempt to instantiate dynamicv RTU for type " .. types.rtu_type_to_string(advert.type))
+log.error("尝试为类型 " .. types.rtu_type_to_string(advert.type) .. " 实例化 dynamicv RTU")
 return nil
 elseif not util.is_int(advert.index) then
-log.error("attempt to instantiate dynamicv RTU without index")
+log.error("尝试在没有索引的情况下实例化 dynamicv RTU")
 return nil
 end
 local log_tag = util.c("session.rtu(", session_id, ").dynamicv(", advert.index, ")[@", unit_id, "]: ")
@@ -172,7 +172,7 @@ _inc_cont_mode()
 elseif cmd == DTV_RTU_S_CMDS.DEC_CONT_MODE then
 _dec_cont_mode()
 else
-log.debug(util.c(log_tag, "unrecognized in-queue command ", cmd))
+log.debug(util.c(log_tag, "无法识别的入队命令 ", cmd))
 end
 elseif msg.qtype == mqueue.TYPE.DATA then
 local cmd = msg.message
@@ -182,15 +182,15 @@ cmd.val == types.CONTAINER_MODE.FILL or
 cmd.val == types.CONTAINER_MODE.EMPTY then
 _set_cont_mode(cmd.val)
 else
-log.debug(util.c(log_tag, "unrecognized container mode \"", cmd.val, "\""))
+log.debug(util.c(log_tag, "无法识别的容器模式 \"", cmd.val, "\""))
 end
 else
-log.debug(util.c(log_tag, "unrecognized in-queue data ", cmd.key))
+log.debug(util.c(log_tag, "无法识别的入队数据 ", cmd.key))
 end
 end
 end
 if util.time() - time_now > 100 then
-log.warning(log_tag .. "exceeded 100ms queue process limit")
+log.warning(log_tag .. "超过 100ms 队列处理限制")
 break
 end
 end

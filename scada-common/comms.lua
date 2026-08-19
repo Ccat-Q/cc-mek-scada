@@ -517,7 +517,7 @@ function comms.modbus_container()
             return true
         end
 
-        log.error("COMMS: [modbus_make] data not a table")
+        log.error("COMMS: [modbus_make] 数据不是表")
         return false
     end
 
@@ -541,8 +541,8 @@ function comms.modbus_container()
                 if type(self.txn_id) == TYPE_NUM and type(self.unit_id) == TYPE_NUM and type(self.func_code) == TYPE_NUM then
                     return public.get()
                 end
-            else log.debug("COMMS: [modbus_decode] attempted parse of incorrect protocol " .. frame.protocol(), true) end
-        else log.debug("COMMS: [modbus_decode] discarding nil frame", true) end
+            else log.debug("COMMS: [modbus_decode] 尝试解析了不正确的协议 " .. frame.protocol(), true) end
+        else log.debug("COMMS: [modbus_decode] 丢弃空帧", true) end
 
         return nil
     end
@@ -607,7 +607,7 @@ function comms.rplc_container()
             return true
         end
 
-        log.error("COMMS: [rplc_make] data not a table")
+        log.error("COMMS: [rplc_make] 数据不是表")
         return false
     end
 
@@ -630,8 +630,8 @@ function comms.rplc_container()
                 if type(self.id) == TYPE_NUM and type(self.type) == TYPE_NUM then
                     return public.get()
                 end
-            else log.debug("COMMS: [rplc_decode] attempted parse of incorrect protocol " .. frame.protocol(), true) end
-        else log.debug("COMMS: [rplc_decode] nil frame encountered", true) end
+            else log.debug("COMMS: [rplc_decode] 尝试解析了不正确的协议 " .. frame.protocol(), true) end
+        else log.debug("COMMS: [rplc_decode] 遇到空帧", true) end
 
         return nil
     end
@@ -692,7 +692,7 @@ function comms.mgmt_container()
             return true
         end
 
-        log.error("COMMS: [mgmt_make] data not a table")
+        log.error("COMMS: [mgmt_make] 数据不是表")
         return false
     end
 
@@ -714,8 +714,8 @@ function comms.mgmt_container()
                 if type(self.type) == TYPE_NUM then
                     return public.get()
                 end
-            else log.debug("COMMS: [mgmt_decode] attempted parse of incorrect protocol " .. frame.protocol(), true) end
-        else log.debug("COMMS: [mgmt_decode] nil frame encountered", true) end
+            else log.debug("COMMS: [mgmt_decode] 尝试解析了不正确的协议 " .. frame.protocol(), true) end
+        else log.debug("COMMS: [mgmt_decode] 遇到空帧", true) end
 
         return nil
     end
@@ -775,7 +775,7 @@ function comms.crdn_container()
             return true
         end
 
-        log.error("COMMS: [crdn_make] data not a table")
+        log.error("COMMS: [crdn_make] 数据不是表")
         return false
     end
 
@@ -797,8 +797,8 @@ function comms.crdn_container()
                 if type(self.type) == TYPE_NUM then
                     return public.get()
                 end
-            else log.debug("COMMS: [crdn_decode] attempted parse of incorrect protocol " .. frame.protocol(), true) end
-        else log.debug("COMMS: [crdn_decode] nil frame encountered", true) end
+            else log.debug("COMMS: [crdn_decode] 尝试解析了不正确的协议 " .. frame.protocol(), true) end
+        else log.debug("COMMS: [crdn_decode] 遇到空帧", true) end
 
         return nil
     end

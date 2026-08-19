@@ -65,7 +65,7 @@ plc_s.in_queue.push_command(PLC_S_CMDS.RPS_RESET)
 elseif cmd.key == SV_Q_DATA.SET_BURN and type(cmd.val) == "table" and #cmd.val == 2 then
 plc_s.in_queue.push_data(PLC_S_DATA.BURN_RATE, cmd.val[2])
 else
-log.debug(util.c("SVS: unknown PLC SV queue command ", cmd.key))
+log.debug(util.c("SVS: 未知的 PLC SV 队列命令 ", cmd.key))
 end
 end
 else
@@ -83,8 +83,8 @@ end
 end
 end
 if util.time() - handle_start > 100 then
-log.debug("SVS: supervisor out queue handler exceeded 100ms queue process limit")
-log.debug(util.c("SVS: offending session: ", session))
+log.debug("SVS: 监控端出队处理器超过 100ms 队列处理上限")
+log.debug(util.c("SVS: 问题会话: ", session))
 break
 end
 end
@@ -106,7 +106,7 @@ if msg ~= nil and msg.qtype == mqueue.TYPE.NETWORK then
 session.nic.transmit(session.r_chan, self.config.SVR_Channel, msg.message)
 end
 end
-log.debug(util.c("SVS: closed session ", session))
+log.debug(util.c("SVS: 已关闭会话 ", session))
 end
 local function _close(sessions)
 for i = 1, #sessions do
@@ -120,7 +120,7 @@ local session = sessions[i]
 if session.open then
 local triggered = session.instance.check_wd(timer_event)
 if triggered then
-log.debug(util.c("SVS: watchdog closing session ", session, "..."))
+log.debug(util.c("SVS: 看门狗正在关闭会话 ", session, "..."))
 _shutdown(session)
 return true
 end
@@ -131,7 +131,7 @@ end
 local function _free_closed(sessions)
 local f = function (session) return session.open end
 local on_delete = function (session)
-log.debug(util.c("SVS: free'ing closed session ", session))
+log.debug(util.c("SVS: 释放已关闭的会话 ", session))
 end
 util.filter_table(sessions, f, on_delete)
 end
@@ -153,16 +153,16 @@ local function report(disconnected, msg)
 if disconnected then pgi.create_missing_entry(msg) else pgi.delete_missing_entry(msg) end
 end
 if rtu_conns.ess ~= conns.ess then
-report(conns.ess, util.c("the facility's energy storage"))
+report(conns.ess, util.c("设施的储能系统"))
 conns.ess = rtu_conns.ess
 end
 if rtu_conns.sps ~= conns.sps then
-report(conns.sps, util.c("the facility's SPS"))
+report(conns.sps, util.c("设施的 SPS"))
 conns.sps = rtu_conns.sps
 end
 for i = 1, #conns.tanks do
 if (rtu_conns.tanks[i] or false) ~= conns.tanks[i] then
-report(conns.tanks[i], util.c("the facility's #", i, " dynamic tank"))
+report(conns.tanks[i], util.c("设施的 #", i, " 号动态罐"))
 conns.tanks[i] = rtu_conns.tanks[i] or false
 end
 end
@@ -171,19 +171,19 @@ local u_conns = conns.units[u]
 rtu_conns = units[u].check_rtu_conns()
 for i = 1, #u_conns.boilers do
 if (rtu_conns.boilers[i] or false) ~= u_conns.boilers[i] then
-report(u_conns.boilers[i], util.c("unit ", u, "'s #", i, " boiler"))
+report(u_conns.boilers[i], util.c("机组 ", u, " 的 #", i, " 号锅炉"))
 u_conns.boilers[i] = rtu_conns.boilers[i] or false
 end
 end
 for i = 1, #u_conns.turbines do
 if (rtu_conns.turbines[i] or false) ~= u_conns.turbines[i] then
-report(u_conns.turbines[i], util.c("unit ", u, "'s #", i, " turbine"))
+report(u_conns.turbines[i], util.c("机组 ", u, " 的 #", i, " 号涡轮机"))
 u_conns.turbines[i] = rtu_conns.turbines[i] or false
 end
 end
 for i = 1, #u_conns.tanks do
 if (rtu_conns.tanks[i] or false) ~= u_conns.tanks[i] then
-report(u_conns.tanks[i], util.c("unit ", u, "'s dynamic tank"))
+report(u_conns.tanks[i], util.c("机组 ", u, " 的动态罐"))
 u_conns.tanks[i] = rtu_conns.tanks[i] or false
 end
 end
@@ -192,48 +192,48 @@ end
 function svsessions.check_rtu_id(unit, list, max)
 local fail_code, fail_str = RTU_LINK_FAIL.OK, "OK"
 if (unit.get_device_idx() < 1 and max ~= 1) or unit.get_device_idx() > max then
-fail_code, fail_str = RTU_LINK_FAIL.OUT_OF_RANGE, "index out of range"
+fail_code, fail_str = RTU_LINK_FAIL.OUT_OF_RANGE, "索引超出范围"
 table.insert(self.dev_dbg.out_of_range, unit)
 else
 for _, u in ipairs(list) do
 if u.get_device_idx() == unit.get_device_idx() then
-fail_code, fail_str = RTU_LINK_FAIL.DUPLICATE, "duplicate index"
+fail_code, fail_str = RTU_LINK_FAIL.DUPLICATE, "索引重复"
 table.insert(self.dev_dbg.duplicate, unit)
 break
 end
 end
 end
 if fail_code == RTU_LINK_FAIL.OK and #list >= max then
-fail_code, fail_str = RTU_LINK_FAIL.MAX_DEVICES, "too many of this type"
+fail_code, fail_str = RTU_LINK_FAIL.MAX_DEVICES, "此类型数量过多"
 end
 if fail_code ~= RTU_LINK_FAIL.OK and fail_code ~= RTU_LINK_FAIL.MAX_DEVICES then
 local r_id, idx, type = unit.get_reactor(), unit.get_device_idx(), unit.get_unit_type()
 local msg
 if r_id == 0 then
-msg = "the facility's "
+msg = "设施的 "
 if type == RTU_TYPES.IMATRIX then
-msg = msg .. "induction matrix"
+msg = msg .. "感应矩阵"
 elseif type == RTU_TYPES.SPS then
 msg = msg .. "SPS"
 elseif type == RTU_TYPES.DYNAMIC_VALVE then
-msg = util.c(msg, "#", idx, " dynamic tank")
+msg = util.c(msg, "#", idx, " 号动态罐")
 elseif type == RTU_TYPES.ENV_DETECTOR then
-msg = util.c(msg, "#", idx, " env. detector")
+msg = util.c(msg, "#", idx, " 号环境探测器")
 else
-msg = msg .. " ? (error)"
+msg = msg .. " ? (错误)"
 end
 else
-msg = util.c("unit ", r_id, "'s ")
+msg = util.c("机组 ", r_id, " 的 ")
 if type == RTU_TYPES.BOILER_VALVE then
-msg = util.c(msg, "#", idx, " boiler")
+msg = util.c(msg, "#", idx, " 号锅炉")
 elseif type == RTU_TYPES.TURBINE_VALVE then
-msg = util.c(msg, "#", idx, " turbine")
+msg = util.c(msg, "#", idx, " 号涡轮机")
 elseif type == RTU_TYPES.DYNAMIC_VALVE then
-msg = msg .. "dynamic tank"
+msg = msg .. "动态罐"
 elseif type == RTU_TYPES.ENV_DETECTOR then
-msg = util.c(msg, "#", idx, " env. detector")
+msg = util.c(msg, "#", idx, " 号环境探测器")
 else
-msg = msg .. " ? (error)"
+msg = msg .. " ? (错误)"
 end
 end
 pgi.create_chk_entry(unit, fail_code, msg)
@@ -246,30 +246,30 @@ local msg
 local details = ""
 table.insert(self.dev_dbg.mismatch, unit)
 if r_id == 0 then
-msg = "a facility "
+msg = "一个设施 "
 if type == RTU_TYPES.IMATRIX then
-msg = msg .. "induction matrix"
-details = "configured for an energy core"
+msg = msg .. "感应矩阵"
+details = "配置用于能量核心"
 elseif type == RTU_TYPES.ENERGY_CORE then
-msg = msg .. "energy core"
-details = "configured for an induction matrix"
+msg = msg .. "能量核心"
+details = "配置用于感应矩阵"
 elseif type == RTU_TYPES.DYNAMIC_VALVE then
-msg = msg .. "dynamic tank"
-details = "not configured for a facility tank"
+msg = msg .. "动态罐"
+details = "未配置用于设施罐"
 elseif type == RTU_TYPES.SNA then
-msg = msg .. "SNA (must be for unit)"
+msg = msg .. "SNA（必须用于机组）"
 else
-msg = msg .. " ? (error)"
+msg = msg .. " ? (错误)"
 end
 else
-msg = util.c("unit ", r_id, "'s ")
+msg = util.c("机组 ", r_id, " 的 ")
 if type == RTU_TYPES.DYNAMIC_VALVE then
-msg = msg .. "dynamic tank"
-details = "unit not configured for a unit tank"
+msg = msg .. "动态罐"
+details = "机组未配置用于机组罐"
 elseif type == RTU_TYPES.SNA then
-msg = msg .. "SNA (must be for facility)"
+msg = msg .. "SNA（必须用于设施）"
 else
-msg = msg .. " ? (error)"
+msg = msg .. " ? (错误)"
 end
 end
 pgi.create_chk_entry(unit, RTU_LINK_FAIL.MISMATCH, msg, details)
@@ -350,7 +350,7 @@ __tostring = function (s)  return util.c("PLC [", s.instance.get_id(), "] for re
 }
 setmetatable(plc_s, mt)
 databus.tx_plc_connected(for_reactor, version, source_addr)
-log.debug(util.c("SVS: established new session: ", plc_s))
+log.debug(util.c("SVS: 已建立新会话: ", plc_s))
 self.next_ids.plc = id + 1
 return plc_s.instance.get_id()
 else
@@ -377,7 +377,7 @@ __tostring = function (s)  return util.c("RTU [", s.instance.get_id(), "] (@", s
 }
 setmetatable(rtu_s, mt)
 databus.tx_rtu_connected(id, version, source_addr)
-log.debug(util.c("SVS: established new session: ", rtu_s))
+log.debug(util.c("SVS: 已建立新会话: ", rtu_s))
 self.next_ids.rtu = id + 1
 return id
 end
@@ -402,7 +402,7 @@ __tostring = function (s)  return util.c("CRD [", s.instance.get_id(), "] (@", s
 }
 setmetatable(crd_s, mt)
 databus.tx_crd_connected(version, source_addr)
-log.debug(util.c("SVS: established new session: ", crd_s))
+log.debug(util.c("SVS: 已建立新会话: ", crd_s))
 self.next_ids.crd = id + 1
 return id
 else
@@ -429,7 +429,7 @@ __tostring = function (s)  return util.c("PDG [", s.instance.get_id(), "] (@", s
 }
 setmetatable(pdg_s, mt)
 databus.tx_pdg_connected(id, version, source_addr)
-log.debug(util.c("SVS: established new session: ", pdg_s))
+log.debug(util.c("SVS: 已建立新会话: ", pdg_s))
 self.next_ids.pdg = id + 1
 return id
 end

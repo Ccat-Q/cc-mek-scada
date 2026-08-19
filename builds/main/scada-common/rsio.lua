@@ -179,7 +179,7 @@ function rsio.is_color(color)
 return util.is_int(color) and (color > 0) and (_B_AND(color, (color - 1)) == 0)
 end
 function rsio.color_name(color)
-local color_name_map = { [colors.red] = "red", [colors.orange] = "orange", [colors.yellow] = "yellow", [colors.lime] = "lime", [colors.green] = "green", [colors.cyan] = "cyan", [colors.lightBlue] = "lightBlue", [colors.blue] = "blue", [colors.purple] = "purple", [colors.magenta] = "magenta", [colors.pink] = "pink", [colors.white] = "white", [colors.lightGray] = "lightGray", [colors.gray] = "gray", [colors.black] = "black", [colors.brown] = "brown" }
+local color_name_map = { [colors.red] = "红", [colors.orange] = "橙", [colors.yellow] = "黄", [colors.lime] = "黄绿", [colors.green] = "绿", [colors.cyan] = "青", [colors.lightBlue] = "淡蓝", [colors.blue] = "蓝", [colors.purple] = "紫", [colors.magenta] = "品红", [colors.pink] = "粉", [colors.white] = "白", [colors.lightGray] = "浅灰", [colors.gray] = "灰", [colors.black] = "黑", [colors.brown] = "棕" }
 if rsio.is_color(color) then
 return color_name_map[color]
 else return "unknown" end

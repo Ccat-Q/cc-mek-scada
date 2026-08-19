@@ -26,7 +26,7 @@ local _bp = {
     nic_map = {}    ---@type nic[] connected nics
 }
 
-local multi_reactor_warn = "BKPLN: do NOT share reactor connections between multiple PLCs! they may not all be protected and used as configured"
+local multi_reactor_warn = "BKPLN: 请勿在多个 PLC 之间共享反应堆连接！它们可能无法全部按配置受到保护和正常使用"
 
 -- network interfaces indexed by peripheral names
 backplane.nics = _bp.nic_map
@@ -53,7 +53,7 @@ function backplane.init(config, __shared_memory)
             local modem  = ppm.get_modem(_bp.lan_iface)
             local wd_nic = network.nic(modem, config.SVR_Channel)
 
-            log.info("BKPLN: WIRED PHY_" .. util.trinary(modem, "UP ", "DOWN ") .. _bp.lan_iface)
+            log.info("BKPLN: 有线 PHY_" .. util.trinary(modem, "UP ", "DOWN ") .. _bp.lan_iface)
 
             _bp.wd_nic  = wd_nic
             _bp.act_nic = wd_nic -- set this as active for now
@@ -70,12 +70,12 @@ function backplane.init(config, __shared_memory)
             local modem, iface = ppm.get_wireless_modem()
             local wl_nic       = network.nic(modem, config.SVR_Channel)
 
-            log.info("BKPLN: WIRELESS PHY_" .. util.trinary(modem, "UP ", "DOWN") .. (iface or ""))
+            log.info("BKPLN: 无线 PHY_" .. util.trinary(modem, "UP ", "DOWN") .. (iface or ""))
 
             -- set this as active if connected or if both modems are disconnected and this is preferred
             if (modem and _bp.wlan_pref) or not (_bp.act_nic and _bp.act_nic.is_connected()) then
                 _bp.act_nic = wl_nic
-                log.info("BKPLN: switched active to preferred wireless")
+                log.info("BKPLN: 已切换到优先无线")
             end
 
             _bp.wl_nic = wl_nic
@@ -89,8 +89,8 @@ function backplane.init(config, __shared_memory)
 
         -- comms modem is required if networked
         if not (plc_state.wd_modem or plc_state.wl_modem) then
-            println("startup> no comms modem found")
-            log.warning("BKPLN: no comms modem on startup")
+            println("startup> 未找到通信调制解调器")
+            log.warning("BKPLN: 启动时没有通信调制解调器")
 
             plc_state.degraded = true
         end
@@ -106,8 +106,8 @@ function backplane.init(config, __shared_memory)
     if plc_state.no_reactor then
         log.info("BKPLN: REACTOR LINK_DOWN")
 
-        println("startup> fission reactor not found")
-        log.warning("BKPLN: no reactor on startup")
+        println("startup> 未找到裂变反应堆")
+        log.warning("BKPLN: 启动时没有反应堆")
 
         plc_state.degraded = true
         plc_state.reactor_formed = false
@@ -117,13 +117,13 @@ function backplane.init(config, __shared_memory)
 ---@diagnostic disable-next-line: assign-type-mismatch
         plc_dev.reactor = dev
 
-        log.info("BKPLN: mounted virtual device as reactor")
+        log.info("BKPLN: 已将虚拟设备挂载为反应堆")
     else
         log.info("BKPLN: REACTOR LINK_UP " .. ppm.get_iface(plc_dev.reactor))
 
         if not plc_dev.reactor.isFormed() then
-            println("startup> fission reactor is not formed")
-            log.warning("BKPLN: reactor logic adapter detected, but reactor is not formed")
+            println("startup> 裂变反应堆未成型")
+            log.warning("BKPLN: 检测到反应堆逻辑适配器，但反应堆未成型")
 
             plc_state.degraded = true
             plc_state.reactor_formed = false
@@ -132,9 +132,9 @@ function backplane.init(config, __shared_memory)
 
     -- detect and warn about multiple reactors
     if #ppm.get_all_devices("fissionReactorLogicAdapter") > 1 then
-        println("startup> !! DANGER !! more than one reactor was detected! do not share reactor connections between multiple PLCs! they may not all be protected and used as configured")
+        println("startup> !! 危险 !! 检测到多个反应堆！请勿在多个 PLC 之间共享反应堆连接！它们可能无法全部按配置受到保护和正常使用")
 
-        log.warning("BKPLN: !! DANGER !! more than one reactor was detected on startup!")
+        log.warning("BKPLN: !! 危险 !! 启动时检测到多个反应堆！")
         log.warning(multi_reactor_warn)
 
         databus.tx_multi_reactor(true)
@@ -174,7 +174,7 @@ function backplane.attach(iface, type, device, print_no_fp)
             ---@cast device FissionReactor
 
             if not state.no_reactor then
-                log.warning("BKPLN: !! DANGER !! an additional reactor (" .. iface .. ") was connected and will not be used!")
+                log.warning("BKPLN: !! 危险 !! 检测到额外的反应堆（" .. iface .. "）已连接，将不会使用它！")
                 log.warning(multi_reactor_warn)
 
                 databus.tx_multi_reactor(true)
@@ -187,8 +187,8 @@ function backplane.attach(iface, type, device, print_no_fp)
             dev.reactor = device
             state.no_reactor = false
 
-            print_no_fp("reactor connected")
-            log.info("BKPLN: reactor connected")
+            print_no_fp("反应堆已连接")
+            log.info("BKPLN: 反应堆已连接")
 
             -- we need to assume formed here as we cannot check in this main loop
             -- RPS will identify if it isn't and this will get set false later
@@ -212,15 +212,15 @@ function backplane.attach(iface, type, device, print_no_fp)
 
             local m_is_wl = device.isWireless()
 
-            log.info(util.c("BKPLN: ", util.trinary(m_is_wl, "WIRELESS", "WIRED"), " PHY_ATTACH ", iface))
+            log.info(util.c("BKPLN: ", util.trinary(m_is_wl, "无线", "有线"), " PHY_ATTACH ", iface))
 
             if wd_nic and (_bp.lan_iface == iface) then
                 -- connect this as the wired NIC
                 wd_nic.connect(device)
                 _bp.nic_map[iface] = wd_nic
 
-                log.info("BKPLN: WIRED PHY_UP " .. iface)
-                print_no_fp("wired comms modem connected")
+                log.info("BKPLN: 有线 PHY_UP " .. iface)
+                print_no_fp("有线通信调制解调器已连接")
 
                 state.wd_modem = true
 
@@ -229,15 +229,15 @@ function backplane.attach(iface, type, device, print_no_fp)
                     _bp.act_nic = wd_nic
 
                     sys.plc_comms.switch_nic(_bp.act_nic)
-                    log.info("BKPLN: switched comms to wired modem (preferred)")
+                    log.info("BKPLN: 已将通信切换到有线调制解调器（优先）")
                 end
             elseif wl_nic and (not wl_nic.is_connected()) and m_is_wl then
                 -- connect this as the wireless NIC
                 wl_nic.connect(device)
                 _bp.nic_map[iface] = wl_nic
 
-                log.info("BKPLN: WIRELESS PHY_UP " .. iface)
-                print_no_fp("wireless comms modem connected")
+                log.info("BKPLN: 无线 PHY_UP " .. iface)
+                print_no_fp("无线通信调制解调器已连接")
 
                 state.wl_modem = true
 
@@ -246,19 +246,19 @@ function backplane.attach(iface, type, device, print_no_fp)
                     _bp.act_nic = wl_nic
 
                     sys.plc_comms.switch_nic(_bp.act_nic)
-                    log.info("BKPLN: switched comms to wireless modem (preferred)")
+                    log.info("BKPLN: 已将通信切换到无线调制解调器（优先）")
                 end
             elseif wl_nic and m_is_wl then
                 -- the wireless NIC already has a modem
                 device.closeAll()
 
-                print_no_fp("standby wireless modem connected")
-                log.info("BKPLN: standby wireless modem connected")
+                print_no_fp("备用无线调制解调器已连接")
+                log.info("BKPLN: 备用无线调制解调器已连接")
             else
                 device.closeAll()
 
-                print_no_fp("unassigned modem connected")
-                log.warning("BKPLN: unassigned modem connected")
+                print_no_fp("未分配调制解调器已连接")
+                log.warning("BKPLN: 未分配调制解调器已连接")
             end
 
             -- determine if we are still in a degraded state
@@ -290,7 +290,7 @@ function backplane.detach(iface, type, device, print_no_fp)
 
         -- detect and warn about multiple reactors
         if #ppm.get_all_devices("fissionReactorLogicAdapter") > 1 then
-            log.warning("BKPLN: !! DANGER !! more than one reactor is still present!")
+            log.warning("BKPLN: !! 危险 !! 仍有多个反应堆！")
             log.warning(multi_reactor_warn)
 
             databus.tx_multi_reactor(true)
@@ -298,8 +298,8 @@ function backplane.detach(iface, type, device, print_no_fp)
 
         -- if this is the active reactor, handle that
         if device == dev.reactor then
-            print_no_fp("reactor disconnected")
-            log.warning("BKPLN: reactor disconnected")
+            print_no_fp("反应堆已断开")
+            log.warning("BKPLN: 反应堆已断开")
 
             state.no_reactor = true
             state.degraded = true
@@ -307,7 +307,7 @@ function backplane.detach(iface, type, device, print_no_fp)
             -- try to find another reactor (this should not work unless multiple were incorrectly connected)
             local reactor, r_iface = ppm.get_fission_reactor()
             if reactor and r_iface then
-                log.info("BKPLN: found another fission reactor logic adapter")
+                log.info("BKPLN: 找到另一个裂变反应堆逻辑适配器")
 
                 backplane.attach(r_iface, type, reactor, print_no_fp)
             end
@@ -321,20 +321,20 @@ function backplane.detach(iface, type, device, print_no_fp)
 
         if wd_nic and wd_nic.is_modem(device) then
             wd_nic.disconnect()
-            log.info("BKPLN: WIRED PHY_DOWN " .. iface)
+            log.info("BKPLN: 有线 PHY_DOWN " .. iface)
 
             state.wd_modem = false
         elseif wl_nic and wl_nic.is_modem(device) then
             wl_nic.disconnect()
-            log.info("BKPLN: WIRELESS PHY_DOWN " .. iface)
+            log.info("BKPLN: 无线 PHY_DOWN " .. iface)
 
             state.wl_modem = false
         end
 
         -- we only care if this is our active comms modem
         if _bp.act_nic.is_modem(device) then
-            print_no_fp("active comms modem disconnected")
-            log.warning("BKPLN: active comms modem disconnected")
+            print_no_fp("活动通信调制解调器已断开")
+            log.warning("BKPLN: 活动通信调制解调器已断开")
 
             -- failover and try to find a new comms modem
             if _bp.act_nic == wl_nic then
@@ -342,18 +342,18 @@ function backplane.detach(iface, type, device, print_no_fp)
                 -- try to find another wireless modem, otherwise switch to wired
                 local modem, m_iface = ppm.get_wireless_modem()
                 if wl_nic and modem then
-                    log.info("BKPLN: found another wireless modem, using it for comms")
+                    log.info("BKPLN: 找到另一个无线调制解调器，正在将其用于通信")
 
                     wl_nic.connect(modem)
 
-                    log.info("BKPLN: WIRELESS PHY_UP " .. m_iface)
+                    log.info("BKPLN: 无线 PHY_UP " .. m_iface)
 
                     state.wl_modem = true
                 elseif wd_nic and wd_nic.is_connected() then
                     _bp.act_nic = wd_nic
 
                     sys.plc_comms.switch_nic(_bp.act_nic)
-                    log.info("BKPLN: switched comms to wired modem")
+                    log.info("BKPLN: 已将通信切换到有线调制解调器")
                 else
                     -- no other wireless modems, wired unavailable
                     state.degraded = true
@@ -364,7 +364,7 @@ function backplane.detach(iface, type, device, print_no_fp)
                 _bp.act_nic = wl_nic
 
                 sys.plc_comms.switch_nic(_bp.act_nic)
-                log.info("BKPLN: switched comms to wireless modem")
+                log.info("BKPLN: 已将通信切换到无线调制解调器")
             else
                 -- wired active disconnected, wireless unavailable
                 state.degraded = true
@@ -372,15 +372,15 @@ function backplane.detach(iface, type, device, print_no_fp)
             end
         elseif wd_nic and wd_nic.is_modem(device) then
             -- wired, but not active
-            print_no_fp("standby wired modem disconnected")
-            log.info("BKPLN: standby wired modem disconnected")
+            print_no_fp("备用有线调制解调器已断开")
+            log.info("BKPLN: 备用有线调制解调器已断开")
         elseif wl_nic and wl_nic.is_modem(device) then
             -- wireless, but not active
-            print_no_fp("standby wireless modem disconnected")
-            log.info("BKPLN: standby wireless modem disconnected")
+            print_no_fp("备用无线调制解调器已断开")
+            log.info("BKPLN: 备用无线调制解调器已断开")
         else
-            print_no_fp("unassigned modem disconnected")
-            log.warning("BKPLN: unassigned modem disconnected")
+            print_no_fp("未分配调制解调器已断开")
+            log.warning("BKPLN: 未分配调制解调器已断开")
         end
     end
 end

@@ -9,7 +9,7 @@ colors.red_off    = colors.brown
 colors.yellow_off = colors.magenta
 colors.green_off  = colors.lime
 themes.UI_THEME = { SMOOTH_STONE = 1, DEEPSLATE = 2 }
-themes.UI_THEME_NAMES = { "Smooth Stone", "Deepslate" }
+themes.UI_THEME_NAMES = { "平滑石", "深板岩" }
 function themes.ui_theme_name(id)
 if id == themes.UI_THEME.SMOOTH_STONE or
 id == themes.UI_THEME.DEEPSLATE then
@@ -17,7 +17,7 @@ return themes.UI_THEME_NAMES[id]
 else return nil end
 end
 themes.FP_THEME = { SANDSTONE = 1, BASALT = 2 }
-themes.FP_THEME_NAMES = { "Sandstone", "Basalt" }
+themes.FP_THEME_NAMES = { "砂岩", "玄武岩" }
 function themes.fp_theme_name(id)
 if id == themes.FP_THEME.SANDSTONE or
 id == themes.FP_THEME.BASALT then
@@ -35,13 +35,13 @@ BLUE_ON_BLACK = 7,
 NUM_MODES = 8
 }
 themes.COLOR_MODE_NAMES = {
-"Standard",
-"Deuteranopia",
-"Protanopia",
-"Tritanopia",
-"Blue for 'Good'",
-"Standard + Black",
-"Blue + Black"
+"标准",
+"绿色盲",
+"红色盲",
+"蓝色盲",
+"正常为蓝色",
+"标准+黑色",
+"蓝色+黑色"
 }
 function themes.color_mode_name(id)
 if id == themes.COLOR_MODE.STANDARD or

@@ -49,7 +49,7 @@ return function (app, u_page, panes, blr_pane, u_id, b_id, ps, update)
     local blr_page = app.new_page(u_page, #panes)
     blr_page.tasks = { update }
 
-    TextBox{parent=blr_div,y=1,text="BLR #"..b_id,width=8}
+    TextBox{parent=blr_div,y=1,text="锅炉 #"..b_id,width=8}
     local status = StateIndicator{parent=blr_div,x=10,y=1,states=style.boiler.states,value=1,min_width=12}
     status.register(ps, "BoilerStateStatus", status.update)
 
@@ -68,19 +68,19 @@ return function (app, u_page, panes, blr_pane, u_id, b_id, ps, update)
     steam.register(ps, "steam_fill", steam.update)
     ccool.register(ps, "ccool_fill", ccool.update)
 
-    TextBox{parent=blr_div,text="Temperature",x=5,y=5,width=13,fg_bg=label}
+    TextBox{parent=blr_div,text="温度",x=5,y=5,width=13,fg_bg=label}
     local t_prec = util.trinary(db.temp_label == types.TEMP_SCALE_UNITS[types.TEMP_SCALE.KELVIN], 11, 10)
     local temp = DataIndicator{parent=blr_div,x=5,y=6,lu_colors=lu_col,label="",unit=db.temp_label,format="%"..t_prec..".2f",value=0,commas=true,width=13,fg_bg=text_fg}
 
     temp.register(ps, "temperature", function (t) temp.update(db.temp_convert(t)) end)
 
-    local b_wll = IconIndicator{parent=blr_div,y=10,label="Water Level Lo",states=red_ind_s}
-    local b_hr = IconIndicator{parent=blr_div,label="Heating Rate Lo",states=yel_ind_s}
+    local b_wll = IconIndicator{parent=blr_div,y=10,label="水位低",states=red_ind_s}
+    local b_hr = IconIndicator{parent=blr_div,label="加热速率低",states=yel_ind_s}
 
     b_wll.register(ps, "WaterLevelLow", b_wll.update)
     b_hr.register(ps, "HeatingRateLow", b_hr.update)
 
-    TextBox{parent=blr_div,text="Boil Rate",y=13,width=12,fg_bg=label}
+    TextBox{parent=blr_div,text="沸腾速率",y=13,width=12,fg_bg=label}
     local boil_r = DataIndicator{parent=blr_div,x=6,y=14,lu_colors=lu_col,label="",unit="mB/t",format="%11.0f",value=0,commas=true,width=16,fg_bg=text_fg}
 
     boil_r.register(ps, "boil_rate", boil_r.update)
@@ -91,44 +91,44 @@ return function (app, u_page, panes, blr_pane, u_id, b_id, ps, update)
     local blr_ext_page = app.new_page(blr_page, #panes)
     blr_ext_page.tasks = { update }
 
-    PushButton{parent=blr_div,x=9,y=18,text="MORE",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=blr_ext_page.nav_to}
-    PushButton{parent=blr_ext_div,x=9,y=18,text="BACK",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=blr_page.nav_to}
+    PushButton{parent=blr_div,x=9,y=18,text="更多",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=blr_ext_page.nav_to}
+    PushButton{parent=blr_ext_div,x=9,y=18,text="返回",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=blr_page.nav_to}
 
-    TextBox{parent=blr_ext_div,y=1,text="More Boiler Info",alignment=ALIGN.CENTER}
+    TextBox{parent=blr_ext_div,y=1,text="更多锅炉信息",alignment=ALIGN.CENTER}
 
     local function update_amount(indicator)
         return function (x) indicator.update(x.amount) end
     end
 
-    TextBox{parent=blr_ext_div,text="Hot Coolant",y=3,width=12,fg_bg=label}
+    TextBox{parent=blr_ext_div,text="热冷却剂",y=3,width=12,fg_bg=label}
     local heated_p = DataIndicator{parent=blr_ext_div,x=14,y=3,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local hcool_amnt = DataIndicator{parent=blr_ext_div,y=4,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     heated_p.register(ps, "hcool_fill", function (x) heated_p.update(x * 100) end)
     hcool_amnt.register(ps, "hcool", update_amount(hcool_amnt))
 
-    TextBox{parent=blr_ext_div,text="Water Tank",y=6,width=9,fg_bg=label}
+    TextBox{parent=blr_ext_div,text="水箱",y=6,width=9,fg_bg=label}
     local fuel_p = DataIndicator{parent=blr_ext_div,x=14,y=6,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local fuel_amnt = DataIndicator{parent=blr_ext_div,y=7,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     fuel_p.register(ps, "water_fill", function (x) fuel_p.update(x * 100) end)
     fuel_amnt.register(ps, "water", update_amount(fuel_amnt))
 
-    TextBox{parent=blr_ext_div,text="Steam Tank",y=9,width=10,fg_bg=label}
+    TextBox{parent=blr_ext_div,text="蒸汽箱",y=9,width=10,fg_bg=label}
     local steam_p = DataIndicator{parent=blr_ext_div,x=14,y=9,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local steam_amnt = DataIndicator{parent=blr_ext_div,y=10,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     steam_p.register(ps, "steam_fill", function (x) steam_p.update(x * 100) end)
     steam_amnt.register(ps, "steam", update_amount(steam_amnt))
 
-    TextBox{parent=blr_ext_div,text="Cool Coolant",y=12,width=12,fg_bg=label}
+    TextBox{parent=blr_ext_div,text="冷冷却剂",y=12,width=12,fg_bg=label}
     local cooled_p = DataIndicator{parent=blr_ext_div,x=14,y=12,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local ccool_amnt = DataIndicator{parent=blr_ext_div,y=13,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     cooled_p.register(ps, "ccool_fill", function (x) cooled_p.update(x * 100) end)
     ccool_amnt.register(ps, "ccool", update_amount(ccool_amnt))
 
-    TextBox{parent=blr_ext_div,text="Environmental Loss",y=15,fg_bg=label}
+    TextBox{parent=blr_ext_div,text="环境损耗",y=15,fg_bg=label}
     local env_loss = DataIndicator{parent=blr_ext_div,y=16,lu_colors=lu_col,label="",unit="J",format="%18.6f",value=0,width=21,fg_bg=text_fg}
 
     env_loss.register(ps, "env_loss", function (raw)

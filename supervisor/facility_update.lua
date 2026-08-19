@@ -216,7 +216,7 @@ function update.boot_recovery()
         if self.recovery_boot_state.mode ~= nil and self.units_ready then
             if not was_inactive then
                 self.mode = self.mode_set
-                log.info("FAC: process startup resume initiated")
+                log.info("FAC: 启动恢复已启动")
             end
 
             self.recovery_boot_state.mode = nil
@@ -235,7 +235,7 @@ function update.boot_recovery()
                     local plc_s = svsessions.get_reactor_session(i)
                     if plc_s ~= nil then
                         plc_s.in_queue.push_command(plc.PLC_S_CMDS.ENABLE)
-                        log.info("FAC: startup resume enabling manually controlled reactor unit #" .. i)
+                        log.info("FAC: 启动恢复正在启用手动控制的反应堆机组 #" .. i)
 
                         -- only execute once
                         self.recovery_boot_state.unit_states[i] = nil
@@ -247,7 +247,7 @@ function update.boot_recovery()
         if recovered then
             self.recovery = RCV_STATE.STOPPED
             self.recovery_boot_state = nil
-            log.info("FAC: startup resume sequence completed")
+            log.info("FAC: 启动恢复流程完成")
         end
     end
 end
@@ -400,11 +400,11 @@ function update.auto_control(ExtChargeIdling)
     if state_changed then
         self.saturated = false
 
-        log.debug(util.c("FAC: state changed from ", PROCESS_NAMES[self.last_mode + 1], " to ", PROCESS_NAMES[self.mode + 1]))
+        log.debug(util.c("FAC: 状态已从 ", PROCESS_NAMES[self.last_mode + 1], " 变更为 ", PROCESS_NAMES[self.mode + 1]))
 
         settings.set("LastProcessState", self.mode)
         if not settings.save("/supervisor.settings") then
-            log.warning("facility_update.auto_control(): failed to save supervisor settings file")
+            log.warning("facility_update.auto_control(): 无法保存监控端设置文件")
         end
 
         if self.last_mode == PROCESS.INACTIVE or self.last_mode == PROCESS.ESS_FAULT_IDLE or
@@ -435,8 +435,8 @@ function update.auto_control(ExtChargeIdling)
                     if gen_multiplier == nil then
                         gen_multiplier = u_mult
                     elseif ((gen_multiplier ~= u_mult) or u.get_control_inf().generator_mismatch) and ((self.mode == PROCESS.CHARGE) or (self.mode == PROCESS.GEN_RATE)) then
-                        log.warning("FAC: cannot start CHARGE or GEN_RATE process with inconsistent turbine blade counts")
-                        log.info("FAC: all assigned unit's turbine's must have the same number of blades and enough coils to support those blades")
+                        log.warning("FAC: 涡轮机叶片数不一致，无法启动充能或发电速率进程")
+                        log.info("FAC: 所有已分配机组的涡轮机必须具有相同的叶片数，并有足够的线圈支撑这些叶片")
                         next_mode = PROCESS.INACTIVE
                         self.start_fail = START_STATUS.BLADE_MISMATCH
                     end
@@ -444,8 +444,8 @@ function update.auto_control(ExtChargeIdling)
                     if turbine_flow_perf == nil then
                         turbine_flow_perf = u_perf
                     elseif ((turbine_flow_perf ~= u_perf) or u.get_control_inf().turbine_mismatch) and (self.mode == PROCESS.CHARGE) then
-                        log.warning("FAC: cannot start CHARGE process with inconsistent turbine construction")
-                        log.info("FAC: all assigned unit's turbine's must have the same steam capacity to maximum flow rate ratio")
+                        log.warning("FAC: 涡轮机构造不一致，无法启动充能进程")
+                        log.info("FAC: 所有已分配机组的涡轮机的蒸汽容量与最大流量之比必须一致")
                         next_mode = PROCESS.INACTIVE
                         self.start_fail = START_STATUS.BLADE_MISMATCH
                     end
@@ -456,11 +456,11 @@ function update.auto_control(ExtChargeIdling)
                 end
             end
 
-            log.debug(util.c("FAC: computed a max combined burn rate of ", self.max_burn_combined, "mB/t"))
+            log.debug(util.c("FAC: 已计算最大总燃烧速率为 ", self.max_burn_combined, "mB/t"))
 
             if gen_multiplier == nil then
                 -- no units
-                log.warning("FAC: cannot start process control with 0 units assigned")
+                log.warning("FAC: 未分配机组，无法启动进程控制")
                 next_mode = PROCESS.INACTIVE
                 self.start_fail = START_STATUS.NO_UNITS
             else
@@ -472,10 +472,10 @@ function update.auto_control(ExtChargeIdling)
                 local d_ratio = (const.mek.REF_TURBINE_CAP / const.mek.REF_TURBINE_FLOW) / turbine_flow_perf
                 self.ref_D_scaler = util.trinary(d_ratio <= 1, d_ratio, 2 ^ ((d_ratio - 1) / 20))
 
-                log.debug(util.c("FAC: computed charge conversion factor ", self.charge_conversion, " from generator multiplier ", gen_multiplier,
-                    " (using Mekanism constants JOULES_PER_MB = ", const.mek.JOULES_PER_MB, ", STEAM_ENERGY_EFF = ", const.mek.STEAM_ENERGY_EFF,
+                log.debug(util.c("FAC: 已根据发电机倍率 ", gen_multiplier, " 计算充能转换系数 ", self.charge_conversion,
+                    " （使用的 Mekanism 常量 JOULES_PER_MB = ", const.mek.JOULES_PER_MB, ", STEAM_ENERGY_EFF = ", const.mek.STEAM_ENERGY_EFF,
                     ", WATER_THERMAL_ENTHALPY = ", const.mek.WATER_THERMAL_ENTHALPY, ")"))
-                log.debug(util.c("FAC: computed P scaler ", self.ref_P_scaler, " (ratio was ", p_ratio, ") and D scaler ", self.ref_D_scaler, " (ratio was ", d_ratio, ")"))
+                log.debug(util.c("FAC: 已计算 P 缩放系数 ", self.ref_P_scaler, " （比值为 ", p_ratio, "）和 D 缩放系数 ", self.ref_D_scaler, " （比值为 ", d_ratio, "）"))
             end
         elseif self.mode == PROCESS.INACTIVE then
             for i = 1, #self.prio_defs do
@@ -487,7 +487,7 @@ function update.auto_control(ExtChargeIdling)
                 end
             end
 
-            log.info("FAC: disengaging auto control (now inactive)")
+            log.info("FAC: 正在脱离自动控制（当前为停用）")
         end
 
         self.initial_ramp = true
@@ -515,20 +515,20 @@ function update.auto_control(ExtChargeIdling)
     -- perform mode-specific operations
     if self.mode == PROCESS.INACTIVE then
         if assign_count == 0 then
-            self.status_text = { "NOT READY", "no units assigned" }
+            self.status_text = { "未就绪", "未分配机组" }
         elseif not self.units_ready then
-            self.status_text = { "NOT READY", "assigned units not ready" }
+            self.status_text = { "未就绪", "已分配机组未就绪" }
         else
             -- clear ASCRAM once ready
             self.ascram = false
             self.ascram_reason = AUTO_SCRAM.NONE
 
             if self.start_fail == START_STATUS.NO_UNITS and assign_count == 0 then
-                self.status_text = { "START FAILED", "no units were assigned" }
+                self.status_text = { "启动失败", "未分配机组" }
             elseif self.start_fail == START_STATUS.BLADE_MISMATCH then
-                self.status_text = { "START FAILED", "turbine blade count mismatch" }
+                self.status_text = { "启动失败", "涡轮机叶片数不匹配" }
             else
-                self.status_text = { "IDLE", "control disengaged" }
+                self.status_text = { "待机", "已脱离控制" }
             end
         end
     elseif self.mode == PROCESS.MAX_BURN then
@@ -538,14 +538,14 @@ function update.auto_control(ExtChargeIdling)
             self.saturated = true
             self.waiting_on_ramp = true
 
-            self.status_text = { "MONITORED MODE", "ramping reactors to limit" }
-            log.info("FAC: MAX_BURN process mode started")
+            self.status_text = { "监测模式", "正在将反应堆升至限值" }
+            log.info("FAC: MAX_BURN 进程模式已启动")
         elseif self.waiting_on_ramp then
             if all_units_ramped() then
                 self.waiting_on_ramp = false
 
-                self.status_text = { "MONITORED MODE", "running reactors at limit" }
-                log.info("FAC: MAX_BURN process mode initial ramp completed")
+                self.status_text = { "监测模式", "以限值运行反应堆" }
+                log.info("FAC: MAX_BURN 进程模式初始升速完成")
             end
         end
 
@@ -556,14 +556,14 @@ function update.auto_control(ExtChargeIdling)
             self.time_start = now
             self.waiting_on_ramp = true
 
-            self.status_text = { "BURN RATE MODE", "ramping to target" }
-            log.info("FAC: BURN_RATE process mode started")
+            self.status_text = { "燃烧速率模式", "正在升至目标" }
+            log.info("FAC: BURN_RATE 进程模式已启动")
         elseif self.waiting_on_ramp then
             if all_units_ramped() or reached_rate(self.sp.burn_target) then
                 self.waiting_on_ramp = false
 
-                self.status_text = { "BURN RATE MODE", "running" }
-                log.info("FAC: BURN_RATE process mode initial ramp completed")
+                self.status_text = { "燃烧速率模式", "运行中" }
+                log.info("FAC: BURN_RATE 进程模式初始升速完成")
             end
         end
 
@@ -576,26 +576,26 @@ function update.auto_control(ExtChargeIdling)
             self.waiting_on_ramp = false
             self.range_control_en = false
 
-            self.status_text = { "CHARGE RANGE MODE", "idle, sufficient charge" }
-            log.info("FAC: RANGE_CONTROL process mode started")
+            self.status_text = { "充能范围模式", "待机，充能充足" }
+            log.info("FAC: RANGE_CONTROL 进程模式已启动")
         elseif self.range_control_en and (self.ess_percent >= self.sp.range_stop) then
             self.range_control_en = false
             self.waiting_on_ramp = false
 
-            self.status_text = { "CHARGE RANGE MODE", "stopped, sufficient charge" }
-            log.info("FAC: RANGE_CONTROL process mode started")
+            self.status_text = { "充能范围模式", "已停止，充能充足" }
+            log.info("FAC: RANGE_CONTROL 进程模式已启动")
         elseif (not self.range_control_en) and (self.ess_percent <= self.sp.range_start) then
             self.range_control_en = true
             self.waiting_on_ramp = true
 
-            self.status_text = { "CHARGE RANGE MODE", "ramping reactors to limit" }
-            log.info("FAC: CONTROL process mode ramp completed")
+            self.status_text = { "充能范围模式", "正在将反应堆升至限值" }
+            log.info("FAC: CONTROL 进程模式升速完成")
         elseif self.waiting_on_ramp then
             if all_units_ramped() then
                 self.waiting_on_ramp = false
 
-                self.status_text = { "CHARGE RANGE MODE", "running reactors at limit" }
-                log.info("FAC: CONTROL process mode ramp completed")
+                self.status_text = { "充能范围模式", "以限值运行反应堆" }
+                log.info("FAC: CONTROL 进程模式升速完成")
             end
         end
 
@@ -616,14 +616,14 @@ function update.auto_control(ExtChargeIdling)
 
             -- window in seconds * 20 TPS * maximum generation rate per tick
             self.loop_close_limit = self.sp.charge_setpoint - (CHARGE_CLOSE_LOOP_WINDOW_S * 20 * self.max_burn_combined * self.charge_conversion)
-            log.debug(util.c("FAC: computed generation capacity of ", self.max_burn_combined * self.charge_conversion, " FE/t"))
-            log.debug(util.c("FAC: computed loop close limit of ", self.loop_close_limit, " FE"))
+            log.debug(util.c("FAC: 已计算发电容量为 ", self.max_burn_combined * self.charge_conversion, " FE/t"))
+            log.debug(util.c("FAC: 已计算闭环限值为 ", self.loop_close_limit, " FE"))
 
             -- enabling idling on all assigned units
             set_idling(true)
 
-            self.status_text = { "CHARGE LEVEL MODE", "initialized" }
-            log.info("FAC: CHARGE mode starting up")
+            self.status_text = { "充能水平模式", "已初始化" }
+            log.info("FAC: 充能模式启动中")
         elseif self.last_update < charge_update then
             local open_loop = false
 
@@ -636,10 +636,10 @@ function update.auto_control(ExtChargeIdling)
             local error = (self.sp.charge_setpoint - avg_charge) / 1000000
 
             if open_loop then
-                self.status_text = { "CHARGE LEVEL MODE", "running at max burn" }
+                self.status_text = { "充能水平模式", "以最大燃烧运行" }
 
                 if self.charge_control_open ~= true then
-                    log.info("FAC: CHARGE mode running open loop")
+                    log.info("FAC: 充能模式以开环运行")
                 end
 
                 allocate_burn_rate(self.max_burn_combined, true)
@@ -649,10 +649,10 @@ function update.auto_control(ExtChargeIdling)
                 self.accumulator = 0
                 self.saturated = true
             else
-                self.status_text = { "CHARGE LEVEL MODE", "running control loop" }
+                self.status_text = { "充能水平模式", "运行控制回路" }
 
                 if self.charge_control_open ~= false then
-                    log.info("FAC: CHARGE mode running closed loop")
+                    log.info("FAC: 充能模式以闭环运行")
                 end
 
                 -- stop accumulator when saturated to avoid windup
@@ -725,8 +725,8 @@ function update.auto_control(ExtChargeIdling)
             self.saturated = output >= self.max_burn_combined or unallocated > 0
             self.waiting_on_ramp = true
 
-            self.status_text = { "GENERATION MODE", "starting up" }
-            log.info(util.c("FAC: GEN_RATE process mode initial ramp started (initial target is ", output, " mB/t)"))
+            self.status_text = { "发电模式", "启动中" }
+            log.info(util.c("FAC: GEN_RATE 进程模式初始升速已启动（初始目标为 ", output, " mB/t）"))
         elseif self.waiting_on_ramp then
             if all_units_ramped() or reached_rate(self.sp.gen_rate_setpoint / self.charge_conversion) then
                 self.waiting_on_ramp = false
@@ -734,8 +734,8 @@ function update.auto_control(ExtChargeIdling)
 
                 self.time_start = now
 
-                self.status_text = { "GENERATION MODE", "holding ramped rate" }
-                log.info("FAC: GEN_RATE process mode initial ramp completed, holding for stablization time")
+                self.status_text = { "发电模式", "保持升速后的速率" }
+                log.info("FAC: GEN_RATE 进程模式初始升速完成，等待稳定时间")
             end
         elseif self.waiting_on_stable then
             if (now - self.time_start) > FLOW_STABILITY_DELAY_S then
@@ -746,8 +746,8 @@ function update.auto_control(ExtChargeIdling)
                 self.last_error = 0
                 self.accumulator = 0
 
-                self.status_text = { "GENERATION MODE", "running control loop" }
-                log.info("FAC: GEN_RATE process mode initial hold completed, starting PID control")
+                self.status_text = { "发电模式", "运行控制回路" }
+                log.info("FAC: GEN_RATE 进程模式初始保持完成，开始 PID 控制")
             end
         elseif self.last_update < rate_update then
             -- convert to MFE (in rounded kFE) to make constants not microscopic
@@ -789,10 +789,10 @@ function update.auto_control(ExtChargeIdling)
         -- exceeded charge, wait until condition clears
         if self.ascram_reason == AUTO_SCRAM.NONE then
             next_mode = self.return_mode
-            log.info("FAC: exiting ESS fault idle state due to fault resolution")
+            log.info("FAC: 故障已解除，退出储能故障待机状态")
         elseif self.ascram_reason == AUTO_SCRAM.CRIT_ALARM then
             next_mode = PROCESS.SYSTEM_ALARM_IDLE
-            log.info("FAC: exiting ESS fault idle state due to critical unit alarm")
+            log.info("FAC: 因机组严重警报，退出储能故障待机状态")
         end
     elseif self.mode == PROCESS.SYSTEM_ALARM_IDLE then
         -- do nothing, wait for user to confirm (stop and reset)
@@ -800,11 +800,11 @@ function update.auto_control(ExtChargeIdling)
         -- system faulted (degraded/not ready) while running generation rate mode
         -- mode will need to be fully restarted once everything is OK to re-ramp to feed-forward
         if self.units_ready then
-            log.info("FAC: system ready after faulting out of GEN_RATE process mode, switching back...")
+            log.info("FAC: 系统已从 GEN_RATE 进程模式故障中恢复就绪，正在切回...")
             next_mode = PROCESS.GEN_RATE
         end
     elseif self.mode ~= PROCESS.INACTIVE then
-        log.error(util.c("FAC: unsupported process mode ", self.mode, ", switching to inactive"))
+        log.error(util.c("FAC: 不支持的进程模式 ", self.mode, "，正在切换到停用"))
         next_mode = PROCESS.INACTIVE
     end
 end
@@ -844,7 +844,7 @@ function update.auto_safety()
         -- clear energy storage fault if ok again
         if astatus.ess_fault and ess_ok then
             astatus.ess_fault = false
-            log.info("FAC: ESS OK, clearing ASCRAM condition")
+            log.info("FAC: 储能系统正常，正在清除急停条件")
         else
             astatus.ess_fault = not ess_ok
         end
@@ -854,7 +854,7 @@ function update.auto_safety()
         astatus.ess_fill = (fill >= ALARM_LIMS.CHARGE_HIGH) or (astatus.ess_fill and fill > ALARM_LIMS.CHARGE_RE_ENABLE)
 
         if was_fill and not astatus.ess_fill then
-            log.info(util.c("FAC: charge state of ESS entered acceptable range <= ", ALARM_LIMS.CHARGE_RE_ENABLE * 100, "%"))
+            log.info(util.c("FAC: 储能系统充能状态已进入可接受范围，不超过 ", ALARM_LIMS.CHARGE_RE_ENABLE * 100, "%"))
         end
 
         -- system not ready, will need to restart GEN_RATE mode
@@ -906,39 +906,39 @@ function update.auto_safety()
                 -- highest priority alarm
                 next_mode = PROCESS.SYSTEM_ALARM_IDLE
                 self.ascram_reason = AUTO_SCRAM.CRIT_ALARM
-                self.status_text = { "AUTOMATIC SCRAM", "critical unit alarm tripped" }
+                self.status_text = { "自动急停", "机组严重警报触发" }
 
-                log.info("FAC: automatic SCRAM due to critical unit alarm")
-                log.warning("FAC: emergency exit of process control due to critical unit alarm")
+                log.info("FAC: 由于机组严重警报自动急停")
+                log.warning("FAC: 由于机组严重警报紧急退出进程控制")
             elseif astatus.radiation then
                 next_mode = PROCESS.SYSTEM_ALARM_IDLE
                 self.ascram_reason = AUTO_SCRAM.RADIATION
-                self.status_text = { "AUTOMATIC SCRAM", "facility radiation high" }
+                self.status_text = { "自动急停", "设施辐射偏高" }
 
-                log.info("FAC: automatic SCRAM due to high facility radiation")
+                log.info("FAC: 由于设施辐射过高自动急停")
             elseif astatus.ess_fault then
                 next_mode = PROCESS.ESS_FAULT_IDLE
                 self.ascram_reason = AUTO_SCRAM.ESS_FAULT
-                self.status_text = { "AUTOMATIC SCRAM", "energy storage fault" }
+                self.status_text = { "自动急停", "储能系统故障" }
 
                 if self.mode ~= PROCESS.ESS_FAULT_IDLE then self.return_mode = self.mode end
 
-                log.info("FAC: automatic SCRAM due to ESS disconnected, unformed, or faulted")
+                log.info("FAC: 由于储能系统断开、未成型或故障自动急停")
             elseif astatus.ess_fill then
                 next_mode = PROCESS.ESS_FAULT_IDLE
                 self.ascram_reason = AUTO_SCRAM.ESS_FILL
-                self.status_text = { "AUTOMATIC SCRAM", "energy storage fill high" }
+                self.status_text = { "自动急停", "储能系统填充过高" }
 
                 if self.mode ~= PROCESS.ESS_FAULT_IDLE then self.return_mode = self.mode end
 
-                log.info("FAC: automatic SCRAM due to ESS high charge")
+                log.info("FAC: 由于储能系统充能过高自动急停")
             elseif astatus.gen_fault then
                 -- lowest priority alarm
                 next_mode = PROCESS.GEN_RATE_FAULT_IDLE
                 self.ascram_reason = AUTO_SCRAM.GEN_FAULT
-                self.status_text = { "GENERATION MODE IDLE", "paused: system not ready" }
+                self.status_text = { "发电模式待机", "已暂停：系统未就绪" }
 
-                log.info("FAC: automatic SCRAM due to unit problem while in GEN_RATE mode, will resume once all units are ready")
+                log.info("FAC: GEN_RATE 模式下机组故障自动急停，所有机组就绪后将继续")
             end
         end
 
@@ -1257,7 +1257,7 @@ function update.unit_mgmt(combined_waste)
     if write_state then
         settings.set("LastUnitStates", self.last_unit_states)
         if not settings.save("/supervisor.settings") then
-            log.warning("facility_update.unit_mgmt(): failed to save supervisor settings file")
+            log.warning("facility_update.unit_mgmt(): 无法保存监控端设置文件")
         end
     end
 

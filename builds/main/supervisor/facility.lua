@@ -44,7 +44,7 @@ function facility.new(config)
 local self = {
 units = {},
 types = { AUTO_SCRAM = AUTO_SCRAM, START_STATUS = START_STATUS, RCV_STATE = RCV_STATE },
-status_text = { "START UP", "initializing..." },
+status_text = { "启动", "初始化..." },
 all_sys_ok = false,
 allow_testing = false,
 cooling_conf = {
@@ -159,7 +159,7 @@ end
 settings.set("LastProcessState", PROCESS.INACTIVE)
 settings.set("LastUnitStates", self.last_unit_states)
 if not settings.save("/supervisor.settings") then
-log.warning("FAC: failed to save initial control state into supervisor settings file")
+log.warning("FAC: 无法将初始控制状态保存到监控端设置文件")
 end
 local waste_pu  = self.io_ctl.as_valve(IO.F_WASTE_PU)
 local waste_sna = self.io_ctl.as_valve(IO.F_WASTE_PO)
@@ -216,12 +216,12 @@ local fail_code, fail_str = svsessions.check_rtu_id(imatrix, self.induction, 1)
 local ok = fail_code == RTU_LINK_FAIL.OK
 if config.EnergyStorageSystem ~= types.ESS.INDUCTION_MATRIX or #self.ecore > 0 then
 svsessions.report_rtu_mismatch(imatrix)
-log.warning(util.c("FAC: rejected induction matrix linking due to having/being configured for an energy core"))
+log.warning(util.c("FAC: 拒绝链接感应矩阵，因其配置为能量核心或已含能量核心"))
 elseif ok then
 table.insert(self.induction, imatrix)
-log.debug(util.c("FAC: linked induction matrix [", imatrix.get_unit_id(), "@", imatrix.get_session_id(), "]"))
+log.debug(util.c("FAC: 已链接感应矩阵 [", imatrix.get_unit_id(), "@", imatrix.get_session_id(), "]"))
 else
-log.warning(util.c("FAC: rejected induction matrix linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c("FAC: 拒绝链接感应矩阵，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
@@ -230,22 +230,22 @@ local fail_code, fail_str = svsessions.check_rtu_id(ecore, self.ecore, 1)
 local ok = fail_code == RTU_LINK_FAIL.OK
 if config.EnergyStorageSystem ~= types.ESS.ENERGY_CORE or #self.induction > 0 then
 svsessions.report_rtu_mismatch(ecore)
-log.warning(util.c("FAC: rejected energy core linking due having/being configured for an induction matrix"))
+log.warning(util.c("FAC: 拒绝链接能量核心，因其配置为感应矩阵或已含感应矩阵"))
 elseif ok then
 table.insert(self.ecore, ecore)
-log.debug(util.c("FAC: linked energy core [", ecore.get_unit_id(), "@", ecore.get_session_id(), "]"))
+log.debug(util.c("FAC: 已链接能量核心 [", ecore.get_unit_id(), "@", ecore.get_session_id(), "]"))
 else
-log.warning(util.c("FAC: rejected energy core linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c("FAC: 拒绝链接能量核心，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
 function public.add_sna(sna)
 if config.CombinedWaste then
 table.insert(self.snas, sna)
-log.debug(util.c("FAC: linked SNA [", sna.get_unit_id(), "@", sna.get_session_id(), "]"))
+log.debug(util.c("FAC: 已链接 SNA [", sna.get_unit_id(), "@", sna.get_session_id(), "]"))
 else
 svsessions.report_rtu_mismatch(sna)
-log.warning(util.c("FAC: rejected SNA linking due to not being configured for combined facility waste"))
+log.warning(util.c("FAC: 拒绝链接 SNA，因其未配置为设施综合废料"))
 end
 return config.CombinedWaste
 end
@@ -254,9 +254,9 @@ local fail_code, fail_str = svsessions.check_rtu_id(sps, self.sps, 1)
 local ok = fail_code == RTU_LINK_FAIL.OK
 if ok then
 table.insert(self.sps, sps)
-log.debug(util.c("FAC: linked SPS [", sps.get_unit_id(), "@", sps.get_session_id(), "]"))
+log.debug(util.c("FAC: 已链接 SPS [", sps.get_unit_id(), "@", sps.get_session_id(), "]"))
 else
-log.warning(util.c("FAC: rejected SPS linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c("FAC: 拒绝链接 SPS，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
@@ -265,12 +265,12 @@ local fail_code, fail_str = svsessions.check_rtu_id(dynamic_tank, self.tanks, #s
 local ok = fail_code == RTU_LINK_FAIL.OK
 if self.cooling_conf.fac_tank_mode == 0 then
 svsessions.report_rtu_mismatch(dynamic_tank)
-log.warning("FAC: rejected dynamic tank due to not being configured for facility tanks")
+log.warning("FAC: 拒绝链接动态储罐，因其未配置为设施储罐")
 elseif ok then
 table.insert(self.tanks, dynamic_tank)
-log.debug(util.c("FAC: linked dynamic tank #", dynamic_tank.get_device_idx(), " [", dynamic_tank.get_unit_id(), "@", dynamic_tank.get_session_id(), "]"))
+log.debug(util.c("FAC: 已链接动态储罐 #", dynamic_tank.get_device_idx(), " [", dynamic_tank.get_unit_id(), "@", dynamic_tank.get_session_id(), "]"))
 else
-log.warning(util.c("FAC: rejected dynamic tank linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c("FAC: 拒绝链接动态储罐，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
@@ -279,9 +279,9 @@ local fail_code, fail_str = svsessions.check_rtu_id(envd, self.envd, 99)
 local ok = fail_code == RTU_LINK_FAIL.OK
 if ok then
 table.insert(self.envd, envd)
-log.debug(util.c("FAC: linked environment detector #", envd.get_device_idx(), " [", envd.get_unit_id(), "@", envd.get_session_id(), "]"))
+log.debug(util.c("FAC: 已链接环境探测器 #", envd.get_device_idx(), " [", envd.get_unit_id(), "@", envd.get_session_id(), "]"))
 else
-log.warning(util.c("FAC: rejected environment detector linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c("FAC: 拒绝链接环境探测器，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
@@ -314,29 +314,29 @@ function public.clear_boot_state()
 settings.unset("LastProcessState")
 settings.unset("LastUnitStates")
 if not settings.save("/supervisor.settings") then
-log.warning("facility.clear_boot_state(): failed to save supervisor settings file")
+log.warning("facility.clear_boot_state(): 无法保存监控端设置文件")
 else
-log.debug("FAC: cleared boot state on exit")
+log.debug("FAC: 退出时已清除启动状态")
 end
 end
 function public.boot_recovery_init(state)
 if self.recovery == RCV_STATE.INACTIVE and state then
 self.recovery_boot_state = state
 self.recovery = RCV_STATE.PRIMED
-log.info("FAC: startup resume ready")
+log.info("FAC: 启动恢复就绪")
 end
 end
 function public.boot_recovery_start(auto_cfg)
 if self.recovery == RCV_STATE.PRIMED then
 self.recovery = util.trinary(_auto_check_and_save(auto_cfg), RCV_STATE.RUNNING, RCV_STATE.STOPPED)
-log.info(util.c("FAC: startup resume ", util.trinary(self.recovery == RCV_STATE.RUNNING, "started", "failed")))
+log.info(util.c("FAC: 启动恢复 ", util.trinary(self.recovery == RCV_STATE.RUNNING, "已启动", "失败")))
 else self.recovery = RCV_STATE.STOPPED end
 end
 function public.cancel_recovery()
 if self.recovery == RCV_STATE.RUNNING then
 self.recovery = RCV_STATE.STOPPED
 self.recovery_boot_state = nil
-log.info("FAC: process startup resume cancelled by user operation")
+log.info("FAC: 启动恢复已被用户操作取消")
 end
 end
 function public.scram_all()
@@ -357,7 +357,7 @@ local ready, limits = _auto_check_and_save(auto_cfg)
 if ready and self.units_ready then
 self.mode = self.mode_set
 end
-log.debug(util.c("FAC: process start ", util.trinary(ready, "accepted", "rejected")))
+log.debug(util.c("FAC: 进程启动 ", util.trinary(ready, "已接受", "已拒绝")))
 return {
 ready,
 self.mode_set,

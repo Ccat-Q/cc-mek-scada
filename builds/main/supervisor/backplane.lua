@@ -21,8 +21,8 @@ local modem  = ppm.get_modem(_bp.lan_iface)
 local wd_nic = network.nic(modem)
 log.info("BKPLN: WIRED PHY_" .. util.trinary(modem, "UP ", "DOWN ") .. _bp.lan_iface)
 if not (modem and _bp.lan_iface) then
-println("startup> wired comms modem not found")
-log.fatal("BKPLN: no wired comms modem on startup")
+println("startup> 未找到有线通信调制解调器")
+log.fatal("BKPLN: 启动时未找到有线通信调制解调器")
 return false
 end
 _bp.wd_nic = wd_nic

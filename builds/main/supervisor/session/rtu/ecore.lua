@@ -20,7 +20,7 @@ STATE = 500
 local DEACTIVATION_TIMEOUT_ms = 3000
 function ecore.new(session_id, unit_id, advert, out_queue)
 if advert.type ~= RTU_UNIT_TYPE.ENERGY_CORE then
-log.error("attempt to instantiate ecore RTU for type " .. types.rtu_type_to_string(advert.type))
+log.error("尝试为类型 " .. types.rtu_type_to_string(advert.type) .. " 实例化 ecore RTU")
 return nil
 end
 local log_tag = util.c("session.rtu(", session_id, ").ecore[@", unit_id, "]: ")

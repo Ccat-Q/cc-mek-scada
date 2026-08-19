@@ -36,7 +36,7 @@ local frame = Div{parent=root,y=1}
 local app = db.nav.register_app(APP_ID.UNITS, frame, nil, false, true)
 local load_div = Div{parent=frame,y=1}
 local main = Div{parent=frame,y=1}
-TextBox{parent=load_div,y=12,text="Loading...",alignment=ALIGN.CENTER}
+TextBox{parent=load_div,y=12,text="加载中...",alignment=ALIGN.CENTER}
 WaitingAnim{parent=load_div,x=math.floor(main.get_width()/2)-1,y=8,fg_bg=cpair(colors.yellow,colors._INHERIT)}
 local load_pane = MultiPane{parent=main,y=1,panes={load_div,main}}
 app.set_sidebar({ { label = " # ", tall = true, color = core.cpair(colors.black, colors.green), callback = db.nav.go_home } })
@@ -98,31 +98,31 @@ end
 end
 local u_page = app.new_page(nil, i)
 u_page.tasks = { update }
-TextBox{parent=u_div,y=1,text="Reactor Unit #"..i,alignment=ALIGN.CENTER}
+TextBox{parent=u_div,y=1,text="反应堆机组 #"..i,alignment=ALIGN.CENTER}
 PushButton{parent=u_div,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=function()prev(i)end}
 PushButton{parent=u_div,x=21,y=1,text=">",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=function()next(i)end}
-local type = util.trinary(unit.num_boilers > 0, "Sodium Cooled Reactor", "Boiling Water Reactor")
+local type = util.trinary(unit.num_boilers > 0, "钠冷反应堆", "沸水反应堆")
 TextBox{parent=u_div,y=3,text=type,alignment=ALIGN.CENTER,fg_bg=cpair(colors.gray,colors.black)}
-local rate = DataIndicator{parent=u_div,y=5,lu_colors=lu_col,label="Burn",unit="mB/t",format="%10.2f",value=0,commas=true,width=26,fg_bg=text_fg}
-local temp = DataIndicator{parent=u_div,lu_colors=lu_col,label="Temp",unit=db.temp_label,format="%10.2f",value=0,commas=true,width=26,fg_bg=text_fg}
-local ctrl = IconIndicator{parent=u_div,y=8,label="Control State",states=mode_states}
+local rate = DataIndicator{parent=u_div,y=5,lu_colors=lu_col,label="燃烧",unit="mB/t",format="%10.2f",value=0,commas=true,width=26,fg_bg=text_fg}
+local temp = DataIndicator{parent=u_div,lu_colors=lu_col,label="温度",unit=db.temp_label,format="%10.2f",value=0,commas=true,width=26,fg_bg=text_fg}
+local ctrl = IconIndicator{parent=u_div,y=8,label="控制状态",states=mode_states}
 rate.register(u_ps, "act_burn_rate", rate.update)
 temp.register(u_ps, "temp", function (t) temp.update(db.temp_convert(t)) end)
 ctrl.register(u_ps, "U_ControlStatus", ctrl.update)
 u_div.line_break()
-local rct = IconIndicator{parent=u_div,label="Fission Reactor",states=basic_states}
-local rps = IconIndicator{parent=u_div,label="Protection System",states=basic_states}
+local rct = IconIndicator{parent=u_div,label="裂变反应堆",states=basic_states}
+local rps = IconIndicator{parent=u_div,label="保护系统",states=basic_states}
 rct.register(u_ps, "U_ReactorStatus", rct.update)
 rps.register(u_ps, "U_RPS", rps.update)
 u_div.line_break()
-local rcs = IconIndicator{parent=u_div,label="Coolant System",states=basic_states}
+local rcs = IconIndicator{parent=u_div,label="冷却剂系统",states=basic_states}
 rcs.register(u_ps, "U_RCS", rcs.update)
 for b = 1, unit.num_boilers do
-local blr = IconIndicator{parent=u_div,label="Boiler "..b,states=basic_states}
+local blr = IconIndicator{parent=u_div,label="锅炉 "..b,states=basic_states}
 blr.register(unit.boiler_ps_tbl[b], "BoilerStatus", blr.update)
 end
 for t = 1, unit.num_turbines do
-local tbn = IconIndicator{parent=u_div,label="Turbine "..t,states=basic_states}
+local tbn = IconIndicator{parent=u_div,label="涡轮机 "..t,states=basic_states}
 tbn.register(unit.turbine_ps_tbl[t], "TurbineStatus", tbn.update)
 end
 util.nop()
@@ -131,7 +131,7 @@ table.insert(panes, alm_div)
 local alm_page = app.new_page(u_page, #panes)
 alm_page.tasks = { update }
 nav_links[i].alarm = alm_page.nav_to
-TextBox{parent=alm_div,y=1,text="Status Info Display",alignment=ALIGN.CENTER}
+TextBox{parent=alm_div,y=1,text="状态信息显示",alignment=ALIGN.CENTER}
 local ecam_disp = ListBox{parent=alm_div,x=2,y=3,scroll_height=100,nav_fg_bg=cpair(colors.lightGray,colors.gray),nav_active=cpair(colors.white,colors.gray)}
 ecam_disp.register(u_ps, "U_ECAM", function (data)
 local ecam = textutils.unserialize(data)
@@ -159,27 +159,27 @@ table.insert(panes, rps_div)
 local rps_page = app.new_page(u_page, #panes)
 rps_page.tasks = { update }
 nav_links[i].rps = rps_page.nav_to
-TextBox{parent=rps_div,y=1,text="Protection System",alignment=ALIGN.CENTER}
-local r_trip = IconIndicator{parent=rps_div,y=3,label="RPS Trip",states=basic_states}
+TextBox{parent=rps_div,y=1,text="保护系统",alignment=ALIGN.CENTER}
+local r_trip = IconIndicator{parent=rps_div,y=3,label="RPS跳闸",states=basic_states}
 r_trip.register(u_ps, "U_RPS", r_trip.update)
-local r_mscrm = IconIndicator{parent=rps_div,y=5,label="Manual SCRAM",states=red_ind_s}
-local r_ascrm = IconIndicator{parent=rps_div,label="Automatic SCRAM",states=red_ind_s}
+local r_mscrm = IconIndicator{parent=rps_div,y=5,label="手动急停",states=red_ind_s}
+local r_ascrm = IconIndicator{parent=rps_div,label="自动急停",states=red_ind_s}
 rps_div.line_break()
-local rps_tmo = IconIndicator{parent=rps_div,label="Timeout",states=yel_ind_s}
+local rps_tmo = IconIndicator{parent=rps_div,label="超时",states=yel_ind_s}
 rps_div.line_break()
-local rps_flt = IconIndicator{parent=rps_div,label="PPM Fault",states=yel_ind_s}
-local rps_sfl = IconIndicator{parent=rps_div,label="Not Formed",states=red_ind_s}
+local rps_flt = IconIndicator{parent=rps_div,label="PPM故障",states=yel_ind_s}
+local rps_sfl = IconIndicator{parent=rps_div,label="未构成",states=red_ind_s}
 r_mscrm.register(u_ps, "manual", r_mscrm.update)
 r_ascrm.register(u_ps, "automatic", r_ascrm.update)
 rps_tmo.register(u_ps, "timeout", rps_tmo.update)
 rps_flt.register(u_ps, "fault", rps_flt.update)
 rps_sfl.register(u_ps, "sys_fail", rps_sfl.update)
 rps_div.line_break()
-local rps_dmg = IconIndicator{parent=rps_div,label="Reactor Damage Hi",states=red_ind_s}
-local rps_tmp = IconIndicator{parent=rps_div,label="Temp. Critical",states=red_ind_s}
-local rps_exw = IconIndicator{parent=rps_div,label="Waste Level Hi",states=yel_ind_s}
-local rps_loc = IconIndicator{parent=rps_div,label="Coolant Lo Lo",states=yel_ind_s}
-local rps_exh = IconIndicator{parent=rps_div,label="Heated Coolant Hi",states=yel_ind_s}
+local rps_dmg = IconIndicator{parent=rps_div,label="反应堆损伤过高",states=red_ind_s}
+local rps_tmp = IconIndicator{parent=rps_div,label="温度危急",states=red_ind_s}
+local rps_exw = IconIndicator{parent=rps_div,label="废料水平过高",states=yel_ind_s}
+local rps_loc = IconIndicator{parent=rps_div,label="冷却剂过低",states=yel_ind_s}
+local rps_exh = IconIndicator{parent=rps_div,label="加热冷却剂过高",states=yel_ind_s}
 rps_dmg.register(u_ps, "high_dmg", rps_dmg.update)
 rps_tmp.register(u_ps, "high_temp", rps_tmp.update)
 rps_exw.register(u_ps, "ex_waste", rps_exw.update)
@@ -192,35 +192,35 @@ table.insert(panes, rcs_pane)
 local rcs_page = app.new_page(u_page, #panes)
 rcs_page.tasks = { update }
 nav_links[i].rcs = rcs_page.nav_to
-TextBox{parent=rcs_div,y=1,text="Coolant System",alignment=ALIGN.CENTER}
-local r_rtrip = IconIndicator{parent=rcs_div,y=3,label="RCP Trip",states=red_ind_s}
-local r_cflow = IconIndicator{parent=rcs_div,label="RCS Flow Lo",states=yel_ind_s}
-local r_clow  = IconIndicator{parent=rcs_div,label="Coolant Level Lo",states=yel_ind_s}
+TextBox{parent=rcs_div,y=1,text="冷却剂系统",alignment=ALIGN.CENTER}
+local r_rtrip = IconIndicator{parent=rcs_div,y=3,label="RCP跳闸",states=red_ind_s}
+local r_cflow = IconIndicator{parent=rcs_div,label="RCS流量低",states=yel_ind_s}
+local r_clow  = IconIndicator{parent=rcs_div,label="冷却剂水平低",states=yel_ind_s}
 r_rtrip.register(u_ps, "RCPTrip", r_rtrip.update)
 r_cflow.register(u_ps, "RCSFlowLow", r_cflow.update)
 r_clow.register(u_ps, "CoolantLevelLow", r_clow.update)
-local c_flt  = IconIndicator{parent=rcs_div,label="RCS HW Fault",states=yel_ind_s}
-local c_emg  = IconIndicator{parent=rcs_div,label="Emergency Coolant",states=emc_ind_s}
-local c_mwrf = IconIndicator{parent=rcs_div,label="Max Water Return",states=yel_ind_s}
+local c_flt  = IconIndicator{parent=rcs_div,label="RCS硬件故障",states=yel_ind_s}
+local c_emg  = IconIndicator{parent=rcs_div,label="紧急冷却",states=emc_ind_s}
+local c_mwrf = IconIndicator{parent=rcs_div,label="最大回水",states=yel_ind_s}
 c_flt.register(u_ps, "RCSFault", c_flt.update)
 c_emg.register(u_ps, "EmergencyCoolant", c_emg.update)
 c_mwrf.register(u_ps, "MaxWaterReturnFeed", c_mwrf.update)
-local c_cfm = IconIndicator{parent=rcs_div,label="Coolant Feed",states=yel_ind_s}
-local c_brm = IconIndicator{parent=rcs_div,label="Boil Rate",states=yel_ind_s}
-local c_sfm = IconIndicator{parent=rcs_div,label="Steam Feed",states=yel_ind_s}
+local c_cfm = IconIndicator{parent=rcs_div,label="冷却剂供给",states=yel_ind_s}
+local c_brm = IconIndicator{parent=rcs_div,label="沸腾速率",states=yel_ind_s}
+local c_sfm = IconIndicator{parent=rcs_div,label="蒸汽供给",states=yel_ind_s}
 c_cfm.register(u_ps, "CoolantFeedMismatch", c_cfm.update)
 c_brm.register(u_ps, "BoilRateMismatch", c_brm.update)
 c_sfm.register(u_ps, "SteamFeedMismatch", c_sfm.update)
 rcs_div.line_break()
 if unit.num_boilers > 0 then
-local wll = IconIndicator{parent=rcs_div,label="Boiler Water Lo",states=red_ind_s}
-local hrl = IconIndicator{parent=rcs_div,label="Heating Rate Lo",states=yel_ind_s}
+local wll = IconIndicator{parent=rcs_div,label="锅炉水位低",states=red_ind_s}
+local hrl = IconIndicator{parent=rcs_div,label="加热速率低",states=yel_ind_s}
 wll.register(u_ps, "U_WaterLevelLow", wll.update)
 hrl.register(u_ps, "U_HeatingRateLow", hrl.update)
 end
-local tospd = IconIndicator{parent=rcs_div,label="TRB Over Speed",states=red_ind_s}
-local gtrip = IconIndicator{parent=rcs_div,label="Generator Trip",states=yel_ind_s}
-local ttrip = IconIndicator{parent=rcs_div,label="Turbine Trip",states=red_ind_s}
+local tospd = IconIndicator{parent=rcs_div,label="涡轮超速",states=red_ind_s}
+local gtrip = IconIndicator{parent=rcs_div,label="发电机跳闸",states=yel_ind_s}
+local ttrip = IconIndicator{parent=rcs_div,label="涡轮机跳闸",states=red_ind_s}
 tospd.register(u_ps, "U_TurbineOverSpeed", tospd.update)
 gtrip.register(u_ps, "U_GeneratorTrip", gtrip.update)
 ttrip.register(u_ps, "U_TurbineTrip", ttrip.update)

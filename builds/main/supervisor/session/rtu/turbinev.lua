@@ -37,10 +37,10 @@ TANKS = 1000
 local WRITE_BUSY_WAIT = 1000
 function turbinev.new(session_id, unit_id, advert, out_queue)
 if advert.type ~= RTU_UNIT_TYPE.TURBINE_VALVE then
-log.error("attempt to instantiate turbinev RTU for type " .. types.rtu_type_to_string(advert.type))
+log.error("尝试实例化 turbinev RTU，类型 " .. types.rtu_type_to_string(advert.type))
 return nil
 elseif not util.is_int(advert.index) then
-log.error("attempt to instantiate turbinev RTU without index")
+log.error("尝试实例化 turbinev RTU，但缺少索引")
 return nil
 end
 local log_tag = util.c("session.rtu(", session_id, ").turbinev(", advert.index, ")[@", unit_id, "]: ")
@@ -202,7 +202,7 @@ _inc_dump_mode()
 elseif cmd == TBV_RTU_S_CMDS.DEC_DUMP_MODE then
 _dec_dump_mode()
 else
-log.debug(util.c(log_tag, "unrecognized in-queue command ", cmd))
+log.debug(util.c(log_tag, "无法识别的入队命令 ", cmd))
 end
 elseif msg.qtype == mqueue.TYPE.DATA then
 local cmd = msg.message
@@ -212,15 +212,15 @@ cmd.val == types.DUMPING_MODE.DUMPING_EXCESS or
 cmd.val == types.DUMPING_MODE.DUMPING then
 _set_dump_mode(cmd.val)
 else
-log.debug(util.c(log_tag, "unrecognized dumping mode \"", cmd.val, "\""))
+log.debug(util.c(log_tag, "无法识别的排放模式 \"", cmd.val, "\""))
 end
 else
-log.debug(util.c(log_tag, "unrecognized in-queue data ", cmd.key))
+log.debug(util.c(log_tag, "无法识别的入队数据 ", cmd.key))
 end
 end
 end
 if util.time() - time_now > 100 then
-log.warning(log_tag .. "exceeded 100ms queue process limit")
+log.warning(log_tag .. "超出队列处理 100ms 限制")
 break
 end
 end

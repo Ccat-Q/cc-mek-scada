@@ -64,8 +64,8 @@ local function init(panel, config)
     -- DIAGNOSTICS DISPLAY
     --
 
-    local debug_header = TextBox{parent=diag_page,y=1,text="FISSION REACTOR PLC DIAGNOSTICS - UNIT ?",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
-    debug_header.register(databus.ps, "unit_id", function (id) debug_header.set_value(util.c("FISSION REACTOR PLC DIAGNOSTICS - UNIT ", id)) end)
+    local debug_header = TextBox{parent=diag_page,y=1,text="裂变反应堆 PLC 诊断 - 机组 ?",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
+    debug_header.register(databus.ps, "unit_id", function (id) debug_header.set_value(util.c("裂变反应堆 PLC 诊断 - 机组 ", id)) end)
 
     --
     -- ramp control
@@ -73,19 +73,19 @@ local function init(panel, config)
 
     local ramp = Div{parent=diag_page,width=19,height=12,x=2,y=3}
 
-    local ra = LED{parent=ramp,label="RAMPING ACTIVE",colors=ind_grn}
-    TextBox{parent=ramp,x=3,text="SETPOINT"}
+    local ra = LED{parent=ramp,label="爬升运行中",colors=ind_grn}
+    TextBox{parent=ramp,x=3,text="设定值"}
     local sp  = DataIndicator{parent=ramp,y=2,x=12,label="",unit="",format="%8.2f",value=0,width=8,fg_bg=s_hi_box}
 
     ramp.line_break()
 
-    local ini = LED{parent=ramp,label="INIT",colors=ind_wht}
-    local sru = LED{parent=ramp,label="SLOW_RAMP_UP",colors=ind_wht}
-    local srd = LED{parent=ramp,label="SLOW_RAMP_DOWN",colors=ind_wht}
-    local sw  = LED{parent=ramp,label="STABLE_WAIT",colors=ind_wht}
-    local cm  = LED{parent=ramp,label="CCOOL_MON",colors=ind_wht}
-    local fru = LED{parent=ramp,label="FAST_RAMP_UP",colors=ind_wht}
-    local frd = LED{parent=ramp,label="FAST_RAMP_DOWN",colors=ind_wht}
+    local ini = LED{parent=ramp,label="初始化",colors=ind_wht}
+    local sru = LED{parent=ramp,label="慢速爬升",colors=ind_wht}
+    local srd = LED{parent=ramp,label="慢速降速",colors=ind_wht}
+    local sw  = LED{parent=ramp,label="稳定等待",colors=ind_wht}
+    local cm  = LED{parent=ramp,label="冷却监测",colors=ind_wht}
+    local fru = LED{parent=ramp,label="快速爬升",colors=ind_wht}
+    local frd = LED{parent=ramp,label="快速降速",colors=ind_wht}
 
     ra.register(databus.ps, "spctl_ramp_active", ra.update)
     sp.register(databus.ps, "spctl_ramp_sp", sp.update)
@@ -103,9 +103,9 @@ local function init(panel, config)
 
     local limit = Div{parent=diag_page,width=27,height=18,x=diag_page.get_width()-25,y=3}
 
-    local fm = LED{parent=limit,label="FUEL MON ACTIVE",colors=ind_grn}
-    local la = LED{parent=limit,label="LIMITING ACTIVE",colors=ind_grn}
-    local fr = LED{parent=limit,label="LIMIT FORCE RAMP",colors=ind_wht}
+    local fm = LED{parent=limit,label="燃料监测运行中",colors=ind_grn}
+    local la = LED{parent=limit,label="限制运行中",colors=ind_grn}
+    local fr = LED{parent=limit,label="强制爬升限制",colors=ind_wht}
 
     fm.register(databus.ps, "spctl_limit_mon", fm.update)
     la.register(databus.ps, "spctl_limit_lim", la.update)
@@ -130,7 +130,7 @@ local function init(panel, config)
     local df = DataIndicator{parent=limit,y=9,x=11,label="",unit="",format="%15.4f",value=0,width=15,fg_bg=s_hi_box}
     TextBox{parent=limit,text="dFUEL_mBt"}
     local dfm = DataIndicator{parent=limit,y=10,x=11,label="",unit="",format="%15.4f",value=0,width=15,fg_bg=s_hi_box}
-    TextBox{parent=limit,text="LIMIT"}
+    TextBox{parent=limit,text="限值"}
     local lim = DataIndicator{parent=limit,y=11,x=11,label="",unit="",format="%15.4f",value=0,width=15,fg_bg=s_hi_box}
 
     lim.register(databus.ps, "spctl_limit_dfuel", df.update)
@@ -151,16 +151,16 @@ local function init(panel, config)
     tps.register(databus.ps, "spctl_data_tps", tps.update)
     tt.register(databus.ps, "spctl_data_tick", tt.update)
 
-    PushButton{parent=diag_page,x=diag_page.get_width()-6,y=15,min_width=6,text="BACK",callback=show_main,fg_bg=cpair(colors.black,colors.white),active_fg_bg=cpair(colors.black,colors.gray)}
+    PushButton{parent=diag_page,x=diag_page.get_width()-6,y=15,min_width=6,text="返回",callback=show_main,fg_bg=cpair(colors.black,colors.white),active_fg_bg=cpair(colors.black,colors.gray)}
 
-    TextBox{parent=diag_page,y=diag_page.get_height()-2,width=diag_page.get_width(),alignment=ALIGN.CENTER,text="VALUES ONLY UPDATED WHILE THIS PAGE IS ACTIVE\nTHIS IMPACTS PERFORMANCE - GO BACK BEFORE CLOSING",fg_bg=cpair(style.theme.label,colors._INHERIT)}
+    TextBox{parent=diag_page,y=diag_page.get_height()-2,width=diag_page.get_width(),alignment=ALIGN.CENTER,text="仅在此页面激活时更新数值\n这会影响性能 - 关闭前请返回",fg_bg=cpair(style.theme.label,colors._INHERIT)}
 
     --
     -- STANDARD DISPLAY
     --
 
-    local header = TextBox{parent=main_page,y=1,text="FISSION REACTOR PLC - UNIT ?",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
-    header.register(databus.ps, "unit_id", function (id) header.set_value(util.c("FISSION REACTOR PLC - UNIT ", id)) end)
+    local header = TextBox{parent=main_page,y=1,text="裂变反应堆 PLC - 机组 ?",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
+    header.register(databus.ps, "unit_id", function (id) header.set_value(util.c("裂变反应堆 PLC - 机组 ", id)) end)
 
     --
     -- system indicators
@@ -168,26 +168,26 @@ local function init(panel, config)
 
     local system = Div{parent=main_page,width=14,height=18,x=2,y=3}
 
-    local sys_status = LED{parent=system,label="STATUS",colors=cpair(colors.green,colors.red)}
-    local heartbeat = LED{parent=system,label="HEARTBEAT",colors=ind_grn}
+    local sys_status = LED{parent=system,label="状态",colors=cpair(colors.green,colors.red)}
+    local heartbeat = LED{parent=system,label="心跳",colors=ind_grn}
 
     sys_status.register(databus.ps, "status", sys_status.update)
     heartbeat.register(databus.ps, "heartbeat", heartbeat.update)
 
     if config.Networked then
-        local auto_ctl = LED{parent=system,label="AUTO CONTROL",colors=ind_grn}
+        local auto_ctl = LED{parent=system,label="自动控制",colors=ind_grn}
         auto_ctl.register(databus.ps, "auto_control", auto_ctl.update)
     end
 
     system.line_break()
 
-    local reactor = LEDPair{parent=system,label="REACTOR",off=colors.red,c1=colors.yellow,c2=colors.green}
+    local reactor = LEDPair{parent=system,label="反应堆",off=colors.red,c1=colors.yellow,c2=colors.green}
     reactor.register(databus.ps, "reactor_dev_state", reactor.update)
 
     if config.Networked then
         if config.WirelessModem and config.WiredModem then
-            local wd_modem = LEDPair{parent=system,label="WD MODEM",off=colors.green_off,c1=colors.yellow,c2=colors.green}
-            local wl_modem = LEDPair{parent=system,label="WL MODEM",off=colors.green_off,c1=colors.yellow,c2=colors.green}
+            local wd_modem = LEDPair{parent=system,label="有线调制解调器",off=colors.green_off,c1=colors.yellow,c2=colors.green}
+            local wl_modem = LEDPair{parent=system,label="无线调制解调器",off=colors.green_off,c1=colors.yellow,c2=colors.green}
 
             local function wd_modem_update()
                 if databus.ps.get("has_wd_modem") then
@@ -210,7 +210,7 @@ local function init(panel, config)
             wl_modem.register(databus.ps, "has_wl_modem", wl_modem_update)
             wl_modem.register(databus.ps, "has_wl_net", wl_modem_update)
         else
-            local modem = LEDPair{parent=system,label="MODEM",off=colors.green_off,c1=colors.yellow,c2=colors.green}
+            local modem = LEDPair{parent=system,label="调制解调器",off=colors.green_off,c1=colors.yellow,c2=colors.green}
 
             local pfx = util.trinary(config.WirelessModem, "has_wl_", "has_wd_")
 
@@ -226,17 +226,17 @@ local function init(panel, config)
             modem.register(databus.ps, pfx .. "net", modem_update)
         end
     else
-        local _ = LED{parent=system,label="MODEM",colors=ind_grn}
+        local _ = LED{parent=system,label="调制解调器",colors=ind_grn}
     end
 
     if not style.colorblind then
-        local network = RGBLED{parent=system,label="NETWORK",colors={colors.green,colors.red,colors.yellow,colors.orange,style.ind_bkg}}
+        local network = RGBLED{parent=system,label="网络",colors={colors.green,colors.red,colors.yellow,colors.orange,style.ind_bkg}}
         network.update(types.PANEL_LINK_STATE.DISCONNECTED)
         network.register(databus.ps, "link_state", network.update)
     else
-        local nt_lnk = LEDPair{parent=system,label="NT LINKED",off=style.ind_bkg,c1=colors.red,c2=colors.green}
-        local nt_ver = LEDPair{parent=system,label="NT VERSION",off=style.ind_bkg,c1=colors.red,c2=colors.green}
-        local nt_col = LED{parent=system,label="NT COLLISION",colors=ind_red}
+        local nt_lnk = LEDPair{parent=system,label="网络已连接",off=style.ind_bkg,c1=colors.red,c2=colors.green}
+        local nt_ver = LEDPair{parent=system,label="网络版本",off=style.ind_bkg,c1=colors.red,c2=colors.green}
+        local nt_col = LED{parent=system,label="网络冲突",colors=ind_red}
 
         nt_lnk.register(databus.ps, "link_state", function (state)
             local value = 2
@@ -267,10 +267,10 @@ local function init(panel, config)
 
     system.line_break()
 
-    local rt_main = LED{parent=system,label="RT MAIN",colors=ind_grn}
+    local rt_main = LED{parent=system,label="RT 主线程",colors=ind_grn}
     local rt_rps  = LED{parent=system,label="RT RPS",colors=ind_grn}
-    local rt_cmtx = LED{parent=system,label="RT COMMS TX",colors=ind_grn}
-    local rt_cmrx = LED{parent=system,label="RT COMMS RX",colors=ind_grn}
+    local rt_cmtx = LED{parent=system,label="RT 通信 TX",colors=ind_grn}
+    local rt_cmrx = LED{parent=system,label="RT 通信 RX",colors=ind_grn}
     local rt_sctl = LED{parent=system,label="RT SPCTL",colors=ind_grn}
     system.line_break()
 
@@ -286,23 +286,23 @@ local function init(panel, config)
 
     local status = Div{parent=main_page,width=term_w-32,height=18,x=17,y=3}
 
-    local active = LED{parent=status,x=2,width=12,label="REACTOR ACTIVE",colors=ind_grn}
+    local active = LED{parent=status,x=2,width=12,label="反应堆在线",colors=ind_grn}
 
     -- only show emergency coolant LED if emergency coolant is configured for this device
     if plc.config.EmerCoolEnable then
-        local emer_cool = LED{parent=status,x=2,width=14,label="EMERG. COOLANT",colors=cpair(colors.yellow,colors.yellow_off)}
+        local emer_cool = LED{parent=status,x=2,width=14,label="紧急冷却",colors=cpair(colors.yellow,colors.yellow_off)}
         emer_cool.register(databus.ps, "emer_cool", emer_cool.update)
     end
 
     local status_trip_rct = Rectangle{parent=status,height=3,border=border(1,s_hi_box.bkg,true),even_inner=true}
     local status_trip = Div{parent=status_trip_rct,height=1,fg_bg=s_hi_box}
-    local scram = LED{parent=status_trip,width=10,label="RPS TRIP",colors=ind_red,flash=true,period=flasher.PERIOD.BLINK_250_MS}
+    local scram = LED{parent=status_trip,width=10,label="RPS 跳闸",colors=ind_red,flash=true,period=flasher.PERIOD.BLINK_250_MS}
 
     local controls_rct = Rectangle{parent=status,width=status.get_width()-2,height=3,border=border(1,s_hi_box.bkg,true),even_inner=true}
     local controls = Div{parent=controls_rct,width=controls_rct.get_width()-2,height=1,fg_bg=s_hi_box}
     local button_padding = math.floor((controls.get_width() - 14) / 3)
     PushButton{parent=controls,x=button_padding+1,y=1,min_width=7,text="SCRAM",callback=databus.rps_scram,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.black,colors.red_off)}
-    PushButton{parent=controls,x=(2*button_padding)+9,y=1,min_width=7,text="RESET",callback=databus.rps_reset,fg_bg=cpair(colors.black,colors.yellow),active_fg_bg=cpair(colors.black,colors.yellow_off)}
+    PushButton{parent=controls,x=(2*button_padding)+9,y=1,min_width=7,text="重置",callback=databus.rps_reset,fg_bg=cpair(colors.black,colors.yellow),active_fg_bg=cpair(colors.black,colors.yellow_off)}
 
     active.register(databus.ps, "reactor_active", active.update)
     scram.register(databus.ps, "rps_scram", scram.update)
@@ -316,12 +316,12 @@ local function init(panel, config)
     TextBox{parent=hw_labels,text="SN "..comp_id.."-PLC",fg_bg=s_hi_box}
 
     if config.EnableDiagnostics then
-        PushButton{parent=hw_labels,x=12,y=3,text="DIAG",callback=show_diagnostics,fg_bg=cpair(colors.black,colors.white),active_fg_bg=cpair(colors.black,colors.gray)}
+        PushButton{parent=hw_labels,x=12,y=3,text="诊断",callback=show_diagnostics,fg_bg=cpair(colors.black,colors.white),active_fg_bg=cpair(colors.black,colors.gray)}
     end
 
     -- warning about multiple reactors connected
 
-    local warn_strings = { "!! DANGER !!\n>1 REACTOR\nLOGIC ADAPTER", "REMOVE\nALL BUT ONE\nLOGIC ADAPTER" }
+    local warn_strings = { "!! 危险 !!\n>1 反应堆\n逻辑适配器", "移除\n仅留一个\n逻辑适配器" }
     local multi_warn = TextBox{parent=status,text=warn_strings[1],width=status.get_width()-2,alignment=ALIGN.CENTER,fg_bg=cpair(colors.yellow,colors.red),hidden=true}
 
     local warn_toggle = true
@@ -349,20 +349,20 @@ local function init(panel, config)
     --
 
     local rps = Rectangle{parent=main_page,width=16,height=16,x=term_w-15,y=3,border=border(1,s_hi_box.bkg),thin=true,fg_bg=s_hi_box}
-    local rps_man  = LED{parent=rps,label="MANUAL",colors=ind_red}
-    local rps_auto = LED{parent=rps,label="AUTOMATIC",colors=ind_red}
+    local rps_man  = LED{parent=rps,label="手动",colors=ind_red}
+    local rps_auto = LED{parent=rps,label="自动",colors=ind_red}
     rps.line_break()
-    local rps_tmo  = LED{parent=rps,label="TIMEOUT",colors=ind_red}
+    local rps_tmo  = LED{parent=rps,label="超时",colors=ind_red}
     rps.line_break()
-    local rps_flt  = LED{parent=rps,label="PLC FAULT",colors=ind_red}
-    local rps_fail = LED{parent=rps,label="RCT FAULT",colors=ind_red}
+    local rps_flt  = LED{parent=rps,label="PLC 故障",colors=ind_red}
+    local rps_fail = LED{parent=rps,label="反应堆故障",colors=ind_red}
     rps.line_break()
-    local rps_dmg  = LED{parent=rps,label="HI DAMAGE",colors=ind_red}
-    local rps_tmp  = LED{parent=rps,label="HI TEMP",colors=ind_red}
-    local rps_wst  = LED{parent=rps,label="HI WASTE",colors=ind_red}
+    local rps_dmg  = LED{parent=rps,label="高损伤",colors=ind_red}
+    local rps_tmp  = LED{parent=rps,label="高温",colors=ind_red}
+    local rps_wst  = LED{parent=rps,label="高废料",colors=ind_red}
     rps.line_break()
-    local rps_ccl  = LED{parent=rps,label="LO CCOOLANT",colors=ind_red}
-    local rps_hcl  = LED{parent=rps,label="HI HCOOLANT",colors=ind_red}
+    local rps_ccl  = LED{parent=rps,label="低冷却剂",colors=ind_red}
+    local rps_hcl  = LED{parent=rps,label="高热冷却剂",colors=ind_red}
 
     rps_man.register(databus.ps, "rps_manual", rps_man.update)
     rps_auto.register(databus.ps, "rps_automatic", rps_auto.update)

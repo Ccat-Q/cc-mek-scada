@@ -12,17 +12,17 @@ local pipe = core.pipe
 local function make(parent, x, y, unit)
 local num_boilers = #unit.boiler_data_tbl
 local num_turbines = #unit.turbine_data_tbl
-assert(num_boilers  >= 0 and num_boilers  <= 2, "minimum 0 boilers, maximum 2 boilers")
-assert(num_turbines >= 1 and num_turbines <= 3, "minimum 1 turbine, maximum 3 turbines")
+assert(num_boilers  >= 0 and num_boilers  <= 2, "最少0个锅炉，最多2个锅炉")
+assert(num_turbines >= 1 and num_turbines <= 3, "最少1台涡轮机，最多3台涡轮机")
 local height = 25
 if num_boilers == 0 and num_turbines == 1 then
 height = 9
 elseif num_boilers <= 1 and num_turbines <= 2 then
 height = 17
 end
-assert(parent.get_height() >= (y + height), "main display not of sufficient vertical resolution (add an additional row of monitors)")
+assert(parent.get_height() >= (y + height), "主显示垂直分辨率不足（请增加一行显示器）")
 local root = Div{parent=parent,x=x,y=y,width=80,height=height}
-TextBox{parent=root,text="Unit #"..unit.unit_id,alignment=ALIGN.CENTER,fg_bg=style.theme.header}
+TextBox{parent=root,text="机组 #"..unit.unit_id,alignment=ALIGN.CENTER,fg_bg=style.theme.header}
 reactor_view(root, 1, 3, unit.unit_ps)
 if num_boilers > 0 then
 local coolant_pipes = {}

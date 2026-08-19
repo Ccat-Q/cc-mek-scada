@@ -32,7 +32,7 @@ OUTPUT_SYNC = 200
 local function new_io_block() return { [0] = {}, {}, {}, {}, {} } end
 function redstone.new(session_id, unit_id, advert, out_queue)
 if advert.type ~= RTU_UNIT_TYPE.REDSTONE then
-log.error("attempt to instantiate redstone RTU for type " .. types.rtu_type_to_string(advert.type))
+log.error("尝试实例化 redstone RTU，类型 " .. types.rtu_type_to_string(advert.type))
 return nil
 end
 local log_tag = util.c("session.rtu(", session_id, ").redstone[@", unit_id, "]: ")
@@ -116,11 +116,11 @@ end
 }
 self.db.io[bank][port] = io_f
 else
-log.error(util.c(log_tag, "failed to identify advertisement port IO mode (", bank, ":", port, ")"), true)
+log.error(util.c(log_tag, "无法识别通告端口 IO 模式 (", bank, ":", port, ")"), true)
 return nil
 end
 else
-log.error(util.c(log_tag, "invalid advertisement port (", bank, ":", port, ")"), true)
+log.error(util.c(log_tag, "无效的通告端口 (", bank, ":", port, ")"), true)
 return nil
 end
 end
@@ -160,10 +160,10 @@ local txn_type = self.session.try_resolve(adu)
 if txn_type == false then
 if adu.txn_id == self.phy_trans.coils then
 self.phy_trans.coils = TXN_READY
-log.debug(log_tag .. "failed to write coils, retrying soon")
+log.debug(log_tag .. "线圈写入失败，稍后重试")
 elseif adu.txn_id == self.phy_trans.hold_regs then
 self.phy_trans.hold_regs = TXN_READY
-log.debug(log_tag .. "failed to write holding registers, retrying soon")
+log.debug(log_tag .. "保持寄存器写入失败，稍后重试")
 end
 elseif txn_type == TXN_TYPES.DI_READ then
 if adu.length == #self.io_map.digital_in then

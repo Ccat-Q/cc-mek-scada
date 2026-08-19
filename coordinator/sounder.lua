@@ -69,7 +69,7 @@ function sounder.continue()
     if alarm_ctl.playing then
         if alarm_ctl.speaker ~= nil and alarm_ctl.stream.has_next_block() then
             success = alarm_ctl.speaker.playAudio(alarm_ctl.stream.get_next_block(), alarm_ctl.volume)
-            if not success then log.error("SOUNDER: error playing audio") end
+            if not success then log.error("SOUNDER: 音频播放出错") end
         end
     end
 

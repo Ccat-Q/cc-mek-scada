@@ -17,18 +17,18 @@ local POCKET_VERSION = "1.3.2"
 local println = util.println
 local println_ts = util.println_ts
 if not _is_pocket_env then
-println("You can only use this application on a pocket computer.")
+println("此应用程序只能在口袋电脑上使用。")
 return
 end
 if not pocket.load_config() then
 local success, error = configure.configure(true)
 if success then
 if not pocket.load_config() then
-println("failed to load a valid configuration, please reconfigure")
+println("无法加载有效配置，请重新配置")
 return
 end
 else
-println("configuration error: " .. error)
+println("配置错误：" .. error)
 return
 end
 end
@@ -71,7 +71,7 @@ network.init_mac(config.AuthKey)
 end
 ioctl.report_link_state(ioctl.LINK_STATE.UNLINKED)
 if smem_dev.modem == nil then
-println("startup> wireless modem not found: please craft the pocket computer with a wireless modem")
+println("启动> 未找到无线调制解调器：请合成带无线调制解调器的口袋电脑")
 log.fatal("startup> no wireless modem on startup")
 return
 end
@@ -87,7 +87,7 @@ ioctl.init_core(smem_sys.pocket_comms, smem_sys.nav, config)
 local ui_message
 pkt_state.ui_ok, ui_message = renderer.try_start_ui()
 if not pkt_state.ui_ok then
-println(util.c("UI error: ", ui_message))
+println(util.c("界面错误：", ui_message))
 log.error(util.c("startup> GUI render failed with error ", ui_message))
 end
 if pkt_state.ui_ok then
@@ -97,12 +97,12 @@ log.info("startup> completed")
 parallel.waitForAll(main_thread.p_exec, render_thread.p_exec)
 renderer.close_ui()
 if not pkt_state.ui_ok then
-println(util.c("UI crashed with error: ", pkt_state.ui_error))
+println(util.c("界面崩溃，错误：", pkt_state.ui_error))
 end
 else
-println_ts("UI creation failed")
+println_ts("界面创建失败")
 end
-println_ts("exited")
+println_ts("已退出")
 log.info("exited")
 end
 if not xpcall(main, crash.handler) then

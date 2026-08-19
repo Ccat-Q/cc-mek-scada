@@ -124,7 +124,7 @@ return function (data, base_page, title, items, scroll_height)
         elseif item.type == DOC_TYPE.TIP then
             ---@cast item pocket_doc_tip
 
-            TextBox{parent=def_list,text="TIP!",fg_bg=cpair(colors.orange,colors._INHERIT)}
+            TextBox{parent=def_list,text="提示!",fg_bg=cpair(colors.orange,colors._INHERIT)}
             TextBox{parent=def_list,text=item.text}
 
             page_end = Div{parent=def_list,height=1,can_focus=true}

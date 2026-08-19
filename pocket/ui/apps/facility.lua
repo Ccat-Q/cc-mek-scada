@@ -52,7 +52,7 @@ local function new_view(root)
     local load_div = Div{parent=frame,y=1}
     local main = Div{parent=frame,y=1}
 
-    TextBox{parent=load_div,y=12,text="Loading...",alignment=ALIGN.CENTER}
+    TextBox{parent=load_div,y=12,text="加载中...",alignment=ALIGN.CENTER}
     WaitingAnim{parent=load_div,x=math.floor(main.get_width()/2)-1,y=8,fg_bg=cpair(colors.orange,colors._INHERIT)}
 
     local load_pane = MultiPane{parent=main,y=1,panes={load_div,main}}
@@ -89,10 +89,10 @@ local function new_view(root)
         local fac_page = app.new_page(nil, #panes)
         fac_page.tasks = { update }
 
-        TextBox{parent=f_div,y=1,text="Facility",alignment=ALIGN.CENTER}
+        TextBox{parent=f_div,y=1,text="设施",alignment=ALIGN.CENTER}
 
-        local ess_state = IconIndicator{parent=f_div,y=3,label="ESS Status",states=basic_states}
-        local sps_state = IconIndicator{parent=f_div,label="SPS Status",states=basic_states}
+        local ess_state = IconIndicator{parent=f_div,y=3,label="ESS 状态",states=basic_states}
+        local sps_state = IconIndicator{parent=f_div,label="SPS 状态",states=basic_states}
         sps_state.register(fac.sps_ps_tbl[1], "SPSStatus", sps_state.update)
 
         if fac.ess_type == types.ESS.ENERGY_CORE then
@@ -101,21 +101,21 @@ local function new_view(root)
             ess_state.register(fac.induction_ps_tbl[1], "InductionMatrixStatus", ess_state.update)
         end
 
-        TextBox{parent=f_div,y=6,text="RTU Gateways",fg_bg=label_fg_bg}
+        TextBox{parent=f_div,y=6,text="RTU 网关",fg_bg=label_fg_bg}
         local rtu_count = DataIndicator{parent=f_div,x=19,y=6,label="",format="%3d",value=0,lu_colors=lu_col,width=3}
         rtu_count.register(f_ps, "rtu_count", rtu_count.update)
 
-        TextBox{parent=f_div,y=8,text="Energy Storage System",alignment=ALIGN.CENTER}
+        TextBox{parent=f_div,y=8,text="能量存储系统",alignment=ALIGN.CENTER}
 
-        local eta = TextBox{parent=f_div,y=10,text="ETA Unknown",alignment=ALIGN.CENTER,fg_bg=cpair(colors.white,colors.gray)}
+        local eta = TextBox{parent=f_div,y=10,text="ETA 未知",alignment=ALIGN.CENTER,fg_bg=cpair(colors.white,colors.gray)}
         eta.register(fac.induction_ps_tbl[1], "eta_string", eta.set_value)
 
-        TextBox{parent=f_div,y=12,text="Unit Statuses",alignment=ALIGN.CENTER}
+        TextBox{parent=f_div,y=12,text="机组状态",alignment=ALIGN.CENTER}
 
         f_div.line_break()
 
         for i = 1, fac.num_units do
-            local ctrl = IconIndicator{parent=f_div,label="U"..i.." Control State",states=mode_states}
+            local ctrl = IconIndicator{parent=f_div,label="U"..i.." 控制状态",states=mode_states}
             ctrl.register(db.units[i].unit_ps, "U_ControlStatus", ctrl.update)
         end
 
@@ -130,11 +130,11 @@ local function new_view(root)
         local annunc_page = app.new_page(nil, #panes)
         annunc_page.tasks = { update }
 
-        TextBox{parent=a_div,y=1,text="Annunciator",alignment=ALIGN.CENTER}
+        TextBox{parent=a_div,y=1,text="警报器",alignment=ALIGN.CENTER}
 
-        local all_ok  = IconIndicator{parent=a_div,y=3,label="Units Online",states=grn_ind_s}
-        local ind_ess = IconIndicator{parent=a_div,label="ESS Connected",states=grn_ind_s}
-        local sps     = IconIndicator{parent=a_div,label="SPS Connected",states=grn_ind_s}
+        local all_ok  = IconIndicator{parent=a_div,y=3,label="机组在线",states=grn_ind_s}
+        local ind_ess = IconIndicator{parent=a_div,label="ESS 已连接",states=grn_ind_s}
+        local sps     = IconIndicator{parent=a_div,label="SPS 已连接",states=grn_ind_s}
 
         all_ok.register(f_ps, "all_sys_ok", all_ok.update)
         sps.register(fac.sps_ps_tbl[1], "SPSStateStatus", function (status) sps.update(status > 1) end)
@@ -147,12 +147,12 @@ local function new_view(root)
 
         a_div.line_break()
 
-        local auto_scram = IconIndicator{parent=a_div,label="Automatic SCRAM",states=red_ind_s}
-        local ess_fault  = IconIndicator{parent=a_div,label="ESS HW Fault",states=yel_ind_s}
-        local ess_fill   = IconIndicator{parent=a_div,label="ESS Charge Hi",states=red_ind_s}
-        local unit_crit  = IconIndicator{parent=a_div,label="Unit Crit. Alarm",states=red_ind_s}
-        local fac_rad_h  = IconIndicator{parent=a_div,label="FAC Radiation Hi",states=red_ind_s}
-        local gen_fault  = IconIndicator{parent=a_div,label="Gen Control Fault",states=yel_ind_s}
+        local auto_scram = IconIndicator{parent=a_div,label="自动急停",states=red_ind_s}
+        local ess_fault  = IconIndicator{parent=a_div,label="ESS 硬件故障",states=yel_ind_s}
+        local ess_fill   = IconIndicator{parent=a_div,label="ESS 充能过高",states=red_ind_s}
+        local unit_crit  = IconIndicator{parent=a_div,label="机组严重警报",states=red_ind_s}
+        local fac_rad_h  = IconIndicator{parent=a_div,label="设施辐射过高",states=red_ind_s}
+        local gen_fault  = IconIndicator{parent=a_div,label="发电控制故障",states=yel_ind_s}
 
         auto_scram.register(f_ps, "auto_scram", auto_scram.update)
         ess_fault.register(f_ps, "as_ess_fault", ess_fault.update)
@@ -190,32 +190,32 @@ local function new_view(root)
         local tank_page = app.new_page(nil, #panes)
         tank_page.tasks = { update }
 
-        TextBox{parent=t_div,y=1,text="Facility Tanks",alignment=ALIGN.CENTER}
+        TextBox{parent=t_div,y=1,text="设施储罐",alignment=ALIGN.CENTER}
 
         local f_tank_id = 1
         for t = 1, #fac.tank_list do
             if fac.tank_list[t] == 1 then
                 t_div.line_break()
 
-                local tank = IconIndicator{parent=t_div,label="Unit Tank "..t.." (U-"..t..")",states=basic_states}
+                local tank = IconIndicator{parent=t_div,label="机组储罐 "..t.." (U-"..t..")",states=basic_states}
                 tank.register(db.units[t].tank_ps_tbl[1], "DynamicTankStatus", tank.update)
 
-                TextBox{parent=t_div,x=5,text="\x07 Unit "..t,fg_bg=label_fg_bg}
+                TextBox{parent=t_div,x=5,text="\x07 机组 "..t,fg_bg=label_fg_bg}
             elseif fac.tank_list[t] == 2 then
                 tank_page_navs[f_tank_id] = dyn_tank(app, nil, panes, Div{parent=page_div}, t, fac.tank_ps_tbl[f_tank_id], update)
 
                 t_div.line_break()
 
-                local tank = IconIndicator{parent=t_div,label="Fac. Tank "..f_tank_id.." (F-"..f_tank_id..")",states=basic_states}
+                local tank = IconIndicator{parent=t_div,label="设施储罐 "..f_tank_id.." (F-"..f_tank_id..")",states=basic_states}
                 tank.register(fac.tank_ps_tbl[f_tank_id], "DynamicTankStatus", tank.update)
 
                 local connections = ""
                 for i = 1, #fac.tank_conns do
                     if fac.tank_conns[i] == t then
                         if connections ~= "" then
-                            connections = connections .. "\n\x07 Unit " .. i
+                            connections = connections .. "\n\x07 机组 " .. i
                         else
-                            connections = "\x07 Unit " .. i
+                            connections = "\x07 机组 " .. i
                         end
                     end
                 end

@@ -48,7 +48,7 @@ return function (app, u_page, panes, page_div, u_id, u_ps, update)
     local rct_page = app.new_page(u_page, #panes)
     rct_page.tasks = { update }
 
-    TextBox{parent=rct_div,y=1,text="Reactor",width=8}
+    TextBox{parent=rct_div,y=1,text="反应堆",width=8}
     local status = StateIndicator{parent=rct_div,x=10,y=1,states=style.reactor.states,value=1,min_width=12}
     status.register(u_ps, "U_ReactorStateStatus", status.update)
 
@@ -83,20 +83,20 @@ return function (app, u_page, panes, page_div, u_id, u_ps, update)
         end
     end)
 
-    TextBox{parent=rct_div,text="Burn Rate",x=5,y=4,width=13,fg_bg=label}
+    TextBox{parent=rct_div,text="燃烧速率",x=5,y=4,width=13,fg_bg=label}
     local burn_rate = DataIndicator{parent=rct_div,x=5,y=5,lu_colors=lu_col,label="",unit="mB/t",format="%8.2f",value=0,commas=true,width=13,fg_bg=text_fg}
-    TextBox{parent=rct_div,text="Temperature",x=5,y=6,width=13,fg_bg=label}
+    TextBox{parent=rct_div,text="温度",x=5,y=6,width=13,fg_bg=label}
     local t_prec = util.trinary(db.temp_label == types.TEMP_SCALE_UNITS[types.TEMP_SCALE.KELVIN], 11, 10)
     local core_temp = DataIndicator{parent=rct_div,x=5,y=7,lu_colors=lu_col,label="",unit=db.temp_label,format="%"..t_prec..".2f",value=0,commas=true,width=13,fg_bg=text_fg}
 
     burn_rate.register(u_ps, "act_burn_rate", burn_rate.update)
     core_temp.register(u_ps, "temp", function (t) core_temp.update(db.temp_convert(t)) end)
 
-    local r_temp = IconIndicator{parent=rct_div,y=10,label="Reactor Temp. Hi",states=red_ind_s}
-    local r_rhdt = IconIndicator{parent=rct_div,label="Hi Delta Temp.",states=yel_ind_s}
-    local r_firl = IconIndicator{parent=rct_div,label="Fuel Rate Lo",states=yel_ind_s}
-    local r_wloc = IconIndicator{parent=rct_div,label="Waste Line Occl.",states=yel_ind_s}
-    local r_hsrt = IconIndicator{parent=rct_div,label="Hi Startup Rate",states=yel_ind_s}
+    local r_temp = IconIndicator{parent=rct_div,y=10,label="反应堆温度过高",states=red_ind_s}
+    local r_rhdt = IconIndicator{parent=rct_div,label="温差过大",states=yel_ind_s}
+    local r_firl = IconIndicator{parent=rct_div,label="燃料速率低",states=yel_ind_s}
+    local r_wloc = IconIndicator{parent=rct_div,label="废料管线堵塞",states=yel_ind_s}
+    local r_hsrt = IconIndicator{parent=rct_div,label="启动速率过高",states=yel_ind_s}
 
     r_temp.register(u_ps, "ReactorTempHigh", r_temp.update)
     r_rhdt.register(u_ps, "ReactorHighDeltaT", r_rhdt.update)
@@ -118,41 +118,41 @@ return function (app, u_page, panes, page_div, u_id, u_ps, update)
     local rct_ext_page = app.new_page(rct_page, #panes)
     rct_ext_page.tasks = { update }
 
-    PushButton{parent=rct_div,x=9,y=18,text="MORE",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=rct_ext_page.nav_to}
-    PushButton{parent=rct_ext_div,x=9,y=18,text="BACK",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=rct_page.nav_to}
+    PushButton{parent=rct_div,x=9,y=18,text="更多",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=rct_ext_page.nav_to}
+    PushButton{parent=rct_ext_div,x=9,y=18,text="返回",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=rct_page.nav_to}
 
-    TextBox{parent=rct_ext_div,y=1,text="More Reactor Info",alignment=ALIGN.CENTER}
+    TextBox{parent=rct_ext_div,y=1,text="更多反应堆信息",alignment=ALIGN.CENTER}
 
-    TextBox{parent=rct_ext_div,text="Fuel Tank",y=3,width=9,fg_bg=label}
+    TextBox{parent=rct_ext_div,text="燃料箱",y=3,width=9,fg_bg=label}
     local fuel_p = DataIndicator{parent=rct_ext_div,x=14,y=3,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local fuel_amnt = DataIndicator{parent=rct_ext_div,y=4,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     fuel_p.register(u_ps, "fuel_fill", function (x) fuel_p.update(x * 100) end)
     fuel_amnt.register(u_ps, "fuel", fuel_amnt.update)
 
-    TextBox{parent=rct_ext_div,text="Cool Coolant",y=6,width=12,fg_bg=label}
+    TextBox{parent=rct_ext_div,text="冷冷却剂",y=6,width=12,fg_bg=label}
     local cooled_p = DataIndicator{parent=rct_ext_div,x=14,y=6,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local ccool_amnt = DataIndicator{parent=rct_ext_div,y=7,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     cooled_p.register(u_ps, "ccool_fill", function (x) cooled_p.update(x * 100) end)
     ccool_amnt.register(u_ps, "ccool_amnt", ccool_amnt.update)
 
-    TextBox{parent=rct_ext_div,text="Hot Coolant",y=9,width=12,fg_bg=label}
+    TextBox{parent=rct_ext_div,text="热冷却剂",y=9,width=12,fg_bg=label}
     local heated_p = DataIndicator{parent=rct_ext_div,x=14,y=9,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local hcool_amnt = DataIndicator{parent=rct_ext_div,y=10,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     heated_p.register(u_ps, "hcool_fill", function (x) heated_p.update(x * 100) end)
     hcool_amnt.register(u_ps, "hcool_amnt", hcool_amnt.update)
 
-    TextBox{parent=rct_ext_div,text="Waste Tank",y=12,width=10,fg_bg=label}
+    TextBox{parent=rct_ext_div,text="废料箱",y=12,width=10,fg_bg=label}
     local waste_p = DataIndicator{parent=rct_ext_div,x=14,y=12,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local waste_amnt = DataIndicator{parent=rct_ext_div,y=13,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     waste_p.register(u_ps, "waste_fill", function (x) waste_p.update(x * 100) end)
     waste_amnt.register(u_ps, "waste", waste_amnt.update)
 
-    TextBox{parent=rct_ext_div,text="Boil Eff.",y=15,width=9,fg_bg=label}
-    TextBox{parent=rct_ext_div,text="Env. Loss",y=16,width=9,fg_bg=label}
+    TextBox{parent=rct_ext_div,text="沸腾效率",y=15,width=9,fg_bg=label}
+    TextBox{parent=rct_ext_div,text="环境损耗",y=16,width=9,fg_bg=label}
     local boil_eff = DataIndicator{parent=rct_ext_div,x=11,y=15,lu_colors=lu_col,label="",unit="%",format="%9.2f",value=0,width=11,fg_bg=text_fg}
     local env_loss = DataIndicator{parent=rct_ext_div,x=11,y=16,lu_colors=lu_col,label="",unit="J",format="%9.2f",value=0,width=11,fg_bg=text_fg}
 

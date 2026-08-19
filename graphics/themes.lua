@@ -21,7 +21,7 @@ colors.green_off  = colors.lime
 
 ---@enum UI_THEME
 themes.UI_THEME = { SMOOTH_STONE = 1, DEEPSLATE = 2 }
-themes.UI_THEME_NAMES = { "Smooth Stone", "Deepslate" }
+themes.UI_THEME_NAMES = { "平滑石", "深板岩" }
 
 -- attempts to get the string name of a main ui theme
 ---@nodiscard
@@ -36,7 +36,7 @@ end
 
 ---@enum FP_THEME
 themes.FP_THEME = { SANDSTONE = 1, BASALT = 2 }
-themes.FP_THEME_NAMES = { "Sandstone", "Basalt" }
+themes.FP_THEME_NAMES = { "砂岩", "玄武岩" }
 
 -- attempts to get the string name of a front panel theme
 ---@nodiscard
@@ -62,13 +62,13 @@ themes.COLOR_MODE = {
 }
 
 themes.COLOR_MODE_NAMES = {
-    "Standard",
-    "Deuteranopia",
-    "Protanopia",
-    "Tritanopia",
-    "Blue for 'Good'",
-    "Standard + Black",
-    "Blue + Black"
+    "标准",
+    "绿色盲",
+    "红色盲",
+    "蓝色盲",
+    "正常为蓝色",
+    "标准+黑色",
+    "蓝色+黑色"
 }
 
 -- attempts to get the string name of a color mode

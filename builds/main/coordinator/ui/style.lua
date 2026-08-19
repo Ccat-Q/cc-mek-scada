@@ -92,61 +92,61 @@ style.lg_white = cpair(colors.lightGray, colors.white)
 style.gray_white = cpair(colors.gray, colors.white)
 style.reactor = {
 states = {
-{ color = cpair(colors.black, colors.yellow), text = "PLC OFF-LINE" },
-{ color = cpair(colors.black, colors.orange), text = "NOT FORMED" },
-{ color = cpair(colors.black, colors.orange), text = "PLC  FAULT" },
-{ color = cpair(colors.white, colors.gray),   text = "DISABLED" },
-{ color = cpair(colors.black, colors.green),  text = "ACTIVE" },
-{ color = cpair(colors.black, colors.red),    text = "SCRAMMED" },
-{ color = cpair(colors.black, colors.red),    text = "FORCE DISABLED" }
+{ color = cpair(colors.black, colors.yellow), text = "PLC 离线" },
+{ color = cpair(colors.black, colors.orange), text = "未成形" },
+{ color = cpair(colors.black, colors.orange), text = "PLC 故障" },
+{ color = cpair(colors.white, colors.gray),   text = "已禁用" },
+{ color = cpair(colors.black, colors.green),  text = "运行中" },
+{ color = cpair(colors.black, colors.red),    text = "已急停" },
+{ color = cpair(colors.black, colors.red),    text = "强制禁用" }
 }
 }
 style.boiler = {
 states = {
-{ color = cpair(colors.black, colors.yellow), text = "OFF-LINE" },
-{ color = cpair(colors.black, colors.orange), text = "NOT FORMED" },
-{ color = cpair(colors.black, colors.orange), text = "RTU  FAULT" },
-{ color = cpair(colors.white, colors.gray),   text = "IDLE" },
-{ color = cpair(colors.black, colors.green),  text = "ACTIVE" }
+{ color = cpair(colors.black, colors.yellow), text = "离线" },
+{ color = cpair(colors.black, colors.orange), text = "未成形" },
+{ color = cpair(colors.black, colors.orange), text = "RTU 故障" },
+{ color = cpair(colors.white, colors.gray),   text = "待机" },
+{ color = cpair(colors.black, colors.green),  text = "运行中" }
 }
 }
 style.turbine = {
 states = {
-{ color = cpair(colors.black, colors.yellow), text = "OFF-LINE" },
-{ color = cpair(colors.black, colors.orange), text = "NOT FORMED" },
-{ color = cpair(colors.black, colors.orange), text = "RTU  FAULT" },
-{ color = cpair(colors.white, colors.gray),   text = "IDLE" },
-{ color = cpair(colors.black, colors.green),  text = "ACTIVE" },
-{ color = cpair(colors.black, colors.red),    text = "TRIP" }
+{ color = cpair(colors.black, colors.yellow), text = "离线" },
+{ color = cpair(colors.black, colors.orange), text = "未成形" },
+{ color = cpair(colors.black, colors.orange), text = "RTU 故障" },
+{ color = cpair(colors.white, colors.gray),   text = "待机" },
+{ color = cpair(colors.black, colors.green),  text = "运行中" },
+{ color = cpair(colors.black, colors.red),    text = "跳闸" }
 }
 }
 style.dtank = {
 states = {
-{ color = cpair(colors.black, colors.yellow), text = "OFF-LINE" },
-{ color = cpair(colors.black, colors.orange), text = "NOT FORMED" },
-{ color = cpair(colors.black, colors.orange), text = "RTU  FAULT" },
-{ color = cpair(colors.black, colors.green),  text = "ONLINE" },
-{ color = cpair(colors.black, colors.yellow), text = "LOW FILL" },
-{ color = cpair(colors.black, colors.green),  text = "FILLED" }
+{ color = cpair(colors.black, colors.yellow), text = "离线" },
+{ color = cpair(colors.black, colors.orange), text = "未成形" },
+{ color = cpair(colors.black, colors.orange), text = "RTU 故障" },
+{ color = cpair(colors.black, colors.green),  text = "在线" },
+{ color = cpair(colors.black, colors.yellow), text = "低液位" },
+{ color = cpair(colors.black, colors.green),  text = "已注满" }
 }
 }
 style.ess = {
 states = {
-{ color = cpair(colors.black, colors.yellow), text = "OFF-LINE" },
-{ color = cpair(colors.black, colors.orange), text = "NOT FORMED" },
-{ color = cpair(colors.black, colors.orange), text = "RTU  FAULT" },
-{ color = cpair(colors.black, colors.green),  text = "ONLINE" },
-{ color = cpair(colors.black, colors.yellow), text = "LOW CHARGE" },
-{ color = cpair(colors.black, colors.yellow), text = "HIGH  CHARGE" }
+{ color = cpair(colors.black, colors.yellow), text = "离线" },
+{ color = cpair(colors.black, colors.orange), text = "未成形" },
+{ color = cpair(colors.black, colors.orange), text = "RTU 故障" },
+{ color = cpair(colors.black, colors.green),  text = "在线" },
+{ color = cpair(colors.black, colors.yellow), text = "低充能" },
+{ color = cpair(colors.black, colors.yellow), text = "高充能" }
 }
 }
 style.sps = {
 states = {
-{ color = cpair(colors.black, colors.yellow), text = "OFF-LINE" },
-{ color = cpair(colors.black, colors.orange), text = "NOT FORMED" },
-{ color = cpair(colors.black, colors.orange), text = "RTU  FAULT" },
-{ color = cpair(colors.white, colors.gray),   text = "IDLE" },
-{ color = cpair(colors.black, colors.green),  text = "ACTIVE" }
+{ color = cpair(colors.black, colors.yellow), text = "离线" },
+{ color = cpair(colors.black, colors.orange), text = "未成形" },
+{ color = cpair(colors.black, colors.orange), text = "RTU 故障" },
+{ color = cpair(colors.white, colors.gray),   text = "待机" },
+{ color = cpair(colors.black, colors.green),  text = "运行中" }
 }
 }
 function style.get_waste()
@@ -154,18 +154,18 @@ local pu_color = util.trinary(config.GreenPuPellet, colors.green, colors.cyan)
 local po_color = util.trinary(config.GreenPuPellet, colors.cyan, colors.green)
 return {
 states = {
-{ color = cpair(colors.black, pu_color),      text = "PLUTONIUM" },
-{ color = cpair(colors.black, po_color),      text = "POLONIUM" },
-{ color = cpair(colors.black, colors.purple), text = "ANTI MATTER" }
+{ color = cpair(colors.black, pu_color),      text = "钚" },
+{ color = cpair(colors.black, po_color),      text = "钋" },
+{ color = cpair(colors.black, colors.purple), text = "反物质" }
 },
 states_abbrv = {
 { color = cpair(colors.black, pu_color),      text = "Pu" },
 { color = cpair(colors.black, po_color),      text = "Po" },
 { color = cpair(colors.black, colors.purple), text = "AM" }
 },
-options = { "Plutonium", "Polonium", "Antimatter" },
+options = { "钚", "钋", "反物质" },
 unit_opts = {
-{ text = "Auto", fg_bg = cpair(colors.black, colors.lightGray), active_fg_bg = cpair(colors.white, colors.gray) },
+{ text = "自动", fg_bg = cpair(colors.black, colors.lightGray), active_fg_bg = cpair(colors.white, colors.gray) },
 { text = "Pu", fg_bg = cpair(colors.black, colors.lightGray), active_fg_bg = cpair(colors.black, pu_color) },
 { text = "Po", fg_bg = cpair(colors.black, colors.lightGray), active_fg_bg = cpair(colors.black, po_color) },
 { text = "AM", fg_bg = cpair(colors.black, colors.lightGray), active_fg_bg = cpair(colors.black, colors.purple) }

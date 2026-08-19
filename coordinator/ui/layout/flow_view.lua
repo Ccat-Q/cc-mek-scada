@@ -57,7 +57,7 @@ local function init(main)
     local com_waste = fac.combined_waste
 
     -- window header message
-    local header = TextBox{parent=main,y=1,text="Facility Coolant and Waste Flow Monitor",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
+    local header = TextBox{parent=main,y=1,text="设施冷却剂与废料流程监测器",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
     -- max length example: "01:23:45 AM - Wednesday, September 28 2022"
     local datetime = TextBox{parent=main,x=(header.get_width()-42),y=1,text="",alignment=ALIGN.RIGHT,width=42,fg_bg=style.theme.header}
 
@@ -355,7 +355,7 @@ local function init(main)
             local v_idx = tri(com_waste, 4 + ((i * 2) - 1), (i * 6) - 1)
 
             local conn = IndicatorLight{parent=main,x=9,y=vy+1,label=util.sprintf("PV%02d-EMC", v_idx),colors=style.ind_grn}
-            local open = IndicatorLight{parent=main,x=9,y=vy+2,label="OPEN",colors=style.ind_wht}
+            local open = IndicatorLight{parent=main,x=9,y=vy+2,label="开启",colors=style.ind_wht}
 
             conn.register(units[i].unit_ps, "V_emc_conn", conn.update)
             open.register(units[i].unit_ps, "V_emc_state", open.update)
@@ -386,7 +386,7 @@ local function init(main)
             local v_idx = tri(com_waste, 4 + (i * 2), i * 6)
 
             local conn = IndicatorLight{parent=main,x=vx-3,y=vy+1,label=util.sprintf("PV%02d-AUX", v_idx),colors=style.ind_grn}
-            local open = IndicatorLight{parent=main,x=vx-3,y=vy+2,label="OPEN",colors=style.ind_wht}
+            local open = IndicatorLight{parent=main,x=vx-3,y=vy+2,label="开启",colors=style.ind_wht}
 
             conn.register(units[i].unit_ps, "V_aux_conn", conn.update)
             open.register(units[i].unit_ps, "V_aux_state", open.update)
@@ -416,24 +416,24 @@ local function init(main)
             local tank = Div{parent=main,x=3,y=7+y_offset,width=20,height=14}
 
             TextBox{parent=tank,text=" ",y=1,fg_bg=style.lg_gray}
-            TextBox{parent=tank,text="DYNAMIC TANK "..id,alignment=ALIGN.CENTER,fg_bg=style.wh_gray}
+            TextBox{parent=tank,text="动态储罐 "..id,alignment=ALIGN.CENTER,fg_bg=style.wh_gray}
 
             local tank_box = Rectangle{parent=tank,border=border(1,colors.gray,true),width=20,height=12}
 
             local status = StateIndicator{parent=tank_box,x=3,y=1,states=style.dtank.states,value=1,min_width=14}
 
-            TextBox{parent=tank_box,x=2,y=3,text="Fill",width=10,fg_bg=style.label}
+            TextBox{parent=tank_box,x=2,y=3,text="储量",width=10,fg_bg=style.label}
             local tank_pcnt = DataIndicator{parent=tank_box,x=10,y=3,label="",format="%5.2f",value=100,unit="%",lu_colors=lu_c,width=8,fg_bg=text_c}
             local tank_amnt = DataIndicator{parent=tank_box,x=2,label="",format="%13d",value=0,commas=true,unit="mB",lu_colors=lu_c,width=16,fg_bg=s_field}
 
             local is_water = tank_types[i] == COOLANT_TYPE.WATER
 
-            TextBox{parent=tank_box,x=2,y=6,text=tri(is_water,"Water","Sodium").." Level",width=12,fg_bg=style.label}
+            TextBox{parent=tank_box,x=2,y=6,text=tri(is_water,"水","钠").."液位",width=12,fg_bg=style.label}
             local level = HorizontalBar{parent=tank_box,x=2,y=7,bar_fg_bg=cpair(tri(is_water,colors.blue,colors.lightBlue),colors.gray),height=1,width=16}
 
-            TextBox{parent=tank_box,x=2,y=9,text="In/Out Mode",width=11,fg_bg=style.label}
-            local can_fill = IndicatorLight{parent=tank_box,x=2,y=10,label="FILL",colors=style.ind_wht}
-            local can_empty = IndicatorLight{parent=tank_box,x=10,y=10,label="EMPTY",colors=style.ind_wht}
+            TextBox{parent=tank_box,x=2,y=9,text="进/出模式",width=11,fg_bg=style.label}
+            local can_fill = IndicatorLight{parent=tank_box,x=2,y=10,label="注入",colors=style.ind_wht}
+            local can_empty = IndicatorLight{parent=tank_box,x=10,y=10,label="排空",colors=style.ind_wht}
 
             local function _can_fill(mode)
                 can_fill.update((mode == CONTAINER_MODE.BOTH) or (mode == CONTAINER_MODE.FILL))
@@ -478,12 +478,12 @@ local function init(main)
 
     status.register(fac.sps_ps_tbl[1], "computed_status", status.update)
 
-    TextBox{parent=sps_box,x=2,y=3,text="Input Rate",width=10,fg_bg=style.label}
+    TextBox{parent=sps_box,x=2,y=3,text="输入速率",width=10,fg_bg=style.label}
     local sps_in = DataIndicator{parent=sps_box,x=2,label="",format="%15.2f",value=0,unit="mB/t",lu_colors=lu_c,width=20,fg_bg=s_field}
 
     sps_in.register(fac.ps, "po_am_rate", sps_in.update)
 
-    TextBox{parent=sps_box,x=2,y=6,text="Production Rate",width=15,fg_bg=style.label}
+    TextBox{parent=sps_box,x=2,y=6,text="产出速率",width=15,fg_bg=style.label}
     local sps_rate = DataIndicator{parent=sps_box,x=2,label="",format="%15d",value=0,unit="\xb5B/t",lu_colors=lu_c,width=20,fg_bg=s_field}
 
     sps_rate.register(fac.sps_ps_tbl[1], "process_rate", function (r) sps_rate.update(r * 1000) end)
@@ -492,13 +492,13 @@ local function init(main)
     -- statistics --
     ----------------
 
-    TextBox{parent=main,x=145,y=16,text="RAW WASTE",alignment=ALIGN.CENTER,width=19,fg_bg=wh_gray}
+    TextBox{parent=main,x=145,y=16,text="原始废料",alignment=ALIGN.CENTER,width=19,fg_bg=wh_gray}
     local raw_waste  = Rectangle{parent=main,x=145,y=17,border=border(1,colors.gray,true),width=19,height=3,thin=true,fg_bg=s_hi_bright}
-    local sum_raw_waste = DataIndicator{parent=raw_waste,lu_colors=lu_c_d,label="SUM",unit="mB/t",format="%8.2f",value=0,width=17}
+    local sum_raw_waste = DataIndicator{parent=raw_waste,lu_colors=lu_c_d,label="合计",unit="mB/t",format="%8.2f",value=0,width=17}
 
     sum_raw_waste.register(fac.ps, "burn_sum", sum_raw_waste.update)
 
-    TextBox{parent=main,x=145,y=21,text="PROC. WASTE",alignment=ALIGN.CENTER,width=19,fg_bg=wh_gray}
+    TextBox{parent=main,x=145,y=21,text="处理废料",alignment=ALIGN.CENTER,width=19,fg_bg=wh_gray}
     local pr_waste  = Rectangle{parent=main,x=145,y=22,border=border(1,colors.gray,true),width=19,height=5,thin=true,fg_bg=s_hi_bright}
     local pu = DataIndicator{parent=pr_waste,lu_colors=lu_c_d,label="Pu",unit="mB/t",format="%9.3f",value=0,width=17}
     local po = DataIndicator{parent=pr_waste,lu_colors=lu_c_d,label="Po",unit="mB/t",format="%9.2f",value=0,width=17}
@@ -508,9 +508,9 @@ local function init(main)
     po.register(fac.ps, "po_rate", po.update)
     popl.register(fac.ps, "po_pl_rate", popl.update)
 
-    TextBox{parent=main,x=145,y=28,text="SPENT WASTE",alignment=ALIGN.CENTER,width=19,fg_bg=wh_gray}
+    TextBox{parent=main,x=145,y=28,text="乏燃料",alignment=ALIGN.CENTER,width=19,fg_bg=wh_gray}
     local sp_waste  = Rectangle{parent=main,x=145,y=29,border=border(1,colors.gray,true),width=19,height=3,thin=true,fg_bg=s_hi_bright}
-    local sum_sp_waste = DataIndicator{parent=sp_waste,lu_colors=lu_c_d,label="SUM",unit="mB/t",format="%8.3f",value=0,width=17}
+    local sum_sp_waste = DataIndicator{parent=sp_waste,lu_colors=lu_c_d,label="合计",unit="mB/t",format="%8.3f",value=0,width=17}
 
     sum_sp_waste.register(fac.ps, "spent_waste_rate", sum_sp_waste.update)
 end

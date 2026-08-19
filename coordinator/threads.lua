@@ -65,11 +65,11 @@ function threads.thread__main(smem)
             if not ok then
                 crd_state.link_fail = true
                 crd_state.shutdown = true
-                log_sys("supervisor connection failed, shutting down...")
-                log.fatal("failed to connect to supervisor")
+                log_sys("监控端连接失败，正在关闭...")
+                log.fatal("无法连接到监控端")
                 return true
             elseif start_ui then
-                log_sys("supervisor connected, dispatching main UI start")
+                log_sys("监控端已连接，开始启动主界面")
                 smem.q.mq_render.push_command(MQ__RENDER_CMD.START_MAIN_UI)
             end
 
@@ -102,7 +102,7 @@ function threads.thread__main(smem)
 
                 -- handle then check if it was a disconnect
                 if coord_comms.handle_packet(packet) then
-                    log_comms("supervisor closed connection")
+                    log_comms("监控端已关闭连接")
 
                     -- close main UI, connection, and stop sounder
                     smem.q.mq_render.push_command(MQ__RENDER_CMD.CLOSE_MAIN_UI)
@@ -116,7 +116,7 @@ function threads.thread__main(smem)
                     if loop_tick() then break end
                 elseif conn_watchdog.is_timer(param1) then
                     -- supervisor connection timed out
-                    log_comms("supervisor server timeout")
+                    log_comms("监控端服务器超时")
 
                     -- close main UI, connection, and stop sounder
                     smem.q.mq_render.push_command(MQ__RENDER_CMD.CLOSE_MAIN_UI)
@@ -233,29 +233,29 @@ function threads.thread__render(smem)
                             -- stop the UI if it was already started
                             -- this may occur on a quick supervisor disconnect -> connect
                             if renderer.ui_ready() then
-                                log_render("closing main UI before executing new request to start")
+                                log_render("在执行新的启动请求前关闭主界面")
                                 renderer.close_ui()
                             end
 
                             -- start up the main UI
-                            log_render("starting main UI...")
+                            log_render("正在启动主界面...")
 
                             local draw_start = util.time_ms()
 
                             local ui_message
                             crd_state.ui_ok, ui_message = renderer.try_start_ui()
                             if not crd_state.ui_ok then
-                                log_render(util.c("main UI error: ", ui_message))
-                                log.fatal(util.c("main GUI render failed with error ", ui_message))
+                                log_render(util.c("主界面错误：", ui_message))
+                                log.fatal(util.c("主GUI渲染失败，错误为 ", ui_message))
                             else
-                                log_render("main UI draw took " .. (util.time_ms() - draw_start) .. "ms")
+                                log_render("主界面绘制耗时 " .. (util.time_ms() - draw_start) .. "ms")
                             end
                         elseif msg.message == MQ__RENDER_CMD.CLOSE_MAIN_UI then
                             -- close the main UI if it has been drawn
                             if renderer.ui_ready() then
-                                log_render("closing main UI...")
+                                log_render("正在关闭主界面...")
                                 renderer.close_ui()
-                                log_render("main UI closed")
+                                log_render("主界面已关闭")
                             end
                         end
                     elseif msg.qtype == mqueue.TYPE.DATA then
@@ -272,7 +272,7 @@ function threads.thread__render(smem)
                             -- monitor resized
                             local is_used, is_ok = renderer.handle_resize(cmd.val)
                             if is_used then
-                                log_sys(util.c("configured monitor ", cmd.val, " resized, ", util.trinary(is_ok, "display fits", "display does not fit")))
+                                log_sys(util.c("已配置显示器 ", cmd.val, " 已调整大小，", util.trinary(is_ok, "显示适配", "显示不适配")))
                             end
                         end
                     end

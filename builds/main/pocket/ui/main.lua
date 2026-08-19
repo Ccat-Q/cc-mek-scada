@@ -36,7 +36,7 @@ db.ps.subscribe("crd_conn_quality", crd_conn.set_value)
 local start_pane = Div{parent=main,y=2}
 local main_pane = Div{parent=main,y=2}
 WaitingAnim{parent=start_pane,x=12,y=7,fg_bg=cpair(colors.lightBlue,style.root.bkg)}
-TextBox{parent=start_pane,y=11,text="starting up...",alignment=ALIGN.CENTER,fg_bg=cpair(colors.lightGray,style.root.bkg)}
+TextBox{parent=start_pane,y=11,text="正在启动...",alignment=ALIGN.CENTER,fg_bg=cpair(colors.lightGray,style.root.bkg)}
 local root_pane = MultiPane{parent=main,y=2,panes={start_pane,main_pane}}
 local page_div = Div{parent=main_pane,x=4,y=1}
 home_page(page_div)

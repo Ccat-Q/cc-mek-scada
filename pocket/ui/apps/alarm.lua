@@ -48,14 +48,14 @@ local function new_view(root)
 
     local alarms_div = Div{parent=page_div}
 
-    TextBox{parent=alarms_div,text="Alarm Sounder Tests",alignment=ALIGN.CENTER}
+    TextBox{parent=alarms_div,text="警报发声器测试",alignment=ALIGN.CENTER}
 
     local alarm_ready_warn = TextBox{parent=alarms_div,y=2,text="",alignment=ALIGN.CENTER,fg_bg=cpair(colors.yellow,colors.black)}
     alarm_ready_warn.register(ps, "alarm_ready_warn", alarm_ready_warn.set_value)
 
     local alarm_page_states = Div{parent=alarms_div,x=2,y=3,height=5,width=8}
 
-    TextBox{parent=alarm_page_states,text="States",alignment=ALIGN.CENTER}
+    TextBox{parent=alarm_page_states,text="状态",alignment=ALIGN.CENTER}
     local ta_1 = IndicatorLight{parent=alarm_page_states,label="1",colors=c_blue_gray}
     local ta_2 = IndicatorLight{parent=alarm_page_states,label="2",colors=c_blue_gray}
     local ta_3 = IndicatorLight{parent=alarm_page_states,label="3",colors=c_blue_gray}
@@ -73,21 +73,21 @@ local function new_view(root)
 
     local alarms = Div{parent=alarms_div,x=11,y=3,height=15,fg_bg=cpair(colors.lightGray,colors.black)}
 
-    TextBox{parent=alarms,text="Alarms (\x13)",alignment=ALIGN.CENTER,fg_bg=alarms_div.get_fg_bg()}
+    TextBox{parent=alarms,text="警报 (\x13)",alignment=ALIGN.CENTER,fg_bg=alarms_div.get_fg_bg()}
 
     local alarm_btns = {}
-    alarm_btns[1]  = Checkbox{parent=alarms,label="BREACH",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_breach}
-    alarm_btns[2]  = Checkbox{parent=alarms,label="RADIATION",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_rad}
-    alarm_btns[3]  = Checkbox{parent=alarms,label="RCT LOST",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_lost}
-    alarm_btns[4]  = Checkbox{parent=alarms,label="CRIT DAMAGE",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_crit}
-    alarm_btns[5]  = Checkbox{parent=alarms,label="DAMAGE",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_dmg}
-    alarm_btns[6]  = Checkbox{parent=alarms,label="OVER TEMP",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_overtemp}
-    alarm_btns[7]  = Checkbox{parent=alarms,label="HIGH TEMP",min_width=15,box_fg_bg=c_yel_gray,callback=ttest.test_hightemp}
-    alarm_btns[8]  = Checkbox{parent=alarms,label="WASTE LEAK",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_wasteleak}
-    alarm_btns[9]  = Checkbox{parent=alarms,label="WASTE HIGH",min_width=15,box_fg_bg=c_yel_gray,callback=ttest.test_highwaste}
-    alarm_btns[10] = Checkbox{parent=alarms,label="RPS TRANS",min_width=15,box_fg_bg=c_yel_gray,callback=ttest.test_rps}
-    alarm_btns[11] = Checkbox{parent=alarms,label="RCS TRANS",min_width=15,box_fg_bg=c_yel_gray,callback=ttest.test_rcs}
-    alarm_btns[12] = Checkbox{parent=alarms,label="TURBINE TRP",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_turbinet}
+    alarm_btns[1]  = Checkbox{parent=alarms,label="破裂",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_breach}
+    alarm_btns[2]  = Checkbox{parent=alarms,label="辐射",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_rad}
+    alarm_btns[3]  = Checkbox{parent=alarms,label="反应堆丢失",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_lost}
+    alarm_btns[4]  = Checkbox{parent=alarms,label="严重损坏",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_crit}
+    alarm_btns[5]  = Checkbox{parent=alarms,label="损坏",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_dmg}
+    alarm_btns[6]  = Checkbox{parent=alarms,label="超温",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_overtemp}
+    alarm_btns[7]  = Checkbox{parent=alarms,label="高温",min_width=15,box_fg_bg=c_yel_gray,callback=ttest.test_hightemp}
+    alarm_btns[8]  = Checkbox{parent=alarms,label="废料泄漏",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_wasteleak}
+    alarm_btns[9]  = Checkbox{parent=alarms,label="废料过多",min_width=15,box_fg_bg=c_yel_gray,callback=ttest.test_highwaste}
+    alarm_btns[10] = Checkbox{parent=alarms,label="RPS 瞬态",min_width=15,box_fg_bg=c_yel_gray,callback=ttest.test_rps}
+    alarm_btns[11] = Checkbox{parent=alarms,label="RCS 瞬态",min_width=15,box_fg_bg=c_yel_gray,callback=ttest.test_rcs}
+    alarm_btns[12] = Checkbox{parent=alarms,label="涡轮机跳闸",min_width=15,box_fg_bg=c_red_gray,callback=ttest.test_turbinet}
 
     ttest.alarm_buttons = alarm_btns
 
@@ -96,7 +96,7 @@ local function new_view(root)
         ttest.stop_alarms()
     end
 
-    PushButton{parent=alarms,x=3,y=15,text="STOP \x13",min_width=8,fg_bg=cpair(colors.black,colors.red),active_fg_bg=c_wht_gray,callback=stop_all_alarms}
+    PushButton{parent=alarms,x=3,y=15,text="停止 \x13",min_width=8,fg_bg=cpair(colors.black,colors.red),active_fg_bg=c_wht_gray,callback=stop_all_alarms}
 
     --#endregion
 
@@ -107,14 +107,14 @@ local function new_view(root)
 
     local tones_div = Div{parent=page_div}
 
-    TextBox{parent=tones_div,text="Alarm Sounder Tests",alignment=ALIGN.CENTER}
+    TextBox{parent=tones_div,text="警报发声器测试",alignment=ALIGN.CENTER}
 
     local tone_ready_warn = TextBox{parent=tones_div,y=2,text="",alignment=ALIGN.CENTER,fg_bg=cpair(colors.yellow,colors.black)}
     tone_ready_warn.register(ps, "alarm_ready_warn", tone_ready_warn.set_value)
 
     local tone_page_states = Div{parent=tones_div,x=3,y=3,height=5,width=8}
 
-    TextBox{parent=tone_page_states,text="States",alignment=ALIGN.CENTER}
+    TextBox{parent=tone_page_states,text="状态",alignment=ALIGN.CENTER}
     local tt_1 = IndicatorLight{parent=tone_page_states,label="1",colors=c_blue_gray}
     local tt_2 = IndicatorLight{parent=tone_page_states,label="2",colors=c_blue_gray}
     local tt_3 = IndicatorLight{parent=tone_page_states,label="3",colors=c_blue_gray}
@@ -132,17 +132,17 @@ local function new_view(root)
 
     local tones = Div{parent=tones_div,x=14,y=3,height=10,width=8,fg_bg=cpair(colors.black,colors.yellow)}
 
-    TextBox{parent=tones,text="Tones",alignment=ALIGN.CENTER,fg_bg=tones_div.get_fg_bg()}
+    TextBox{parent=tones,text="音调",alignment=ALIGN.CENTER,fg_bg=tones_div.get_fg_bg()}
 
     local test_btns = {}
-    test_btns[1] = SwitchButton{parent=tones,text="TEST 1",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_1}
-    test_btns[2] = SwitchButton{parent=tones,text="TEST 2",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_2}
-    test_btns[3] = SwitchButton{parent=tones,text="TEST 3",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_3}
-    test_btns[4] = SwitchButton{parent=tones,text="TEST 4",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_4}
-    test_btns[5] = SwitchButton{parent=tones,text="TEST 5",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_5}
-    test_btns[6] = SwitchButton{parent=tones,text="TEST 6",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_6}
-    test_btns[7] = SwitchButton{parent=tones,text="TEST 7",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_7}
-    test_btns[8] = SwitchButton{parent=tones,text="TEST 8",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_8}
+    test_btns[1] = SwitchButton{parent=tones,text="测试 1",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_1}
+    test_btns[2] = SwitchButton{parent=tones,text="测试 2",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_2}
+    test_btns[3] = SwitchButton{parent=tones,text="测试 3",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_3}
+    test_btns[4] = SwitchButton{parent=tones,text="测试 4",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_4}
+    test_btns[5] = SwitchButton{parent=tones,text="测试 5",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_5}
+    test_btns[6] = SwitchButton{parent=tones,text="测试 6",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_6}
+    test_btns[7] = SwitchButton{parent=tones,text="测试 7",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_7}
+    test_btns[8] = SwitchButton{parent=tones,text="测试 8",min_width=8,active_fg_bg=c_wht_gray,callback=ttest.test_8}
 
     ttest.tone_buttons = test_btns
 
@@ -151,7 +151,7 @@ local function new_view(root)
         ttest.stop_tones()
     end
 
-    PushButton{parent=tones,text="STOP",min_width=8,active_fg_bg=c_wht_gray,fg_bg=cpair(colors.black,colors.red),callback=stop_all_tones}
+    PushButton{parent=tones,text="停止",min_width=8,active_fg_bg=c_wht_gray,fg_bg=cpair(colors.black,colors.red),callback=stop_all_tones}
 
     --#endregion
 
@@ -161,9 +161,9 @@ local function new_view(root)
 
     local info_div = Div{parent=page_div}
 
-    TextBox{parent=info_div,x=2,y=1,text="This app provides tools to test alarm sounds by alarm and by tone (1-8)."}
-    TextBox{parent=info_div,x=2,y=6,text="The system must be idle (all units stopped with no alarms active) for testing to run."}
-    TextBox{parent=info_div,x=2,y=12,text="Testing will be denied unless you enabled it in the Supervisor's configuration."}
+    TextBox{parent=info_div,x=2,y=1,text="此应用提供按警报和按音调（1-8）测试警报声音的工具。"}
+    TextBox{parent=info_div,x=2,y=6,text="系统必须处于待机状态（所有机组停止且无警报激活）才能运行测试。"}
+    TextBox{parent=info_div,x=2,y=12,text="除非你在监管端的配置中启用测试，否则测试将被拒绝。"}
 
     --#endregion
 

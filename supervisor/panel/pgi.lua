@@ -57,9 +57,9 @@ function pgi.create_rtu_entry(session_id)
 
         if success then
             data.entries.rtu[session_id] = result
-            log.debug(util.c("PGI: created RTU entry (", session_id, ")"))
+            log.debug(util.c("PGI: 已创建 RTU 条目 (", session_id, ")"))
         else
-            log.error(util.c("PGI: failed to create RTU entry (", result, ")"), true)
+            log.error(util.c("PGI: 创建 RTU 条目失败 (", result, ")"), true)
         end
     end
 end
@@ -72,12 +72,12 @@ function pgi.delete_rtu_entry(session_id)
         data.entries.rtu[session_id] = nil
 
         if success then
-            log.debug(util.c("PGI: deleted RTU entry (", session_id, ")"))
+            log.debug(util.c("PGI: 已删除 RTU 条目 (", session_id, ")"))
         else
-            log.error(util.c("PGI: failed to delete RTU entry (", result, ")"), true)
+            log.error(util.c("PGI: 删除 RTU 条目失败 (", result, ")"), true)
         end
     else
-        log.warning(util.c("PGI: tried to delete unknown RTU entry ", session_id))
+        log.warning(util.c("PGI: 尝试删除未知 RTU 条目 ", session_id))
     end
 end
 
@@ -89,9 +89,9 @@ function pgi.create_pdg_entry(session_id)
 
         if success then
             data.entries.pdg[session_id] = result
-            log.debug(util.c("PGI: created PDG entry (", session_id, ")"))
+            log.debug(util.c("PGI: 已创建 PDG 条目 (", session_id, ")"))
         else
-            log.error(util.c("PGI: failed to create PDG entry (", result, ")"), true)
+            log.error(util.c("PGI: 创建 PDG 条目失败 (", result, ")"), true)
         end
     end
 end
@@ -104,12 +104,12 @@ function pgi.delete_pdg_entry(session_id)
         data.entries.pdg[session_id] = nil
 
         if success then
-            log.debug(util.c("PGI: deleted PDG entry (", session_id, ")"))
+            log.debug(util.c("PGI: 已删除 PDG 条目 (", session_id, ")"))
         else
-            log.error(util.c("PGI: failed to delete PDG entry (", result, ")"), true)
+            log.error(util.c("PGI: 删除 PDG 条目失败 (", result, ")"), true)
         end
     else
-        log.warning(util.c("PGI: tried to delete unknown PDG entry ", session_id))
+        log.warning(util.c("PGI: 尝试删除未知 PDG 条目 ", session_id))
     end
 end
 
@@ -129,9 +129,9 @@ function pgi.create_chk_entry(unit, fail_code, msg, details)
 
         if success then
             data.entries.chk[gw_session][unit.get_unit_id()] = result
-            log.debug(util.c("PGI: created CHK entry (", gw_session, ":", unit.get_unit_id(), ")"))
+            log.debug(util.c("PGI: 已创建 CHK 条目 (", gw_session, ":", unit.get_unit_id(), ")"))
         else
-            log.error(util.c("PGI: failed to create CHK entry (", result, ")"), true)
+            log.error(util.c("PGI: 创建 CHK 条目失败 (", result, ")"), true)
         end
     end
 end
@@ -148,12 +148,12 @@ function pgi.delete_chk_entry(unit)
         ent_chk[gw_session][unit.get_unit_id()] = nil
 
         if success then
-            log.debug(util.c("PGI: deleted CHK entry ", gw_session, ":", unit.get_unit_id()))
+            log.debug(util.c("PGI: 已删除 CHK 条目 ", gw_session, ":", unit.get_unit_id()))
         else
-            log.error(util.c("PGI: failed to delete CHK entry (", result, ")"), true)
+            log.error(util.c("PGI: 删除 CHK 条目失败 (", result, ")"), true)
         end
     else
-        log.warning(util.c("PGI: tried to delete unknown CHK entry with session of ", gw_session, " and unit ID of ", unit.get_unit_id()))
+        log.warning(util.c("PGI: 尝试删除未知 CHK 条目，会话为 ", gw_session, "，机组 ID 为 ", unit.get_unit_id()))
     end
 end
 
@@ -161,15 +161,15 @@ end
 ---@param message string missing device message
 function pgi.create_missing_entry(message)
     if data.entries.missing[message] ~= nil then
-        log.warning(util.c("PGI: tried to create a duplicate missing CHK entry \"", message, "\""))
+        log.warning(util.c("PGI: 尝试创建重复的缺失 CHK 条目 \"", message, "\""))
     elseif data.chk_list ~= nil and data.chk_entry ~= nil then
         local success, result = pcall(data.chk_entry, data.chk_list, 4, message)
 
         if success then
             data.entries.missing[message] = result
-            log.debug(util.c("PGI: created missing CHK entry (", message, ")"))
+            log.debug(util.c("PGI: 已创建缺失 CHK 条目 (", message, ")"))
         else
-            log.error(util.c("PGI: failed to create missing CHK entry (", result, ")"), true)
+            log.error(util.c("PGI: 创建缺失 CHK 条目失败 (", result, ")"), true)
         end
     end
 end
@@ -182,12 +182,12 @@ function pgi.delete_missing_entry(message)
         data.entries.missing[message] = nil
 
         if success then
-            log.debug(util.c("PGI: deleted missing CHK entry \"", message, "\""))
+            log.debug(util.c("PGI: 已删除缺失 CHK 条目 \"", message, "\""))
         else
-            log.error(util.c("PGI: failed to delete missing CHK entry (", result, ")"), true)
+            log.error(util.c("PGI: 删除缺失 CHK 条目失败 (", result, ")"), true)
         end
     else
-        log.warning(util.c("PGI: tried to delete unknown missing CHK entry \"", message, "\""))
+        log.warning(util.c("PGI: 尝试删除未知的缺失 CHK 条目 \"", message, "\""))
     end
 end
 

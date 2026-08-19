@@ -495,7 +495,7 @@ function ioctl.record_facility_builds(build)
         if type(build.induction) == "table" then
             for id, matrix in pairs(build.induction) do
                 if not _record_multiblock_build(id, matrix, fac.induction_data_tbl, fac.induction_ps_tbl) then
-                    log.debug(util.c("ioctl.record_facility_builds: invalid induction matrix id ", id))
+                    log.debug(util.c("ioctl.record_facility_builds：无效的感应矩阵 ID ", id))
                     valid = false
                 end
             end
@@ -505,7 +505,7 @@ function ioctl.record_facility_builds(build)
         if type(build.ecore) == "table" then
             for id, ecore in pairs(build.ecore) do
                 if not _record_multiblock_build(id, ecore, fac.ecore_data_tbl, fac.ecore_ps_tbl) then
-                    log.debug(util.c("ioctl.record_facility_builds: invalid energy core id ", id))
+                    log.debug(util.c("ioctl.record_facility_builds：无效的能量核心 ID ", id))
                     valid = false
                 end
             end
@@ -515,7 +515,7 @@ function ioctl.record_facility_builds(build)
         if type(build.sps) == "table" then
             for id, sps in pairs(build.sps) do
                 if not _record_multiblock_build(id, sps, fac.sps_data_tbl, fac.sps_ps_tbl) then
-                    log.debug(util.c("ioctl.record_facility_builds: invalid SPS id ", id))
+                    log.debug(util.c("ioctl.record_facility_builds：无效的 SPS ID ", id))
                     valid = false
                 end
             end
@@ -528,7 +528,7 @@ function ioctl.record_facility_builds(build)
             end
         end
     else
-        log.debug("facility builds not a table")
+        log.debug("设施构建数据不是表")
         valid = false
     end
 
@@ -548,10 +548,10 @@ function ioctl.record_unit_builds(builds)
         local log_header = util.c("ioctl.record_unit_builds[UNIT ", id, "]: ")
 
         if type(build) ~= "table" then
-            log.debug(log_header .. "build not a table")
+            log.debug(log_header .. "构建数据不是表")
             valid = false
         elseif type(unit) ~= "table" then
-            log.debug(log_header .. "invalid unit id")
+            log.debug(log_header .. "无效的机组 ID")
             valid = false
         else
             -- reactor build
@@ -571,7 +571,7 @@ function ioctl.record_unit_builds(builds)
             if type(build.boilers) == "table" then
                 for b_id, boiler in pairs(build.boilers) do
                     if not _record_multiblock_build(b_id, boiler, unit.boiler_data_tbl, unit.boiler_ps_tbl) then
-                        log.debug(util.c(log_header, "invalid boiler id ", b_id))
+                        log.debug(util.c(log_header, "无效的锅炉 ID ", b_id))
                         valid = false
                     end
                 end
@@ -581,7 +581,7 @@ function ioctl.record_unit_builds(builds)
             if type(build.turbines) == "table" then
                 for t_id, turbine in pairs(build.turbines) do
                     if not _record_multiblock_build(t_id, turbine, unit.turbine_data_tbl, unit.turbine_ps_tbl) then
-                        log.debug(util.c(log_header, "invalid turbine id ", t_id))
+                        log.debug(util.c(log_header, "无效的涡轮机 ID ", t_id))
                         valid = false
                     end
                 end
@@ -606,7 +606,7 @@ end
 -- generate the text string for the induction matrix charge/discharge ETA
 ---@param eta_ms number eta in milliseconds
 local function gen_eta_text(eta_ms)
-    local str, pre = "", util.trinary(eta_ms >= 0, "Full in ", "Empty in ")
+    local str, pre = "", util.trinary(eta_ms >= 0, "充满需要 ", "排空需要 ")
 
     local seconds = math.abs(eta_ms) / 1000
     local minutes = seconds / 60
@@ -615,7 +615,7 @@ local function gen_eta_text(eta_ms)
 
     if math.abs(eta_ms) < 1000 or (eta_ms ~= eta_ms) then
         -- really small or NaN
-        str = "No ETA"
+        str = "无 ETA"
     elseif days < 1000 then
         days    = math.floor(days)
         hours   = math.floor(hours % 24)
@@ -623,13 +623,13 @@ local function gen_eta_text(eta_ms)
         seconds = math.floor(seconds % 60)
 
         if days > 0 then
-            str = days .. "d"
+            str = days .. "天"
         elseif hours > 0 then
-            str = hours .. "h " .. minutes .. "m"
+            str = hours .. "时 " .. minutes .. "分"
         elseif minutes > 0 then
-            str = minutes .. "m " .. seconds .. "s"
+            str = minutes .. "分 " .. seconds .. "秒"
         elseif seconds > 0 then
-            str = seconds .. "s"
+            str = seconds .. "秒"
         end
 
         str = pre .. str
@@ -637,9 +637,9 @@ local function gen_eta_text(eta_ms)
         local years = math.floor(days / 365.25)
 
         if years <= 99999999 then
-            str = pre .. years .. "y"
+            str = pre .. years .. "年"
         else
-            str = pre .. "eras"
+            str = pre .. "纪元"
         end
     end
 
@@ -674,7 +674,7 @@ function ioctl.update_facility_status(status)
     local log_header = util.c("ioctl.update_facility_status: ")
 
     if type(status) ~= "table" then
-        log.debug(util.c(log_header, "status not a table"))
+        log.debug(util.c(log_header, "状态数据不是表"))
         valid = false
     else
         local fac = io.facility
@@ -743,7 +743,7 @@ function ioctl.update_facility_status(status)
             f_ps.publish("pu_fallback_active", fac.auto_pu_fallback_active)
             f_ps.publish("sps_disabled_low_power", fac.auto_sps_disabled)
         else
-            log.debug(log_header .. "control status not a table or length mismatch")
+            log.debug(log_header .. "控制状态不是表或长度不匹配")
             valid = false
         end
 
@@ -796,7 +796,7 @@ function ioctl.update_facility_status(status)
                 ps.publish("is_charging", charging)
                 ps.publish("is_discharging", discharging)
             else
-                log.debug(log_header .. "power statistics list not a table")
+                log.debug(log_header .. "功率统计列表不是表")
                 valid = false
             end
 
@@ -834,11 +834,11 @@ function ioctl.update_facility_status(status)
 
                         ps.publish("computed_status", matrix_status)
                     else
-                        log.debug(util.c(log_header, "invalid induction matrix id ", id))
+                        log.debug(util.c(log_header, "无效的感应矩阵 ID ", id))
                     end
                 end
             else
-                log.debug(log_header .. "induction matrix list not a table")
+                log.debug(log_header .. "感应矩阵列表不是表")
                 valid = false
             end
 
@@ -886,11 +886,11 @@ function ioctl.update_facility_status(status)
 
                         ps.publish("computed_status", ecore_status)
                     else
-                        log.debug(util.c(log_header, "invalid energy core id ", id))
+                        log.debug(util.c(log_header, "无效的能量核心 ID ", id))
                     end
                 end
             else
-                log.debug(log_header .. "energy core list not a table")
+                log.debug(log_header .. "能量核心列表不是表")
                 valid = false
             end
 
@@ -907,7 +907,7 @@ function ioctl.update_facility_status(status)
                 f_ps.publish("sna_max_rate_in", (fac.sna_max_rate * io.mek.po_ratio[1]) / io.mek.po_ratio[2])
                 f_ps.publish("sna_out_rate", fac.sna_out_rate)
             elseif fac.combined_waste then
-                log.debug(log_header .. "sna statistic list not a table")
+                log.debug(log_header .. "SNA 统计列表不是表")
                 valid = false
             end
 
@@ -940,11 +940,11 @@ function ioctl.update_facility_status(status)
 
                         io.facility.ps.publish("am_rate", data.state.process_rate * 1000)
                     else
-                        log.debug(util.c(log_header, "invalid sps id ", id))
+                        log.debug(util.c(log_header, "无效的 SPS ID ", id))
                     end
                 end
             else
-                log.debug(log_header .. "sps list not a table")
+                log.debug(log_header .. "SPS 列表不是表")
                 valid = false
             end
 
@@ -980,11 +980,11 @@ function ioctl.update_facility_status(status)
 
                         ps.publish("computed_status", tank_status)
                     else
-                        log.debug(util.c(log_header, "invalid dynamic tank id ", id))
+                        log.debug(util.c(log_header, "无效的动态储罐 ID ", id))
                     end
                 end
             else
-                log.debug(log_header .. "dyanmic tank list not a table")
+                log.debug(log_header .. "动态储罐列表不是表")
                 valid = false
             end
 
@@ -1022,11 +1022,11 @@ function ioctl.update_facility_status(status)
 
                 f_ps.publish("radiation", fac.radiation)
             else
-                log.debug(log_header .. "environment detector list not a table")
+                log.debug(log_header .. "环境探测器列表不是表")
                 valid = false
             end
         else
-            log.debug(log_header .. "rtu statuses not a table")
+            log.debug(log_header .. "RTU 状态不是表")
             valid = false
         end
 
@@ -1038,7 +1038,7 @@ function ioctl.update_facility_status(status)
             fac.alarm_tones = status[3]
             sounder.set(fac.alarm_tones)
         else
-            log.debug(log_header .. "alarm tones not a table or length mismatch")
+            log.debug(log_header .. "警报音数据不是表或长度不匹配")
             valid = false
         end
 
@@ -1057,7 +1057,7 @@ function ioctl.update_facility_status(status)
                 ps.publish("V_am_conn", valve_states[4] > 0)
                 ps.publish("V_am_state", valve_states[4] == 2)
             else
-                log.debug(log_header .. "valve states not a table or length mismatch")
+                log.debug(log_header .. "阀门状态不是表或长度不匹配")
                 valid = false
             end
         end
@@ -1073,10 +1073,10 @@ function ioctl.update_unit_statuses(statuses)
     local valid = true
 
     if type(statuses) ~= "table" then
-        log.debug("ioctl.update_unit_statuses: unit statuses not a table")
+        log.debug("ioctl.update_unit_statuses：机组状态不是表")
         valid = false
     elseif #statuses ~= #io.units then
-        log.debug("ioctl.update_unit_statuses: number of provided unit statuses does not match expected number of units")
+        log.debug("ioctl.update_unit_statuses：提供的机组状态数量与预期的机组数量不匹配")
         valid = false
     else
         local burn_rate_sum = 0.0
@@ -1095,7 +1095,7 @@ function ioctl.update_unit_statuses(statuses)
             local burn_rate = 0.0
 
             if type(status) ~= "table" or #status ~= 6 then
-                log.debug(log_header .. "invalid status entry in unit statuses (not a table or invalid length)")
+                log.debug(log_header .. "机组状态中存在无效的状态条目（不是表或长度无效）")
                 valid = false
             else
                 -- reactor PLC status
@@ -1103,7 +1103,7 @@ function ioctl.update_unit_statuses(statuses)
 
                 if type(reactor_status) ~= "table" then
                     reactor_status = {}
-                    log.debug(log_header .. "reactor status not a table")
+                    log.debug(log_header .. "反应堆状态不是表")
                 end
 
                 local computed_status = RCT_STATE.OFFLINE
@@ -1124,7 +1124,7 @@ function ioctl.update_unit_statuses(statuses)
                         unit.reactor_data.no_reactor         = gen_status[5]
                         unit.reactor_data.formed             = gen_status[6]
                     else
-                        log.debug(log_header .. "reactor general status length mismatch")
+                        log.debug(log_header .. "反应堆常规状态长度不匹配")
                     end
 
                     for key, val in pairs(unit.reactor_data) do
@@ -1167,7 +1167,7 @@ function ioctl.update_unit_statuses(statuses)
                     unit.connected = true
                     unit.unit_ps.publish("computed_status", computed_status)
                 else
-                    log.debug(log_header .. "reactor status length mismatch")
+                    log.debug(log_header .. "反应堆状态长度不匹配")
                     valid = false
                 end
 
@@ -1203,14 +1203,14 @@ function ioctl.update_unit_statuses(statuses)
 
                                 unit.boiler_ps_tbl[id].publish("computed_status", computed_status)
                             else
-                                log.debug(util.c(log_header, "invalid boiler id ", id))
+                                log.debug(util.c(log_header, "无效的锅炉 ID ", id))
                                 valid = false
                             end
                         end
 
                         unit.unit_ps.publish("boiler_boil_sum", boil_sum)
                     else
-                        log.debug(log_header .. "boiler list not a table")
+                        log.debug(log_header .. "锅炉列表不是表")
                         valid = false
                     end
 
@@ -1249,14 +1249,14 @@ function ioctl.update_unit_statuses(statuses)
 
                                 unit.turbine_ps_tbl[id].publish("computed_status", computed_status)
                             else
-                                log.debug(util.c(log_header, "invalid turbine id ", id))
+                                log.debug(util.c(log_header, "无效的涡轮机 ID ", id))
                                 valid = false
                             end
                         end
 
                         unit.unit_ps.publish("turbine_flow_sum", flow_sum)
                     else
-                        log.debug(log_header .. "turbine list not a table")
+                        log.debug(log_header .. "涡轮机列表不是表")
                         valid = false
                     end
 
@@ -1291,12 +1291,12 @@ function ioctl.update_unit_statuses(statuses)
 
                                 unit.tank_ps_tbl[id].publish("computed_status", computed_status)
                             else
-                                log.debug(util.c(log_header, "invalid dynamic tank id ", id))
+                                log.debug(util.c(log_header, "无效的动态储罐 ID ", id))
                                 valid = false
                             end
                         end
                     else
-                        log.debug(log_header .. "dynamic tank list not a table")
+                        log.debug(log_header .. "动态储罐列表不是表")
                         valid = false
                     end
 
@@ -1315,7 +1315,7 @@ function ioctl.update_unit_statuses(statuses)
 
                         sna_count_sum = sna_count_sum + unit.num_snas
                     else
-                        log.debug(log_header .. "sna statistic list not a table")
+                        log.debug(log_header .. "SNA 统计列表不是表")
                         valid = false
                     end
 
@@ -1350,11 +1350,11 @@ function ioctl.update_unit_statuses(statuses)
 
                         unit.unit_ps.publish("radiation", unit.radiation)
                     else
-                        log.debug(log_header .. "radiation monitor list not a table")
+                        log.debug(log_header .. "辐射监测器列表不是表")
                         valid = false
                     end
                 else
-                    log.debug(log_header .. "rtu list not a table")
+                    log.debug(log_header .. "RTU 列表不是表")
                     valid = false
                 end
 
@@ -1364,7 +1364,7 @@ function ioctl.update_unit_statuses(statuses)
                 if type(unit.annunciator) ~= "table" then
 ---@diagnostic disable-next-line: missing-fields
                     unit.annunciator = {}
-                    log.debug(log_header .. "annunciator state not a table")
+                    log.debug(log_header .. "报警器状态不是表")
                     valid = false
                 end
 
@@ -1382,7 +1382,7 @@ function ioctl.update_unit_statuses(statuses)
                         end
                     elseif type(val) == "table" then
                         -- we missed one of the tables?
-                        log.debug(log_header .. "unrecognized table found in annunciator list, this is a bug")
+                        log.debug(log_header .. "在报警器列表中发现无法识别的表，这是一个缺陷")
                         valid = false
                     else
                         -- non-table fields
@@ -1408,7 +1408,7 @@ function ioctl.update_unit_statuses(statuses)
                         end
                     end
                 else
-                    log.debug(log_header .. "alarm states not a table")
+                    log.debug(log_header .. "警报状态不是表")
                     valid = false
                 end
 
@@ -1435,11 +1435,11 @@ function ioctl.update_unit_statuses(statuses)
                         unit.unit_ps.publish("U_WasteMode", unit.waste_mode)
                         unit.unit_ps.publish("U_WasteProduct", unit.waste_product)
                     else
-                        log.debug(log_header .. "unit state length mismatch")
+                        log.debug(log_header .. "机组状态长度不匹配")
                         valid = false
                     end
                 else
-                    log.debug(log_header .. "unit state not a table")
+                    log.debug(log_header .. "机组状态不是表")
                     valid = false
                 end
 
@@ -1461,11 +1461,11 @@ function ioctl.update_unit_statuses(statuses)
                         unit.unit_ps.publish("V_aux_conn", valve_states[6] > 0)
                         unit.unit_ps.publish("V_aux_state", valve_states[6] == 2)
                     else
-                        log.debug(log_header .. "valve states length mismatch")
+                        log.debug(log_header .. "阀门状态长度不匹配")
                         valid = false
                     end
                 else
-                    log.debug(log_header .. "valve states not a table")
+                    log.debug(log_header .. "阀门状态不是表")
                     valid = false
                 end
 

@@ -43,11 +43,11 @@ if not coordinator.load_config() then
     local success, error = configure.configure(1)
     if success then
         if not coordinator.load_config() then
-            println("failed to load a valid configuration, please reconfigure")
+            println("未能加载有效配置，请重新配置")
             return
         end
     else
-        println("configuration error: " .. error)
+        println("配置错误：" .. error)
         return
     end
 end
@@ -84,10 +84,10 @@ local disp_ok, disp_err = backplane.init_displays(config)
 while wait_on_load and (not disp_ok) and os.clock() < CHUNK_LOAD_DELAY_S do
     term.clear()
     term.setCursorPos(1, 1)
-    println("There was a monitor configuration problem at boot.\n")
-    println("Startup will keep trying every 2s in case of chunk load delays.\n")
-    println(util.sprintf("The configurator will be started in %ds if all attempts fail.\n", math.max(0, CHUNK_LOAD_DELAY_S - os.clock())))
-    println("(click to skip to the configurator)")
+    println("启动时出现显示器配置问题。\n")
+    println("启动将继续每2秒重试，以防区块加载延迟。\n")
+    println(util.sprintf("如果所有尝试都失败，配置器将在%ds后启动。\n", math.max(0, CHUNK_LOAD_DELAY_S - os.clock())))
+    println("(点击跳过，直接进入配置器)")
 
     local timer_id = util.start_timer(2)
 
@@ -110,19 +110,19 @@ if not disp_ok then
     local success, error = configure.configure(2, disp_err)
     if success then
         if not coordinator.load_config() then
-            println("failed to load a valid configuration, please reconfigure")
+            println("未能加载有效配置，请重新配置")
             return
         else
             disp_ok, disp_err = backplane.init_displays(config)
 
             if not disp_ok then
                 println(disp_err)
-                println("please reconfigure")
+                println("请重新配置")
                 return
             end
         end
     else
-        println("configuration error: " .. error)
+        println("配置错误：" .. error)
         return
     end
 end
@@ -219,8 +219,8 @@ local function main()
     crd_state.fp_ok, fp_message = renderer.try_start_fp()
     if not crd_state.fp_ok then
         log_render(util.c("front panel UI error: ", fp_message))
-        println_ts("front panel UI creation failed")
-        log.fatal(util.c("front panel GUI render failed with error ", fp_message))
+        println_ts("前面板界面创建失败")
+        log.fatal(util.c("前面板GUI渲染失败，错误为 ", fp_message))
         return
     else log_render("front panel ready") end
 
@@ -252,13 +252,13 @@ local function main()
     sounder.stop()
     log_sys("system shutdown")
 
-    if crd_state.link_fail then println_ts("failed to connect to supervisor") end
-    if not crd_state.ui_ok then println_ts("main UI creation failed") end
+    if crd_state.link_fail then println_ts("无法连接到监控端") end
+    if not crd_state.ui_ok then println_ts("主界面创建失败") end
 
     -- close on error exit (such as UI error)
     if smem_sys.coord_comms.is_linked() then smem_sys.coord_comms.close() end
 
-    println_ts("exited")
+    println_ts("已退出")
     log.info("exited")
 end
 

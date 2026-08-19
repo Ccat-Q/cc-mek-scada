@@ -76,7 +76,7 @@ damage_start = 0,
 damage_last = 0,
 damage_est_last = 0,
 waste_product = WASTE.PLUTONIUM,
-status_text = { "UNKNOWN", "awaiting connection..." },
+status_text = { "未知", "等待连接..." },
 enable_aux_cool = false,
 fuel_burn_rate_limited = false,
 energy_mismatch = false,
@@ -293,7 +293,7 @@ function public.link_plc_session(plc_session)
 self.had_reactor = true
 self.plc_s = plc_session
 self.plc_i = plc_session.instance
-log.debug(util.c(log_tag, "linked PLC [", plc_session.s_addr, ":", plc_session.r_chan, "]"))
+log.debug(util.c(log_tag, "已连接 PLC [", plc_session.s_addr, ":", plc_session.r_chan, "]"))
 _reset_dt(DT_KEYS.ReactorTemp)
 _reset_dt(DT_KEYS.ReactorFuel)
 _reset_dt(DT_KEYS.ReactorWaste)
@@ -302,7 +302,7 @@ _reset_dt(DT_KEYS.ReactorHCool)
 end
 function public.add_redstone(rs_unit)
 table.insert(self.redstone, rs_unit)
-log.debug(util.c(log_tag, "linked redstone [", rs_unit.get_unit_id(), "@", rs_unit.get_session_id(), "]"))
+log.debug(util.c(log_tag, "已连接红石 [", rs_unit.get_unit_id(), "@", rs_unit.get_session_id(), "]"))
 _set_waste_valves(self.waste_product)
 end
 function public.add_turbine(turbine)
@@ -310,11 +310,11 @@ local fail_code, fail_str = svsessions.check_rtu_id(turbine, self.turbines, self
 local ok = fail_code == RTU_LINK_FAIL.OK
 if ok then
 table.insert(self.turbines, turbine)
-log.debug(util.c(log_tag, "linked turbine #", turbine.get_device_idx(), " [", turbine.get_unit_id(), "@", turbine.get_session_id(), "]"))
+log.debug(util.c(log_tag, "已连接涡轮机 #", turbine.get_device_idx(), " [", turbine.get_unit_id(), "@", turbine.get_session_id(), "]"))
 _reset_dt(DT_KEYS.TurbineSteam .. turbine.get_device_idx())
 _reset_dt(DT_KEYS.TurbinePower .. turbine.get_device_idx())
 else
-log.warning(util.c(log_tag, "rejected turbine linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c(log_tag, "拒绝涡轮机连接，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
@@ -323,13 +323,13 @@ local fail_code, fail_str = svsessions.check_rtu_id(boiler, self.boilers, self.n
 local ok = fail_code == RTU_LINK_FAIL.OK
 if ok then
 table.insert(self.boilers, boiler)
-log.debug(util.c(log_tag, "linked boiler #", boiler.get_device_idx(), " [", boiler.get_unit_id(), "@", boiler.get_session_id(), "]"))
+log.debug(util.c(log_tag, "已连接锅炉 #", boiler.get_device_idx(), " [", boiler.get_unit_id(), "@", boiler.get_session_id(), "]"))
 _reset_dt(DT_KEYS.BoilerWater .. boiler.get_device_idx())
 _reset_dt(DT_KEYS.BoilerSteam .. boiler.get_device_idx())
 _reset_dt(DT_KEYS.BoilerCCool .. boiler.get_device_idx())
 _reset_dt(DT_KEYS.BoilerHCool .. boiler.get_device_idx())
 else
-log.warning(util.c(log_tag, "rejected boiler linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c(log_tag, "拒绝锅炉连接，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
@@ -338,22 +338,22 @@ local fail_code, fail_str = svsessions.check_rtu_id(dynamic_tank, self.tanks, 1)
 local ok = fail_code == RTU_LINK_FAIL.OK
 if self.tank_conn ~= 1 then
 svsessions.report_rtu_mismatch(dynamic_tank)
-log.warning(util.c(log_tag, "rejected dynamic tank due to not being configured for a unit tank"))
+log.warning(util.c(log_tag, "拒绝动态储罐：未配置为机组储罐"))
 elseif ok then
 table.insert(self.tanks, dynamic_tank)
-log.debug(util.c(log_tag, "linked dynamic tank [", dynamic_tank.get_unit_id(), "@", dynamic_tank.get_session_id(), "]"))
+log.debug(util.c(log_tag, "已连接动态储罐 [", dynamic_tank.get_unit_id(), "@", dynamic_tank.get_session_id(), "]"))
 else
-log.warning(util.c(log_tag, "rejected dynamic tank linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c(log_tag, "拒绝动态储罐连接，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
 function public.add_sna(sna)
 if config.CombinedWaste then
 svsessions.report_rtu_mismatch(sna)
-log.warning(util.c(log_tag, "rejected SNA linking due to being configured for combined facility waste"))
+log.warning(util.c(log_tag, "拒绝 SNA 连接：已配置为设施综合废料"))
 else
 table.insert(self.snas, sna)
-log.debug(util.c(log_tag, "linked SNA [", sna.get_unit_id(), "@", sna.get_session_id(), "]"))
+log.debug(util.c(log_tag, "已连接 SNA [", sna.get_unit_id(), "@", sna.get_session_id(), "]"))
 end
 return not config.CombinedWaste
 end
@@ -362,9 +362,9 @@ local fail_code, fail_str = svsessions.check_rtu_id(envd, self.envd, 99)
 local ok = fail_code == RTU_LINK_FAIL.OK
 if ok then
 table.insert(self.envd, envd)
-log.debug(util.c(log_tag, "linked environment detector #", envd.get_device_idx(), " [", envd.get_unit_id(), "@", envd.get_session_id(), "]"))
+log.debug(util.c(log_tag, "已连接环境探测器 #", envd.get_device_idx(), " [", envd.get_unit_id(), "@", envd.get_session_id(), "]"))
 else
-log.warning(util.c(log_tag, "rejected environment detector linking due to failure code ", fail_code, " (", fail_str, ")"))
+log.warning(util.c(log_tag, "拒绝环境探测器连接，失败代码 ", fail_code, " (", fail_str, ")"))
 end
 return ok
 end
@@ -399,7 +399,7 @@ local rps = self.plc_i.get_rps()
 if rps.fault or rps.sys_fail then self.db.control.degraded = true end
 if self.auto_engaged and not self.plc_i.is_auto_locked() then self.plc_i.auto_lock(true) end
 if self.auto_idling and (((now - self.auto_idle_start) > IDLE_TIME) or not self.auto_idle) then
-log.info(util.c(log_tag, "completed idling period"))
+log.info(util.c(log_tag, "待机周期已完成"))
 self.auto_idling = false
 self.plc_i.auto_set_burn(0, false)
 end
@@ -438,14 +438,14 @@ end
 function public.auto_engage()
 self.auto_engaged = true
 if self.plc_i ~= nil then
-log.debug(util.c(log_tag, "engaged auto control"))
+log.debug(util.c(log_tag, "已启用自动控制"))
 self.plc_i.auto_lock(true)
 end
 end
 function public.auto_disengage()
 self.auto_engaged = false
 if self.plc_i ~= nil then
-log.debug(util.c(log_tag, "disengaged auto control"))
+log.debug(util.c(log_tag, "已停用自动控制"))
 self.plc_i.auto_lock(false)
 self.db.control.br100 = 0
 end
@@ -456,7 +456,7 @@ self.auto_idling = false
 self.auto_idle_start = 0
 end
 if idle ~= self.auto_idle then
-log.debug(util.c(log_tag, "idling mode changed to ", idle))
+log.debug(util.c(log_tag, "待机模式已更改为 ", idle))
 end
 self.auto_idle = idle
 end
@@ -483,7 +483,7 @@ end
 function public.auto_commit_br100(ramp)
 if self.auto_engaged then
 if self.plc_i ~= nil then
-log.debug(util.c(log_tag, "commit br100 of ", self.db.control.br100, " with ramp set to ", ramp))
+log.debug(util.c(log_tag, "提交燃烧速率百分值 ", self.db.control.br100, "，斜坡设置为 ", ramp))
 local rate = self.db.control.br100 / 100
 if self.auto_idle then
 if rate <= IDLE_RATE then
@@ -491,15 +491,15 @@ ramp = false
 if self.auto_idle_start == 0 then
 self.auto_idling = true
 self.auto_idle_start = util.time_ms()
-log.info(util.c(log_tag, "started idling at ", IDLE_RATE, " mB/t"))
+log.info(util.c(log_tag, "开始以 ", IDLE_RATE, " mB/t 待机"))
 rate = IDLE_RATE
 elseif (util.time_ms() - self.auto_idle_start) > IDLE_TIME then
 if self.auto_idling then
 self.auto_idling = false
-log.info(util.c(log_tag, "completed idling period"))
+log.info(util.c(log_tag, "待机周期已完成"))
 end
 else
-log.debug(util.c(log_tag, "continuing idle at ", IDLE_RATE, " mB/t"))
+log.debug(util.c(log_tag, "继续以 ", IDLE_RATE, " mB/t 待机"))
 rate = IDLE_RATE
 end
 else
@@ -578,7 +578,7 @@ _set_waste_valves(WASTE.POLONIUM)
 elseif mode == WASTE_MODE.MANUAL_ANTI_MATTER then
 _set_waste_valves(WASTE.ANTI_MATTER)
 elseif mode > WASTE_MODE.MANUAL_ANTI_MATTER then
-log.debug(util.c(log_tag, "invalid waste mode setting ", mode))
+log.debug(util.c(log_tag, "无效的废料处理模式设置 ", mode))
 end
 end
 function public.set_burn_limit(limit)

@@ -56,7 +56,7 @@ function alarm_ctl.update_alarm_state(caller_tag, alarm_states, tripped, alarm, 
             else
                 alarm.state = AISTATE.TRIPPED
                 alarm_states[alarm.id] = ALARM_STATE.TRIPPED
-                log.info(util.c(caller_tag, " ALARM ", alarm.id, " (", types.ALARM_NAMES[alarm.id], "): TRIPPED [PRIORITY ",
+                log.info(util.c(caller_tag, " 警报 ", alarm.id, " (", types.ALARM_NAMES[alarm.id], "): 已跳闸 [优先级 ",
                     types.ALARM_PRIORITY_NAMES[alarm.tier],"]"))
             end
         else
@@ -70,7 +70,7 @@ function alarm_ctl.update_alarm_state(caller_tag, alarm_states, tripped, alarm, 
             if elapsed > (alarm.hold_time * 1000) then
                 alarm.state = AISTATE.TRIPPED
                 alarm_states[alarm.id] = ALARM_STATE.TRIPPED
-                log.info(util.c(caller_tag, " ALARM ", alarm.id, " (", types.ALARM_NAMES[alarm.id], "): TRIPPED [PRIORITY ",
+                log.info(util.c(caller_tag, " 警报 ", alarm.id, " (", types.ALARM_NAMES[alarm.id], "): 已跳闸 [优先级 ",
                     types.ALARM_PRIORITY_NAMES[alarm.tier],"]"))
             end
         elseif int_state == AISTATE.RING_BACK_TRIPPING then
@@ -123,13 +123,13 @@ function alarm_ctl.update_alarm_state(caller_tag, alarm_states, tripped, alarm, 
             alarm.trip_time = 0
         end
     else
-        log.error(util.c(caller_tag, " invalid alarm state for alarm ", alarm.id), true)
+        log.error(util.c(caller_tag, " 警报 ", alarm.id, " 的状态无效"), true)
     end
 
     -- check for state change
     if alarm.state ~= int_state then
         local change_str = util.c(AISTATE_NAMES[int_state], " -> ", AISTATE_NAMES[alarm.state])
-        log.debug(util.c(caller_tag, " ALARM ", alarm.id, " (", types.ALARM_NAMES[alarm.id], "): ", change_str))
+        log.debug(util.c(caller_tag, " 警报 ", alarm.id, " (", types.ALARM_NAMES[alarm.id], "): ", change_str))
         return alarm.state == AISTATE.TRIPPED
     else return false end
 end

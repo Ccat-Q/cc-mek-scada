@@ -252,7 +252,7 @@ function supervisor.comms(_version, fp_ok, facility)
             -- drop if not listening
         elseif comms_v ~= comms.version then
             if last_ack ~= ESTABLISH_ACK.BAD_VERSION then
-                log.info(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] dropping PLC establish packet with incorrect comms version v", comms_v, " (expected v", comms.version, ")"))
+                log.info(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] 丢弃通信版本不正确的 PLC 建立数据包 v", comms_v, "（期望 v", comms.version, "）"))
             end
 
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.BAD_VERSION)
@@ -265,7 +265,7 @@ function supervisor.comms(_version, fp_ok, facility)
                 if reactor_id < 1 or reactor_id > config.UnitCount then
                     -- reactor index out of range
                     if last_ack ~= ESTABLISH_ACK.DENY then
-                        log.warning(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] denied assignment ", reactor_id, " outside of configured unit count ", config.UnitCount))
+                        log.warning(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] 拒绝分配 ", reactor_id, "（超出已配置机组数量 ", config.UnitCount, "）"))
                     end
 
                     _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
@@ -276,27 +276,27 @@ function supervisor.comms(_version, fp_ok, facility)
                     if plc_id == false then
                         -- reactor already has a PLC assigned
                         if last_ack ~= ESTABLISH_ACK.COLLISION then
-                            log.warning(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] assignment collision with reactor ", reactor_id))
+                            log.warning(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] 与反应堆 ", reactor_id, " 的分配冲突"))
                         end
 
                         _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.COLLISION)
                     elseif plc_id == true then
                         -- valid, but this was just a test
-                        log.info(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] sending connection test success response on ", nic.phy_name()))
+                        log.info(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] 在 ", nic.phy_name(), " 上发送连接测试成功响应"))
                         _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.ALLOW)
                     else
                         -- got an ID; assigned to a reactor successfully
-                        println(util.c("PLC (", firmware_v, ") [@", src_addr, "] \xbb reactor ", reactor_id, " connected"))
-                        log.info(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] (", firmware_v, ") reactor unit ", reactor_id, " PLC connected with session ID ", plc_id, " on ", nic.phy_name()))
+                        println(util.c("PLC (", firmware_v, ") [@", src_addr, "] \xbb 反应堆 ", reactor_id, " 已连接"))
+                        log.info(util.c("PLC_ESTABLISH: PLC [@", src_addr, "] (", firmware_v, ") 反应堆机组 ", reactor_id, " 的 PLC 已连接，会话 ID ", plc_id, "，位于 ", nic.phy_name()))
                         _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.ALLOW)
                     end
                 end
             else
-                log.debug("PLC_ESTABLISH: [@" .. src_addr .. "] packet length mismatch/bad parameter type")
+                log.debug("PLC_ESTABLISH: [@" .. src_addr .. "] 数据包长度不匹配/参数类型错误")
                 _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
             end
         else
-            log.debug(util.c("PLC_ESTABLISH: [@", src_addr, "] illegal establish packet for device ", dev_type, " on PLC channel"))
+            log.debug(util.c("PLC_ESTABLISH: [@", src_addr, "] PLC 通道上设备 ", dev_type, " 的建立数据包非法"))
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
         end
     end
@@ -316,7 +316,7 @@ function supervisor.comms(_version, fp_ok, facility)
             -- drop if not listening
         elseif comms_v ~= comms.version then
             if last_ack ~= ESTABLISH_ACK.BAD_VERSION then
-                log.info(util.c("RTU_GW_ESTABLISH: [@", src_addr, "] dropping RTU_GW establish packet with incorrect comms version v", comms_v, " (expected v", comms.version, ")"))
+                log.info(util.c("RTU_GW_ESTABLISH: [@", src_addr, "] 丢弃通信版本不正确的 RTU_GW 建立数据包 v", comms_v, "（期望 v", comms.version, "）"))
             end
 
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.BAD_VERSION)
@@ -327,20 +327,20 @@ function supervisor.comms(_version, fp_ok, facility)
                     local rtu_advert = packet.data[4]
                     local s_id = svsessions.establish_rtu_session(nic, src_addr, i_seq_num, rtu_advert, firmware_v)
 
-                    println(util.c("RTU (", firmware_v, ") [@", src_addr, "] \xbb connected"))
-                    log.info(util.c("RTU_GW_ESTABLISH: [@", src_addr, "] RTU_GW (",firmware_v, ") connected with session ID ", s_id, " on ", nic.phy_name()))
+                    println(util.c("RTU (", firmware_v, ") [@", src_addr, "] \xbb 已连接"))
+                    log.info(util.c("RTU_GW_ESTABLISH: [@", src_addr, "] RTU_GW (",firmware_v, ") 已连接，会话 ID ", s_id, "，位于 ", nic.phy_name()))
                     _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.ALLOW)
                 else
                     -- valid, but this was just a test
-                    log.info(util.c("RTU_GW_ESTABLISH: RTU_GW [@", src_addr, "] sending connection test success response on ", nic.phy_name()))
+                    log.info(util.c("RTU_GW_ESTABLISH: RTU_GW [@", src_addr, "] 在 ", nic.phy_name(), " 上发送连接测试成功响应"))
                     _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.ALLOW)
                 end
             else
-                log.debug("RTU_GW_ESTABLISH: [@" .. src_addr .. "] packet length mismatch")
+                log.debug("RTU_GW_ESTABLISH: [@" .. src_addr .. "] 数据包长度不匹配")
                 _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
             end
         else
-            log.debug(util.c("RTU_GW_ESTABLISH: [@", src_addr, "] illegal establish packet for device ", dev_type, " on RTU channel"))
+            log.debug(util.c("RTU_GW_ESTABLISH: [@", src_addr, "] RTU 通道上设备 ", dev_type, " 的建立数据包非法"))
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
         end
     end
@@ -360,7 +360,7 @@ function supervisor.comms(_version, fp_ok, facility)
             -- drop if not listening
         elseif comms_v ~= comms.version then
             if last_ack ~= ESTABLISH_ACK.BAD_VERSION then
-                log.info(util.c("CRD_ESTABLISH: [@", src_addr, "] dropping coordinator establish packet with incorrect comms version v", comms_v, " (expected v", comms.version, ")"))
+                log.info(util.c("CRD_ESTABLISH: [@", src_addr, "] 丢弃通信版本不正确的协调器建立数据包 v", comms_v, "（期望 v", comms.version, "）"))
             end
 
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.BAD_VERSION)
@@ -369,19 +369,19 @@ function supervisor.comms(_version, fp_ok, facility)
             local s_id = svsessions.establish_crd_session(nic, src_addr, i_seq_num, firmware_v)
 
             if s_id ~= false then
-                println(util.c("CRD (", firmware_v, ") [@", src_addr, "] \xbb connected"))
-                log.info(util.c("CRD_ESTABLISH: [@", src_addr, "] CRD (", firmware_v, ") connected with session ID ", s_id, " on ", nic.phy_name()))
+                println(util.c("CRD (", firmware_v, ") [@", src_addr, "] \xbb 已连接"))
+                log.info(util.c("CRD_ESTABLISH: [@", src_addr, "] CRD (", firmware_v, ") 已连接，会话 ID ", s_id, "，位于 ", nic.phy_name()))
 
                 _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.ALLOW, { config.UnitCount, facility.get_cooling_conf(), { config.MekanismWasteToPu, config.MekanismWasteToPo }, config.CombinedWaste, config.EnergyStorageSystem })
             else
                 if last_ack ~= ESTABLISH_ACK.COLLISION then
-                    log.info("CRD_ESTABLISH: [@" .. src_addr .. "] denied new coordinator due to already being connected to another coordinator")
+                    log.info("CRD_ESTABLISH: [@" .. src_addr .. "] 因已连接到另一协调器而拒绝新协调器")
                 end
 
                 _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.COLLISION)
             end
         else
-            log.debug(util.c("CRD_ESTABLISH: [@", src_addr, "] illegal establish packet for device ", dev_type, " on CRD channel"))
+            log.debug(util.c("CRD_ESTABLISH: [@", src_addr, "] CRD 通道上设备 ", dev_type, " 的建立数据包非法"))
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
         end
     end
@@ -401,7 +401,7 @@ function supervisor.comms(_version, fp_ok, facility)
             -- drop if not listening
         elseif comms_v ~= comms.version then
             if last_ack ~= ESTABLISH_ACK.BAD_VERSION then
-                log.info(util.c("PDG_ESTABLISH: [@", src_addr, "] dropping PKT establish packet with incorrect comms version v", comms_v, " (expected v", comms.version, ")"))
+                log.info(util.c("PDG_ESTABLISH: [@", src_addr, "] 丢弃通信版本不正确的 PKT 建立数据包 v", comms_v, "（期望 v", comms.version, "）"))
             end
 
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.BAD_VERSION)
@@ -409,12 +409,12 @@ function supervisor.comms(_version, fp_ok, facility)
             -- this is an attempt to establish a new pocket diagnostic session
             local s_id = svsessions.establish_pdg_session(nic, src_addr, i_seq_num, firmware_v)
 
-            println(util.c("PKT (", firmware_v, ") [@", src_addr, "] \xbb connected"))
-            log.info(util.c("PDG_ESTABLISH: [@", src_addr, "] pocket (", firmware_v, ") connected with session ID ", s_id, " on ", nic.phy_name()))
+            println(util.c("PKT (", firmware_v, ") [@", src_addr, "] \xbb 已连接"))
+            log.info(util.c("PDG_ESTABLISH: [@", src_addr, "] 口袋设备 (", firmware_v, ") 已连接，会话 ID ", s_id, "，位于 ", nic.phy_name()))
 
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.ALLOW)
         else
-            log.debug(util.c("PDG_ESTABLISH: [@", src_addr, "] illegal establish packet for device ", dev_type, " on PKT channel"))
+            log.debug(util.c("PDG_ESTABLISH: [@", src_addr, "] PKT 通道上设备 ", dev_type, " 的建立数据包非法"))
             _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
         end
 
@@ -453,11 +453,11 @@ function supervisor.comms(_version, fp_ok, facility)
                 elseif frame.protocol() == PROTOCOL.SCADA_CRDN then
                     pkt = comms.crdn_container().decode(frame)
                 else
-                    log.debug("parse_packet(" .. side .. "): attempted parse of illegal packet type " .. frame.protocol(), true)
+                    log.debug("parse_packet(" .. side .. "): 尝试解析非法数据包类型 " .. frame.protocol(), true)
                 end
             end
         else
-            log.error("parse_packet(" .. side .. "): received a packet from an interface without a nic?")
+            log.error("parse_packet(" .. side .. "): 从无网卡的接口收到数据包？")
         end
 
         return pkt
@@ -474,7 +474,7 @@ function supervisor.comms(_version, fp_ok, facility)
         local i_seq_num = packet.scada_frame.seq_num()
 
         if l_chan ~= config.SVR_Channel then
-            log.debug("received packet on unconfigured channel " .. l_chan, true)
+            log.debug("在未配置的信道上接收到数据包 " .. l_chan, true)
         elseif r_chan == config.PLC_Channel then
             -- look for an associated session
             local session = svsessions.find_plc_session(src_addr)
@@ -487,9 +487,9 @@ function supervisor.comms(_version, fp_ok, facility)
                         session.nic = nic
                         session.in_queue.push_network(packet)
 
-                        log.info(util.c("switched session ", session, " to ", nic.phy_name()))
+                        log.info(util.c("将会话 ", session, " 切换到 ", nic.phy_name()))
                     else
-                        log.debug(util.c("unexpected packet for PLC @ ", src_addr, " received on ", nic.phy_name()))
+                        log.debug(util.c("在 ", nic.phy_name(), " 上接收到来自 PLC @ ", src_addr, " 的意外数据包"))
                     end
                 else
                     -- pass the packet onto the session handler
@@ -497,7 +497,7 @@ function supervisor.comms(_version, fp_ok, facility)
                 end
             elseif protocol == PROTOCOL.RPLC then
                 -- reactor PLC packet should be session related, discard it
-                log.debug("discarding RPLC packet without a known session")
+                log.debug("丢弃无已知会话的 RPLC 数据包")
             elseif protocol == PROTOCOL.SCADA_MGMT then
                 ---@cast packet mgmt_packet
                 -- SCADA management packet
@@ -506,15 +506,15 @@ function supervisor.comms(_version, fp_ok, facility)
                     if packet.length >= 3 and type(packet.data[1]) == "string" and type(packet.data[2]) == "string" then
                         _establish_plc(nic, packet, src_addr, i_seq_num, self.last_est_acks[src_addr])
                     else
-                        log.debug("invalid establish packet (on PLC channel)")
+                        log.debug("无效的建立数据包（PLC 通道）")
                         _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
                     end
                 else
                     -- any other packet should be session related, discard it
-                    log.debug(util.c("discarding PLC SCADA_MGMT packet without a known session from computer ", src_addr))
+                    log.debug(util.c("丢弃来自计算机 ", src_addr, " 的无已知会话的 PLC SCADA_MGMT 数据包"))
                 end
             else
-                log.debug(util.c("illegal packet type ", protocol, " on PLC channel"))
+                log.debug(util.c("PLC 通道上的非法数据包类型 ", protocol))
             end
         elseif r_chan == config.RTU_Channel then
             -- look for an associated session
@@ -528,9 +528,9 @@ function supervisor.comms(_version, fp_ok, facility)
                         session.nic = nic
                         session.in_queue.push_network(packet)
 
-                        log.info(util.c("switched session ", session, " to ", nic.phy_name()))
+                        log.info(util.c("将会话 ", session, " 切换到 ", nic.phy_name()))
                     else
-                        log.debug(util.c("unexpected packet for RTU_GW @ ", src_addr, " received on ", nic.phy_name()))
+                        log.debug(util.c("在 ", nic.phy_name(), " 上接收到来自 RTU_GW @ ", src_addr, " 的意外数据包"))
                     end
                 else
                     -- pass the packet onto the session handler
@@ -539,7 +539,7 @@ function supervisor.comms(_version, fp_ok, facility)
             elseif protocol == PROTOCOL.MODBUS_TCP then
                 ---@cast packet modbus_adu
                 -- MODBUS response, should be session related, discard it
-                log.debug("discarding MODBUS_TCP packet without a known session")
+                log.debug("丢弃无已知会话的 MODBUS_TCP 数据包")
             elseif protocol == PROTOCOL.SCADA_MGMT then
                 ---@cast packet mgmt_packet
                 -- SCADA management packet
@@ -548,15 +548,15 @@ function supervisor.comms(_version, fp_ok, facility)
                     if packet.length >= 3 and type(packet.data[1]) == "string" and type(packet.data[2]) == "string" then
                         _establish_rtu_gw(nic, packet, src_addr, i_seq_num, self.last_est_acks[src_addr])
                     else
-                        log.debug("invalid establish packet (on RTU channel)")
+                        log.debug("无效的建立数据包（RTU 通道）")
                         _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
                     end
                 else
                     -- any other packet should be session related, discard it
-                    log.debug(util.c("discarding RTU gateway SCADA_MGMT packet without a known session from computer ", src_addr))
+                    log.debug(util.c("丢弃来自计算机 ", src_addr, " 的无已知会话的 RTU 网关 SCADA_MGMT 数据包"))
                 end
             else
-                log.debug(util.c("illegal packet type ", protocol, " on RTU channel"))
+                log.debug(util.c("RTU 通道上的非法数据包类型 ", protocol))
             end
         elseif r_chan == config.CRD_Channel then
             -- look for an associated session
@@ -570,9 +570,9 @@ function supervisor.comms(_version, fp_ok, facility)
                         session.nic = nic
                         session.in_queue.push_network(packet)
 
-                        log.info(util.c("switched session ", session, " to ", nic.phy_name()))
+                        log.info(util.c("将会话 ", session, " 切换到 ", nic.phy_name()))
                     else
-                        log.debug(util.c("unexpected packet for CRD @ ", src_addr, " received on ", nic.phy_name()))
+                        log.debug(util.c("在 ", nic.phy_name(), " 上接收到来自 CRD @ ", src_addr, " 的意外数据包"))
                     end
                 else
                     -- pass the packet onto the session handler
@@ -586,19 +586,19 @@ function supervisor.comms(_version, fp_ok, facility)
                     if packet.length >= 3 and type(packet.data[1]) == "string" and type(packet.data[2]) == "string" then
                         _establish_crd(nic, packet, src_addr, i_seq_num, self.last_est_acks[src_addr])
                     else
-                        log.debug("CRD_ESTABLISH: establish packet length mismatch")
+                        log.debug("CRD_ESTABLISH: 建立数据包长度不匹配")
                         _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
                     end
                 else
                     -- any other packet should be session related, discard it
-                    log.debug(util.c("discarding coordinator SCADA_MGMT packet without a known session from computer ", src_addr))
+                    log.debug(util.c("丢弃来自计算机 ", src_addr, " 的无已知会话的协调器 SCADA_MGMT 数据包"))
                 end
             elseif protocol == PROTOCOL.SCADA_CRDN then
                 ---@cast packet crdn_packet
                 -- coordinator packet,  should be session related, discard it
-                log.debug(util.c("discarding coordinator SCADA_CRDN packet without a known session from computer ", src_addr))
+                log.debug(util.c("丢弃来自计算机 ", src_addr, " 的无已知会话的协调器 SCADA_CRDN 数据包"))
             else
-                log.debug(util.c("illegal packet type ", protocol, " on CRD channel"))
+                log.debug(util.c("CRD 通道上的非法数据包类型 ", protocol))
             end
         elseif r_chan == config.PKT_Channel then
             -- look for an associated session
@@ -615,22 +615,22 @@ function supervisor.comms(_version, fp_ok, facility)
                     if packet.length >= 3 and type(packet.data[1]) == "string" and type(packet.data[2]) == "string" then
                         _establish_pdg(nic, packet, src_addr, i_seq_num, self.last_est_acks[src_addr])
                     else
-                        log.debug("PDG_ESTABLISH: establish packet length mismatch")
+                        log.debug("PDG_ESTABLISH: 建立数据包长度不匹配")
                         _send_establish(nic, packet.scada_frame, ESTABLISH_ACK.DENY)
                     end
                 else
                     -- any other packet should be session related, discard it
-                    log.debug(util.c("discarding pocket SCADA_MGMT packet without a known session from computer ", src_addr))
+                    log.debug(util.c("丢弃来自计算机 ", src_addr, " 的无已知会话的口袋设备 SCADA_MGMT 数据包"))
                 end
             elseif protocol == PROTOCOL.SCADA_CRDN then
                 ---@cast packet crdn_packet
                 -- coordinator packet, should be session related, discard it
-                log.debug(util.c("discarding pocket SCADA_CRDN packet without a known session from computer ", src_addr))
+                log.debug(util.c("丢弃来自计算机 ", src_addr, " 的无已知会话的口袋设备 SCADA_CRDN 数据包"))
             else
-                log.debug(util.c("illegal packet type ", protocol, " on pocket channel"))
+                log.debug(util.c("口袋通道上的非法数据包类型 ", protocol))
             end
         else
-            log.debug("received packet for unknown channel " .. r_chan, true)
+            log.debug("在未知信道上接收到数据包 " .. r_chan, true)
         end
     end
 

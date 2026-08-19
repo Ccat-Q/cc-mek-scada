@@ -46,45 +46,45 @@ if adu.unit_id == unit_id then
 local txn_type = self.transaction_controller.resolve(adu.txn_id)
 local txn_tag = util.c(" (", txn_tags[txn_type], ")")
 if txn_type == nil then
-log.debug(log_tag .. "MODBUS: expired or spurious transaction reply (txn_id " .. adu.txn_id .. ")")
+log.debug(log_tag .. "MODBUS: 过期或虚假的事务应答 (txn_id " .. adu.txn_id .. ")")
 return false, adu.txn_id
 end
 if bit.band(adu.func_code, MODBUS_FCODE.ERROR_FLAG) ~= 0 then
 local ex = adu.data[1]
 if ex == MODBUS_EXCODE.ILLEGAL_FUNCTION then
-log.error(log_tag .. "MODBUS: illegal function" .. txn_tag)
+log.error(log_tag .. "MODBUS: 非法功能" .. txn_tag)
 elseif ex == MODBUS_EXCODE.ILLEGAL_DATA_ADDR then
-log.error(log_tag .. "MODBUS: illegal data address" .. txn_tag)
+log.error(log_tag .. "MODBUS: 非法数据地址" .. txn_tag)
 elseif ex == MODBUS_EXCODE.SERVER_DEVICE_FAIL then
 if self.device_fail then
-log.debug(log_tag .. "MODBUS: repeated device failure" .. txn_tag)
+log.debug(log_tag .. "MODBUS: 设备重复故障" .. txn_tag)
 else
 self.device_fail = true
-log.warning(log_tag .. "MODBUS: device failure" .. txn_tag)
+log.warning(log_tag .. "MODBUS: 设备故障" .. txn_tag)
 end
 elseif ex == MODBUS_EXCODE.ACKNOWLEDGE then
 self.transaction_controller.renew(adu.txn_id, txn_type)
 elseif ex == MODBUS_EXCODE.SERVER_DEVICE_BUSY then
 self.last_busy = util.time_ms()
-log.warning(log_tag .. "MODBUS: device busy" .. txn_tag)
+log.warning(log_tag .. "MODBUS: 设备忙" .. txn_tag)
 elseif ex == MODBUS_EXCODE.NEG_ACKNOWLEDGE then
-log.error(log_tag .. "MODBUS: negative acknowledge (bad request)" .. txn_tag)
+log.error(log_tag .. "MODBUS: 否定应答(非法请求)" .. txn_tag)
 elseif ex == MODBUS_EXCODE.GATEWAY_PATH_UNAVAILABLE then
-log.error(log_tag .. "MODBUS: gateway path unavailable (unknown unit)" .. txn_tag)
+log.error(log_tag .. "MODBUS: 网关路径不可用(未知机组)" .. txn_tag)
 elseif ex ~= nil then
-log.debug(log_tag .. "MODBUS: unsupported error " .. ex .. txn_tag)
+log.debug(log_tag .. "MODBUS: 不支持的错误 " .. ex .. txn_tag)
 else
-log.debug(log_tag .. "MODBUS: nil exception code" .. txn_tag)
+log.debug(log_tag .. "MODBUS: 空异常码" .. txn_tag)
 end
 else
 self.device_fail = false
 return txn_type, adu.txn_id
 end
 else
-log.error(log_tag .. "wrong unit ID: " .. adu.unit_id, true)
+log.error(log_tag .. "机组 ID 错误: " .. adu.unit_id, true)
 end
 else
-log.error(log_tag .. "illegal packet type " .. adu.scada_frame.protocol(), true)
+log.error(log_tag .. "非法数据包类型 " .. adu.scada_frame.protocol(), true)
 end
 return false, adu.txn_id
 end
@@ -92,10 +92,10 @@ function protected.post_update()
 self.transaction_controller.cleanup()
 end
 function protected.log_length_mismatch(txn_type)
-log.debug(log_tag .. "MODBUS transaction reply length mismatch (" .. txn_tags[txn_type] .. ")")
+log.debug(log_tag .. "MODBUS 事务应答长度不匹配 (" .. txn_tags[txn_type] .. ")")
 end
 function protected.log_resolve_fail(txn_type)
-log.error(log_tag .. "unknown transaction " .. util.trinary(txn_type == nil, "reply", util.c("type ", txn_type)))
+log.error(log_tag .. "未知事务 " .. util.trinary(txn_type == nil, "应答", util.c("类型 ", txn_type)))
 end
 function protected.get() return public end
 function public.get_session_id() return session_id end

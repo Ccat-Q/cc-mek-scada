@@ -58,7 +58,7 @@ local function new_view(root)
     local load_div = Div{parent=frame,y=1}
     local main = Div{parent=frame,y=1}
 
-    TextBox{parent=load_div,y=12,text="Loading...",alignment=ALIGN.CENTER}
+    TextBox{parent=load_div,y=12,text="加载中...",alignment=ALIGN.CENTER}
     WaitingAnim{parent=load_div,x=math.floor(main.get_width()/2)-1,y=8,fg_bg=cpair(colors.green,colors._INHERIT)}
 
     local load_pane = MultiPane{parent=main,y=1,panes={load_div,main}}
@@ -125,14 +125,14 @@ local function new_view(root)
             local u_page = app.new_page(nil, i)
             u_page.tasks = { update }
 
-            TextBox{parent=u_div,y=1,text="Reactor Unit #"..i,alignment=ALIGN.CENTER}
+            TextBox{parent=u_div,y=1,text="反应堆机组#"..i,alignment=ALIGN.CENTER}
             PushButton{parent=u_div,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=function()prev(i)end}
             PushButton{parent=u_div,x=21,y=1,text=">",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=function()next(i)end}
 
-            local rate = DataIndicator{parent=u_div,y=3,lu_colors=lu_col,label="Burn",unit="mB/t",format="%10.2f",value=0,commas=true,width=26,fg_bg=text_fg}
-            local temp = DataIndicator{parent=u_div,lu_colors=lu_col,label="Temp",unit=db.temp_label,format="%10.2f",value=0,commas=true,width=26,fg_bg=text_fg}
+            local rate = DataIndicator{parent=u_div,y=3,lu_colors=lu_col,label="燃烧",unit="mB/t",format="%10.2f",value=0,commas=true,width=26,fg_bg=text_fg}
+            local temp = DataIndicator{parent=u_div,lu_colors=lu_col,label="温度",unit=db.temp_label,format="%10.2f",value=0,commas=true,width=26,fg_bg=text_fg}
 
-            local ctrl = IconIndicator{parent=u_div,y=6,label="Control State",states=mode_states}
+            local ctrl = IconIndicator{parent=u_div,y=6,label="控制状态",states=mode_states}
 
             rate.register(u_ps, "act_burn_rate", rate.update)
             temp.register(u_ps, "temp", function (t) temp.update(db.temp_convert(t)) end)
@@ -158,10 +158,10 @@ local function new_view(root)
             burn_cmd.register(u_ps, "burn_rate", burn_cmd.set_value)
             burn_cmd.register(u_ps, "max_burn", burn_cmd.set_max)
 
-            local start = HazardButton{parent=u_div,x=2,y=11,text="START",accent=colors.lightBlue,callback=unit.start,timeout=3,fg_bg=hzd_fg_bg,dis_colors=hzd_dis_colors}
+            local start = HazardButton{parent=u_div,x=2,y=11,text="启动",accent=colors.lightBlue,callback=unit.start,timeout=3,fg_bg=hzd_fg_bg,dis_colors=hzd_dis_colors}
             local ack_a = HazardButton{parent=u_div,x=12,y=11,text="ACK \x13",accent=colors.orange,callback=unit.ack_alarms,timeout=3,fg_bg=hzd_fg_bg,dis_colors=hzd_dis_colors}
-            local scram = HazardButton{parent=u_div,x=2,y=15,text="SCRAM",accent=colors.yellow,callback=unit.scram,timeout=3,fg_bg=hzd_fg_bg,dis_colors=hzd_dis_colors}
-            local reset = HazardButton{parent=u_div,x=12,y=15,text="RESET",accent=colors.red,callback=unit.reset_rps,timeout=3,fg_bg=hzd_fg_bg,dis_colors=hzd_dis_colors}
+            local scram = HazardButton{parent=u_div,x=2,y=15,text="急停",accent=colors.yellow,callback=unit.scram,timeout=3,fg_bg=hzd_fg_bg,dis_colors=hzd_dis_colors}
+            local reset = HazardButton{parent=u_div,x=12,y=15,text="重置",accent=colors.red,callback=unit.reset_rps,timeout=3,fg_bg=hzd_fg_bg,dis_colors=hzd_dis_colors}
 
             unit.start_ack = start.on_response
             unit.ack_alarms_ack = ack_a.on_response
@@ -192,9 +192,9 @@ local function new_view(root)
 
         app.new_page(nil, db.facility.num_units + 1)
 
-        TextBox{parent=f_div,y=1,text="Facility Commands",alignment=ALIGN.CENTER}
+        TextBox{parent=f_div,y=1,text="设施命令",alignment=ALIGN.CENTER}
 
-        local scram = HazardButton{parent=f_div,x=5,y=6,text="FAC SCRAM",accent=colors.yellow,dis_colors=hzd_dis_colors,callback=process.fac_scram,timeout=3,fg_bg=hzd_fg_bg}
+        local scram = HazardButton{parent=f_div,x=5,y=6,text="设施急停",accent=colors.yellow,dis_colors=hzd_dis_colors,callback=process.fac_scram,timeout=3,fg_bg=hzd_fg_bg}
         local ack_a = HazardButton{parent=f_div,x=7,y=11,text="ACK \x13",accent=colors.orange,dis_colors=hzd_dis_colors,callback=process.fac_ack_alarms,timeout=3,fg_bg=hzd_fg_bg}
 
         db.facility.scram_ack = scram.on_response

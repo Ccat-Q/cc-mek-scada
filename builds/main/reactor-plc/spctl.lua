@@ -76,7 +76,7 @@ _spctl.last_sp = setpoints.burn_rate
 if math.abs(setpoints.burn_rate - cur_br) > 2.5 then
 local new_state = _spctl.next_state
 if _spctl.next_state == STATES.STOPPED then
-log.debug(util.c("SPCTL: starting burn rate ramp from ", cur_br, " mB/t to ", setpoints.burn_rate, " mB/t"))
+log.debug(util.c("SPCTL: 开始从 ", cur_br, " mB/t 到 ", setpoints.burn_rate, " mB/t 的燃烧速率斜坡"))
 new_state = STATES.INIT
 _spctl.fast_ramping = false
 else

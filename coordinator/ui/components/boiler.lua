@@ -28,17 +28,17 @@ local function new_view(root, x, y, ps)
     local boiler = Rectangle{parent=root,border=border(1,colors.gray,true),width=31,height=7,x=x,y=y}
 
     local status = StateIndicator{parent=boiler,x=9,y=1,states=style.boiler.states,value=1,min_width=12}
-    local temp   = DataIndicator{parent=boiler,x=5,y=3,lu_colors=lu_col,label="Temp:",unit=db.temp_label,format="%10.2f",value=0,commas=true,width=22,fg_bg=text_fg}
-    local boil_r = DataIndicator{parent=boiler,x=5,y=4,lu_colors=lu_col,label="Boil:",unit="mB/t",format="%10.0f",value=0,commas=true,width=22,fg_bg=text_fg}
+    local temp   = DataIndicator{parent=boiler,x=5,y=3,lu_colors=lu_col,label="温度:",unit=db.temp_label,format="%10.2f",value=0,commas=true,width=22,fg_bg=text_fg}
+    local boil_r = DataIndicator{parent=boiler,x=5,y=4,lu_colors=lu_col,label="蒸发:",unit="mB/t",format="%10.0f",value=0,commas=true,width=22,fg_bg=text_fg}
 
     status.register(ps, "computed_status", status.update)
     temp.register(ps, "temperature", function (t) temp.update(db.temp_convert(t)) end)
     boil_r.register(ps, "boil_rate", boil_r.update)
 
-    TextBox{parent=boiler,text="H",x=2,y=5,width=1,fg_bg=text_fg}
-    TextBox{parent=boiler,text="W",x=3,y=5,width=1,fg_bg=text_fg}
-    TextBox{parent=boiler,text="S",x=27,y=5,width=1,fg_bg=text_fg}
-    TextBox{parent=boiler,text="C",x=28,y=5,width=1,fg_bg=text_fg}
+    TextBox{parent=boiler,text="热",x=2,y=5,width=1,fg_bg=text_fg}
+    TextBox{parent=boiler,text="水",x=3,y=5,width=1,fg_bg=text_fg}
+    TextBox{parent=boiler,text="汽",x=27,y=5,width=1,fg_bg=text_fg}
+    TextBox{parent=boiler,text="冷",x=28,y=5,width=1,fg_bg=text_fg}
 
     local hcool = VerticalBar{parent=boiler,x=2,y=1,fg_bg=cpair(colors.orange,colors.gray),height=4,width=1}
     local water = VerticalBar{parent=boiler,x=3,y=1,fg_bg=cpair(colors.blue,colors.gray),height=4,width=1}

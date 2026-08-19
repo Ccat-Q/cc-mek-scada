@@ -5,34 +5,34 @@ local util  = require("scada-common.util")
 local sim = require("sim.sim")
 local SIM_VERSION = "1.0.15"
 local println = util.println
-println("-- SCADA Simulator v" .. SIM_VERSION .. " --")
-println("SIM> simulating PLC/RTU devices for the SCADA system")
+println("-- SCADA 模拟器 v" .. SIM_VERSION .. " --")
+println("SIM> 正在为 SCADA 系统模拟 PLC/RTU 设备")
 log.init("/log.txt", log.MODE.NEW, false)
 local config = sim.load_config()
 if config == nil then
-println("SIM> configuration error, run 'configure'")
+println("SIM> 配置错误，请运行 'configure'")
 return
 end
 if config._unconfigured then
-println("SIM> not configured, running configurator...")
+println("SIM> 尚未配置，正在运行配置向导...")
 local ok, err = pcall(require, "sim.configure")
 if ok and err then
 local success, config_err = err.configure()
 if not success then
-println("SIM> configuration error: " .. tostring(config_err))
+println("SIM> 配置错误：" .. tostring(config_err))
 return
 end
 config = sim.load_config()
 if config == nil then
-println("SIM> failed to reload configuration")
+println("SIM> 重新加载配置失败")
 return
 end
 else
-println("SIM> failed to load configurator: " .. tostring(err))
+println("SIM> 加载配置向导失败：" .. tostring(err))
 return
 end
 end
 local ok, err = pcall(sim.run, config)
 if not ok then
-println("SIM> simulator crashed: " .. tostring(err))
+println("SIM> 模拟器崩溃：" .. tostring(err))
 end

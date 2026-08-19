@@ -34,46 +34,46 @@ local ui_c_1 = Div{parent=ui_cfg,x=2,y=4,width=24}
 local ui_c_2 = Div{parent=ui_cfg,x=2,y=4,width=24}
 local ui_pane = MultiPane{parent=net_cfg,y=4,panes={ui_c_1,ui_c_2}}
 TextBox{parent=ui_cfg,y=2,text=" Pocket UI",fg_bg=cpair(colors.black,colors.lime)}
-TextBox{parent=ui_c_1,y=1,height=3,text="You may customize UI options below."}
-TextBox{parent=ui_c_1,y=4,text="Po/Pu Pellet Color"}
-local pellet_color = RadioButton{parent=ui_c_1,y=5,default=util.trinary(ini_cfg.GreenPuPellet,1,2),options={"Green Pu/Cyan Po","Cyan Pu/Green Po"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
-TextBox{parent=ui_c_1,y=8,height=4,text="In Mekanism 10.4 and later, pellet colors now match gas colors (Cyan Pu/Green Po).",fg_bg=g_lg_fg_bg}
+TextBox{parent=ui_c_1,y=1,height=3,text="你可以在下方自定义界面选项。"}
+TextBox{parent=ui_c_1,y=4,text="Po/Pu 颗粒颜色"}
+local pellet_color = RadioButton{parent=ui_c_1,y=5,default=util.trinary(ini_cfg.GreenPuPellet,1,2),options={"绿 Pu/青 Po","青 Pu/绿 Po"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
+TextBox{parent=ui_c_1,y=8,height=4,text="在 Mekanism 10.4 及更高版本中，颗粒颜色现在与气体颜色一致（青 Pu/绿 Po）。",fg_bg=g_lg_fg_bg}
 local function submit_ui_opts()
 tmp_cfg.GreenPuPellet = pellet_color.get_value() == 1
 ui_pane.set_value(2)
 end
-PushButton{parent=ui_c_1,y=15,text="\x1b Back",callback=function()main_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=ui_c_1,x=19,y=15,text="Next \x1a",callback=submit_ui_opts,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=ui_c_2,y=1,height=3,text="You may customize units below."}
-TextBox{parent=ui_c_2,y=4,text="Temperature Scale"}
+PushButton{parent=ui_c_1,y=15,text="\x1b 返回",callback=function()main_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=ui_c_1,x=19,y=15,text="下一步 \x1a",callback=submit_ui_opts,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=ui_c_2,y=1,height=3,text="你可以在下方自定义单位。"}
+TextBox{parent=ui_c_2,y=4,text="温度单位"}
 local temp_scale = RadioButton{parent=ui_c_2,y=5,default=ini_cfg.TempScale,options=types.TEMP_SCALE_NAMES,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
-TextBox{parent=ui_c_2,y=10,text="Energy Scale"}
+TextBox{parent=ui_c_2,y=10,text="能量单位"}
 local energy_scale = RadioButton{parent=ui_c_2,y=11,default=ini_cfg.EnergyScale,options=types.ENERGY_SCALE_NAMES,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
 local function submit_ui_units()
 tmp_cfg.TempScale = temp_scale.get_value()
 tmp_cfg.EnergyScale = energy_scale.get_value()
 main_pane.set_value(3)
 end
-PushButton{parent=ui_c_2,y=15,text="\x1b Back",callback=function()ui_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=ui_c_2,x=19,y=15,text="Next \x1a",callback=submit_ui_units,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=ui_c_2,y=15,text="\x1b 返回",callback=function()ui_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=ui_c_2,x=19,y=15,text="下一步 \x1a",callback=submit_ui_units,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local net_c_1 = Div{parent=net_cfg,x=2,y=4,width=24}
 local net_c_2 = Div{parent=net_cfg,x=2,y=4,width=24}
 local net_c_3 = Div{parent=net_cfg,x=2,y=4,width=24}
 local net_c_4 = Div{parent=net_cfg,x=2,y=4,width=24}
 local net_pane = MultiPane{parent=net_cfg,y=4,panes={net_c_1,net_c_2,net_c_3,net_c_4}}
 TextBox{parent=net_cfg,y=2,text=" Network Configuration",fg_bg=cpair(colors.black,colors.lightBlue)}
-TextBox{parent=net_c_1,y=1,text="Set network channels."}
-TextBox{parent=net_c_1,y=3,height=4,text="Each of the named channels must be the same within a particular SCADA network.",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_1,y=8,width=18,text="Supervisor Channel"}
+TextBox{parent=net_c_1,y=1,text="设置网络频道。"}
+TextBox{parent=net_c_1,y=3,height=4,text="每个指定频道在同一 SCADA 网络内必须保持一致。",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_1,y=8,width=18,text="监管频道"}
 local svr_chan = NumberField{parent=net_c_1,y=9,width=7,default=ini_cfg.SVR_Channel,min=1,max=65535,fg_bg=bw_fg_bg}
 TextBox{parent=net_c_1,x=9,y=9,height=4,text="[SVR_CHANNEL]",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_1,y=10,width=19,text="Coordinator Channel"}
+TextBox{parent=net_c_1,y=10,width=19,text="协调器频道"}
 local crd_chan = NumberField{parent=net_c_1,y=11,width=7,default=ini_cfg.CRD_Channel,min=1,max=65535,fg_bg=bw_fg_bg}
 TextBox{parent=net_c_1,x=9,y=11,height=4,text="[CRD_CHANNEL]",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_1,y=12,width=14,text="Pocket Channel"}
+TextBox{parent=net_c_1,y=12,width=14,text="Pocket 频道"}
 local pkt_chan = NumberField{parent=net_c_1,y=13,width=7,default=ini_cfg.PKT_Channel,min=1,max=65535,fg_bg=bw_fg_bg}
 TextBox{parent=net_c_1,x=9,y=13,height=4,text="[PKT_CHANNEL]",fg_bg=g_lg_fg_bg}
-local chan_err = TextBox{parent=net_c_1,y=14,width=24,text="Please set all channels.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+local chan_err = TextBox{parent=net_c_1,y=14,width=24,text="请设置所有频道。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 local function submit_channels()
 local svr_c, crd_c, pkt_c = tonumber(svr_chan.get_value()), tonumber(crd_chan.get_value()), tonumber(pkt_chan.get_value())
 if svr_c ~= nil and crd_c ~= nil and pkt_c ~= nil then
@@ -82,14 +82,14 @@ net_pane.set_value(2)
 chan_err.hide(true)
 else chan_err.show() end
 end
-PushButton{parent=net_c_1,y=15,text="\x1b Back",callback=function()main_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=net_c_1,x=19,y=15,text="Next \x1a",callback=submit_channels,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=net_c_2,y=1,text="Set connection timeout."}
-TextBox{parent=net_c_2,y=3,height=7,text="You generally should not need to modify this. On slow servers, you can try to increase this to make the system wait longer before assuming a disconnection.",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_2,y=11,width=19,text="Connection Timeout"}
+PushButton{parent=net_c_1,y=15,text="\x1b 返回",callback=function()main_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_1,x=19,y=15,text="下一步 \x1a",callback=submit_channels,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=net_c_2,y=1,text="设置连接超时。"}
+TextBox{parent=net_c_2,y=3,height=7,text="通常你不需要修改此项。在服务器较慢时，可尝试增大该值，让系统在判定断开前等待更长时间。",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_2,y=11,width=19,text="连接超时"}
 local timeout = NumberField{parent=net_c_2,y=12,width=7,default=ini_cfg.ConnTimeout,min=2,max=25,max_chars=6,max_frac_digits=2,allow_decimal=true,fg_bg=bw_fg_bg}
-TextBox{parent=net_c_2,x=9,y=12,height=2,text="seconds\n(default 5)",fg_bg=g_lg_fg_bg}
-local ct_err = TextBox{parent=net_c_2,y=14,width=24,text="Please set timeout.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+TextBox{parent=net_c_2,x=9,y=12,height=2,text="秒\n(默认 5)",fg_bg=g_lg_fg_bg}
+local ct_err = TextBox{parent=net_c_2,y=14,width=24,text="请设置超时时间。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 local function submit_timeouts()
 local timeout_val = tonumber(timeout.get_value())
 if timeout_val ~= nil then
@@ -98,13 +98,13 @@ net_pane.set_value(3)
 ct_err.hide(true)
 else ct_err.show() end
 end
-PushButton{parent=net_c_2,y=15,text="\x1b Back",callback=function()net_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=net_c_2,x=19,y=15,text="Next \x1a",callback=submit_timeouts,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=net_c_3,y=1,text="Set the trusted range."}
-TextBox{parent=net_c_3,y=3,height=4,text="Setting this to a value larger than 0 prevents connections with devices that many blocks away.",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_3,y=8,height=4,text="This is optional. You can disable this functionality by setting the value to 0.",fg_bg=g_lg_fg_bg}
+PushButton{parent=net_c_2,y=15,text="\x1b 返回",callback=function()net_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_2,x=19,y=15,text="下一步 \x1a",callback=submit_timeouts,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=net_c_3,y=1,text="设置信任范围。"}
+TextBox{parent=net_c_3,y=3,height=4,text="将该值设为大于 0 可阻止与许多方块之外的设备建立连接。",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_3,y=8,height=4,text="此为可选设置。将该值设为 0 可禁用此功能。",fg_bg=g_lg_fg_bg}
 local range = NumberField{parent=net_c_3,y=13,width=10,default=ini_cfg.TrustedRange,min=0,max_chars=20,allow_decimal=true,fg_bg=bw_fg_bg}
-local tr_err = TextBox{parent=net_c_3,y=14,width=24,text="Set the trusted range.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+local tr_err = TextBox{parent=net_c_3,y=14,width=24,text="请设置信任范围。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 local function submit_tr()
 local range_val = tonumber(range.get_value())
 if range_val ~= nil then
@@ -113,18 +113,18 @@ net_pane.set_value(4)
 tr_err.hide(true)
 else tr_err.show() end
 end
-PushButton{parent=net_c_3,y=15,text="\x1b Back",callback=function()net_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=net_c_3,x=19,y=15,text="Next \x1a",callback=submit_tr,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=net_c_4,y=1,height=4,text="Optionally, set the facility authentication key. Do NOT use one of your passwords."}
-TextBox{parent=net_c_4,y=6,height=6,text="This enables verifying that messages are authentic, so it is intended for security on multiplayer servers.",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_4,y=12,text="Facility Auth Key"}
+PushButton{parent=net_c_3,y=15,text="\x1b 返回",callback=function()net_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_3,x=19,y=15,text="下一步 \x1a",callback=submit_tr,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=net_c_4,y=1,height=4,text="可选：设置设施认证密钥。切勿使用你的密码。"}
+TextBox{parent=net_c_4,y=6,height=6,text="这将用于验证消息的真实性，旨在提升多人服务器的安全性。",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_4,y=12,text="设施认证密钥"}
 local key, _ = TextField{parent=net_c_4,y=13,max_len=64,value=ini_cfg.AuthKey,width=24,height=1,fg_bg=bw_fg_bg}
 local function censor_key(enable) key.censor(tri(enable, "*", nil)) end
-PushButton{parent=net_c_4,y=15,text="\x1b Back",callback=function()net_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-local hide_key = Checkbox{parent=net_c_4,x=8,y=15,label="Hide Key",box_fg_bg=cpair(colors.lightBlue,colors.black),callback=censor_key}
+PushButton{parent=net_c_4,y=15,text="\x1b 返回",callback=function()net_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+local hide_key = Checkbox{parent=net_c_4,x=8,y=15,label="隐藏密钥",box_fg_bg=cpair(colors.lightBlue,colors.black),callback=censor_key}
 hide_key.set_value(true)
 censor_key(true)
-local key_err = TextBox{parent=net_c_4,y=14,width=24,text="Length must be > 7.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+local key_err = TextBox{parent=net_c_4,y=14,width=24,text="长度必须大于 7。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 local function submit_auth()
 local v = key.get_value()
 if string.len(v) == 0 or string.len(v) >= 8 then
@@ -133,17 +133,17 @@ main_pane.set_value(4)
 key_err.hide(true)
 else key_err.show() end
 end
-PushButton{parent=net_c_4,x=19,y=15,text="Next \x1a",callback=submit_auth,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_4,x=19,y=15,text="下一步 \x1a",callback=submit_auth,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local log_c_1 = Div{parent=log_cfg,x=2,y=4,width=24}
 TextBox{parent=log_cfg,y=2,text=" Logging Configuration",fg_bg=cpair(colors.black,colors.pink)}
-TextBox{parent=log_c_1,y=1,text="Configure logging below."}
-TextBox{parent=log_c_1,y=3,text="Log File Mode"}
-local mode = RadioButton{parent=log_c_1,y=4,default=ini_cfg.LogMode+1,options={"Append on Startup","Replace on Startup"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.pink}
-TextBox{parent=log_c_1,y=7,text="Log File Path"}
+TextBox{parent=log_c_1,y=1,text="在下方配置日志。"}
+TextBox{parent=log_c_1,y=3,text="日志文件模式"}
+local mode = RadioButton{parent=log_c_1,y=4,default=ini_cfg.LogMode+1,options={"启动时追加","启动时覆盖"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.pink}
+TextBox{parent=log_c_1,y=7,text="日志文件路径"}
 local path = TextField{parent=log_c_1,y=8,width=24,height=1,value=ini_cfg.LogPath,max_len=128,fg_bg=bw_fg_bg}
-local en_dbg = Checkbox{parent=log_c_1,y=10,default=ini_cfg.LogDebug,label="Enable Debug Messages",box_fg_bg=cpair(colors.pink,colors.black)}
-TextBox{parent=log_c_1,x=3,y=11,height=4,text="This results in much larger log files. Use only as needed.",fg_bg=g_lg_fg_bg}
-local path_err = TextBox{parent=log_c_1,y=14,width=24,text="Provide a log file path.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+local en_dbg = Checkbox{parent=log_c_1,y=10,default=ini_cfg.LogDebug,label="启用调试消息",box_fg_bg=cpair(colors.pink,colors.black)}
+TextBox{parent=log_c_1,x=3,y=11,height=4,text="这将产生大得多的日志文件。仅在需要时使用。",fg_bg=g_lg_fg_bg}
+local path_err = TextBox{parent=log_c_1,y=14,width=24,text="请提供日志文件路径。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 local function submit_log()
 if path.get_value() ~= "" then
 path_err.hide(true)
@@ -157,8 +157,8 @@ tool_ctl.settings_apply.show()
 main_pane.set_value(5)
 else path_err.show() end
 end
-PushButton{parent=log_c_1,y=15,text="\x1b Back",callback=function()main_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=log_c_1,x=19,y=15,text="Next \x1a",callback=submit_log,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=log_c_1,y=15,text="\x1b 返回",callback=function()main_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=log_c_1,x=19,y=15,text="下一步 \x1a",callback=submit_log,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local sum_c_1 = Div{parent=summary,x=2,y=4,width=24}
 local sum_c_2 = Div{parent=summary,x=2,y=4,width=24}
 local sum_c_3 = Div{parent=summary,x=2,y=4,width=24}
@@ -210,31 +210,31 @@ else
 sum_pane.set_value(4)
 end
 end
-PushButton{parent=sum_c_1,y=15,text="\x1b Back",callback=back_from_summary,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-self.show_key_btn = PushButton{parent=sum_c_1,y=13,min_width=17,text="Unhide Auth Key",callback=function()self.show_auth_key()end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
-tool_ctl.settings_apply = PushButton{parent=sum_c_1,x=18,y=15,min_width=7,text="Apply",callback=save_and_continue,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
-TextBox{parent=sum_c_2,y=1,text="Settings saved!"}
+PushButton{parent=sum_c_1,y=15,text="\x1b 返回",callback=back_from_summary,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+self.show_key_btn = PushButton{parent=sum_c_1,y=13,min_width=17,text="显示认证密钥",callback=function()self.show_auth_key()end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+tool_ctl.settings_apply = PushButton{parent=sum_c_1,x=18,y=15,min_width=7,text="应用",callback=save_and_continue,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
+TextBox{parent=sum_c_2,y=1,text="设置已保存！"}
 local function go_home()
 main_pane.set_value(1)
 net_pane.set_value(1)
 sum_pane.set_value(1)
 end
-PushButton{parent=sum_c_2,y=15,min_width=6,text="Home",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_2,y=15,min_width=6,text="主页",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 if tool_ctl.ask_config then
-PushButton{parent=sum_c_2,x=17,y=15,min_width=8,text="Resume",callback=exit,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_2,x=17,y=15,min_width=8,text="恢复",callback=exit,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg}
 else
-PushButton{parent=sum_c_2,x=16,y=15,min_width=9,text="Startup",callback=startup,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_2,x=16,y=15,min_width=9,text="启动",callback=startup,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
 end
-TextBox{parent=sum_c_3,y=1,height=4,text="The old config.lua file will now be deleted, then the configurator will exit."}
+TextBox{parent=sum_c_3,y=1,height=4,text="旧的 config.lua 文件将被删除，然后配置器将退出。"}
 local function delete_legacy()
 fs.delete("/pocket/config.lua")
 exit()
 end
-PushButton{parent=sum_c_3,y=15,min_width=8,text="Cancel",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=sum_c_3,x=19,y=15,min_width=6,text="OK",callback=delete_legacy,fg_bg=cpair(colors.black,colors.green),active_fg_bg=cpair(colors.white,colors.gray)}
-TextBox{parent=sum_c_4,y=1,height=8,text="Failed to save the settings file.\n\nThere may not be enough space for the modification or server file permissions may be denying writes."}
-PushButton{parent=sum_c_4,y=15,min_width=6,text="Home",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=sum_c_4,x=19,y=15,min_width=6,text="Exit",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.white,colors.gray)}
+PushButton{parent=sum_c_3,y=15,min_width=8,text="取消",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_3,x=19,y=15,min_width=6,text="确定",callback=delete_legacy,fg_bg=cpair(colors.black,colors.green),active_fg_bg=cpair(colors.white,colors.gray)}
+TextBox{parent=sum_c_4,y=1,height=8,text="保存设置文件失败。\n\n可能是空间不足，或服务器文件权限禁止写入。"}
+PushButton{parent=sum_c_4,y=15,min_width=6,text="主页",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_4,x=19,y=15,min_width=6,text="退出",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.white,colors.gray)}
 function tool_ctl.load_legacy()
 local config = require("pocket.config")
 tmp_cfg.SVR_Channel = config.SVR_CHANNEL
@@ -271,9 +271,9 @@ local val = util.strval(raw)
 if f[1] == "AuthKey" then
 val = string.rep("*", string.len(val))
 elseif f[1] == "LogMode" then
-val = tri(raw == log.MODE.APPEND, "append", "replace")
+val = tri(raw == log.MODE.APPEND, "追加", "覆盖")
 elseif f[1] == "GreenPuPellet" then
-val = tri(raw, "Green Pu/Cyan Po", "Cyan Pu/Green Po")
+val = tri(raw, "绿 Pu/青 Po", "青 Pu/绿 Po")
 elseif f[1] == "TempScale" then
 val = util.strval(types.TEMP_SCALE_NAMES[raw])
 elseif f[1] == "EnergyScale" then

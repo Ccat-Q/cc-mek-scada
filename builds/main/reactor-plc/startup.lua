@@ -20,20 +20,20 @@ if not plc.load_config() then
 local success, error = configure.configure(true)
 if success then
 if not plc.load_config() then
-println("failed to load a valid configuration, please reconfigure")
+println("无法加载有效配置，请重新配置")
 return
 end
 else
-println("configuration error: " .. error)
+println("配置错误： " .. error)
 return
 end
 end
 local config = plc.config
 log.init(config.LogPath, config.LogMode, config.LogDebug)
 log.info("========================================")
-log.info("BOOTING reactor-plc.startup v" .. R_PLC_VERSION)
+log.info("正在启动 reactor-plc.startup v" .. R_PLC_VERSION)
 log.info("========================================")
-println(">> Fission Reactor PLC v" .. R_PLC_VERSION .. " <<")
+println(">> 裂变反应堆 PLC v" .. R_PLC_VERSION .. " <<")
 crash.set_env("reactor-plc", R_PLC_VERSION)
 crash.dbg_log_env()
 local function main()
@@ -94,36 +94,36 @@ local smem_sys = __shared_memory.plc_sys
 local plc_state = __shared_memory.plc_state
 backplane.init(config, __shared_memory)
 if __shared_memory.networked and (not plc_state.no_reactor) and plc_state.reactor_formed and smem_dev.reactor.getStatus() then
-log.debug("startup> power-on SCRAM")
+log.debug("startup> 上电 SCRAM")
 smem_dev.reactor.scram()
 end
 local message
 plc_state.fp_ok, message = renderer.try_start_ui(config)
 if not plc_state.fp_ok then
-println_ts(util.c("UI error: ", message))
-println("startup> running without front panel")
-log.error(util.c("front panel GUI render failed with error ", message))
-log.info("startup> running in headless mode without front panel")
+println_ts(util.c("UI 错误： ", message))
+println("startup> 在没有前面板的情况下运行")
+log.error(util.c("前面板 GUI 渲染失败，错误： ", message))
+log.info("startup> 以无头模式运行，无前面板")
 end
 local function _println_no_fp(msg) if not plc_state.fp_ok then println(msg) end end
 smem_sys.rps = plc.rps_init(smem_dev.reactor, plc_state)
-log.debug("startup> rps init")
+log.debug("startup> RPS 初始化")
 if config.EmerCoolEnable then
-_println_no_fp("startup> emergency coolant control ready")
-log.info("startup> emergency coolant control available")
+_println_no_fp("startup> 紧急冷却控制就绪")
+log.info("startup> 紧急冷却控制可用")
 end
 if __shared_memory.networked then
 smem_sys.conn_watchdog = util.new_watchdog(config.ConnTimeout)
-log.debug("startup> conn watchdog started")
+log.debug("startup> 连接看门狗已启动")
 smem_sys.plc_comms = plc.comms(R_PLC_VERSION, backplane.active_nic(), __shared_memory)
-log.debug("startup> comms init")
+log.debug("startup> 通信初始化")
 else
-_println_no_fp("startup> starting in non-networked mode")
-log.info("startup> starting without networking")
+_println_no_fp("startup> 以非联网模式启动")
+log.info("startup> 无网络启动")
 end
 databus.tx_hw_status(plc_state)
-_println_no_fp("startup> completed")
-log.info("startup> completed")
+_println_no_fp("startup> 完成")
+log.info("startup> 完成")
 local main_thread = threads.thread__main(__shared_memory)
 local rps_thread  = threads.thread__rps(__shared_memory)
 if __shared_memory.networked then
@@ -138,8 +138,8 @@ else
 parallel.waitForAll(main_thread.p_exec, rps_thread.p_exec)
 end
 renderer.close_ui()
-println_ts("exited")
-log.info("exited")
+println_ts("已退出")
+log.info("已退出")
 end
 if not xpcall(main, crash.handler) then
 pcall(renderer.close_ui)

@@ -22,8 +22,8 @@ prod_rate.register(ps, "prod_rate", function (val) prod_rate.update(db.energy_co
 flow_rate.register(ps, "steam_input_rate", flow_rate.update)
 local steam  = VerticalBar{parent=turbine,x=2,y=1,fg_bg=cpair(colors.white,colors.gray),height=4,width=1}
 local energy = VerticalBar{parent=turbine,x=3,y=1,fg_bg=cpair(colors.green,colors.gray),height=4,width=1}
-TextBox{parent=turbine,text="S",x=2,y=5,width=1,fg_bg=text_fg}
-TextBox{parent=turbine,text="E",x=3,y=5,width=1,fg_bg=text_fg}
+TextBox{parent=turbine,text="汽",x=2,y=5,width=1,fg_bg=text_fg}
+TextBox{parent=turbine,text="能",x=3,y=5,width=1,fg_bg=text_fg}
 steam.register(ps, "steam_fill", steam.update)
 energy.register(ps, "energy_fill", energy.update)
 end

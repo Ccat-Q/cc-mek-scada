@@ -58,7 +58,7 @@ local function new_io_block() return { [0] = {}, {}, {}, {}, {} } end
 function redstone.new(session_id, unit_id, advert, out_queue)
     -- type check
     if advert.type ~= RTU_UNIT_TYPE.REDSTONE then
-        log.error("attempt to instantiate redstone RTU for type " .. types.rtu_type_to_string(advert.type))
+        log.error("尝试实例化 redstone RTU，类型 " .. types.rtu_type_to_string(advert.type))
         return nil
     end
 
@@ -183,11 +183,11 @@ function redstone.new(session_id, unit_id, advert, out_queue)
                     self.db.io[bank][port] = io_f
                 else
                     -- should be unreachable code, we already validated ports
-                    log.error(util.c(log_tag, "failed to identify advertisement port IO mode (", bank, ":", port, ")"), true)
+                    log.error(util.c(log_tag, "无法识别通告端口 IO 模式 (", bank, ":", port, ")"), true)
                     return nil
                 end
             else
-                log.error(util.c(log_tag, "invalid advertisement port (", bank, ":", port, ")"), true)
+                log.error(util.c(log_tag, "无效的通告端口 (", bank, ":", port, ")"), true)
                 return nil
             end
         end
@@ -252,10 +252,10 @@ function redstone.new(session_id, unit_id, advert, out_queue)
             -- redstone operations are always immediately executed, so this would not be from an ACK or BUSY
             if adu.txn_id == self.phy_trans.coils then
                 self.phy_trans.coils = TXN_READY
-                log.debug(log_tag .. "failed to write coils, retrying soon")
+                log.debug(log_tag .. "线圈写入失败，稍后重试")
             elseif adu.txn_id == self.phy_trans.hold_regs then
                 self.phy_trans.hold_regs = TXN_READY
-                log.debug(log_tag .. "failed to write holding registers, retrying soon")
+                log.debug(log_tag .. "保持寄存器写入失败，稍后重试")
             end
         elseif txn_type == TXN_TYPES.DI_READ then
             -- discrete input read response

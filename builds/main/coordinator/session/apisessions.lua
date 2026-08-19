@@ -21,8 +21,8 @@ self.nic.transmit(self.config.PKT_Channel, self.config.CRD_Channel, msg.message)
 end
 end
 if util.time() - handle_start > 100 then
-log.warning("API: out queue handler exceeded 100ms queue process limit")
-log.warning(util.c("API: offending session: ", session))
+log.warning("API: 输出队列处理器超过100ms队列处理限制")
+log.warning(util.c("API: 违规会话：", session))
 break
 end
 end
@@ -36,7 +36,7 @@ if msg ~= nil and msg.qtype == mqueue.TYPE.NETWORK then
 self.nic.transmit(self.config.PKT_Channel, self.config.CRD_Channel, msg.message)
 end
 end
-log.debug(util.c("API: closed session ", session))
+log.debug(util.c("API: 已关闭会话 ", session))
 end
 function apisessions.init(nic, config)
 self.nic = nic
@@ -65,7 +65,7 @@ __tostring = function (s)  return util.c("PKT [", id, "] (@", s.s_addr, ")") end
 }
 setmetatable(pkt_s, mt)
 ioctl.fp_pkt_connected(id, version, source_addr)
-log.debug(util.c("API: established new session: ", pkt_s))
+log.debug(util.c("API: 已建立新会话：", pkt_s))
 self.next_id = id + 1
 return pkt_s.instance.get_id()
 end
@@ -75,7 +75,7 @@ local session = self.sessions[i]
 if session.open then
 local triggered = session.instance.check_wd(timer_event)
 if triggered then
-log.debug(util.c("API: watchdog closing session ", session, "..."))
+log.debug(util.c("API: 看门狗正在关闭会话 ", session, "..."))
 _shutdown(session)
 return true
 end
@@ -96,7 +96,7 @@ end
 function apisessions.free_all_closed()
 local f = function (session) return session.open end
 local on_delete = function (session)
-log.debug(util.c("API: free'ing closed session ", session))
+log.debug(util.c("API: 正在释放已关闭会话 ", session))
 end
 util.filter_table(self.sessions, f, on_delete)
 end

@@ -362,11 +362,11 @@ function logic.update_annunciator(self)
             end
 
             if rotation_stable then
-                log.debug(util.c("UNIT ", self.r_id, " turbine ", idx, " reached rotational stability (", rotation, ")"))
+                log.debug(util.c("UNIT ", self.r_id, " 涡轮机 ", idx, " 达到转速稳定 (", rotation, ")"))
             end
 
             if flow_stable then
-                log.debug(util.c("UNIT ", self.r_id, " turbine ", idx, " reached flow stability (", turbine.state.flow_rate, " mB/t)"))
+                log.debug(util.c("UNIT ", self.r_id, " 涡轮机 ", idx, " 达到流量稳定 (", turbine.state.flow_rate, " mB/t)"))
             end
 
             turbines_stable = turbines_stable and (rotation_stable or flow_stable)
@@ -378,7 +378,7 @@ function logic.update_annunciator(self)
 
             turbines_stable = false
 
-            log.debug(util.c("UNIT ", self.r_id, " turbine ", idx, " reset stability (new rate ", turbine.state.steam_input_rate, " != ", last.input_rate," mB/t)"))
+            log.debug(util.c("UNIT ", self.r_id, " 涡轮机 ", idx, " 重置稳定状态（新速率 ", turbine.state.steam_input_rate, " != ", last.input_rate," mB/t)"))
         end
 
         last.input_rate = turbine.state.steam_input_rate
@@ -472,14 +472,14 @@ function logic.update_alarms(self)
     -- Reactor Damage
     local rps_dmg_90 = plc_cache.rps_status.high_dmg and not self.last_rps_trips.high_dmg
     if _update_alarm_state(self, (plc_cache.damage > 0) or rps_dmg_90, self.alarms.ReactorDamage) then
-        log.debug(util.c(">> Trip Detail Report for ", types.ALARM_NAMES[self.alarms.ReactorDamage.id]," <<"))
+        log.debug(util.c(">> 跳闸详细报告：", types.ALARM_NAMES[self.alarms.ReactorDamage.id]," <<"))
         log.debug(util.c("| plc_cache.damage[", plc_cache.damage, "] rps_dmg_90[", rps_dmg_90, "]"))
     end
 
     -- Over-Temperature
     local rps_high_temp = plc_cache.rps_status.high_temp and not self.last_rps_trips.high_temp
     if _update_alarm_state(self, (plc_cache.temp >= 1200) or rps_high_temp, self.alarms.ReactorOverTemp) then
-        log.debug(util.c(">> Trip Detail Report for ", types.ALARM_NAMES[self.alarms.ReactorOverTemp.id]," <<"))
+        log.debug(util.c(">> 跳闸详细报告：", types.ALARM_NAMES[self.alarms.ReactorOverTemp.id]," <<"))
         log.debug(util.c("| plc_cache.temp[", plc_cache.temp, "] rps_high_temp[", rps_high_temp, "]"))
     end
 
@@ -493,7 +493,7 @@ function logic.update_alarms(self)
     -- High Waste
     local rps_high_waste = plc_cache.rps_status.ex_waste and not self.last_rps_trips.ex_waste
     if _update_alarm_state(self, (plc_cache.waste > ALARM_LIMS.HIGH_WASTE) or rps_high_waste, self.alarms.ReactorHighWaste) then
-        log.debug(util.c(">> Trip Detail Report for ", types.ALARM_NAMES[self.alarms.ReactorHighWaste.id]," <<"))
+        log.debug(util.c(">> 跳闸详细报告：", types.ALARM_NAMES[self.alarms.ReactorHighWaste.id]," <<"))
         log.debug(util.c("| plc_cache.waste[", plc_cache.waste, "] rps_high_waste[", rps_high_waste, "]"))
     end
 
@@ -541,7 +541,7 @@ function logic.update_alarms(self)
     end
 
     if _update_alarm_state(self, rcs_trans, self.alarms.RCSTransient) then
-        log.debug(util.c(">> Trip Detail Report for ", types.ALARM_NAMES[self.alarms.RCSTransient.id]," <<"))
+        log.debug(util.c(">> 跳闸详细报告：", types.ALARM_NAMES[self.alarms.RCSTransient.id]," <<"))
         log.debug(util.c("| any_low[", any_low, "] any_over[", any_over, "] gen_trip[", gen_trip, "]"))
         log.debug(util.c("| RCPTrip[", annunc.RCPTrip, "] MaxWaterReturnFeed[", annunc.MaxWaterReturnFeed, "]"))
         log.debug(util.c("| RCSFlowLow[", annunc.RCSFlowLow, "] BoilRateMismatch[", annunc.BoilRateMismatch,
@@ -569,7 +569,7 @@ function logic.update_auto_mgmt(self, public)
         for _, alarm in pairs(self.alarms) do
             if alarm.tier <= PRIO.URGENT and (alarm.state == AISTATE.TRIPPED or alarm.state == AISTATE.ACKED) then
                 if not self.auto_was_alarmed then
-                    log.info(util.c("UNIT ", self.r_id, " AUTO SCRAM due to ALARM ", alarm.id, " (", types.ALARM_NAMES[alarm.id], ") [PRIORITY ",
+                    log.info(util.c("UNIT ", self.r_id, " 因警报自动急停 ", alarm.id, " (", types.ALARM_NAMES[alarm.id], ") [PRIORITY ",
                         types.ALARM_PRIORITY_NAMES[alarm.tier],"]"))
                 end
 
@@ -622,21 +622,21 @@ function logic.update_status_text(self)
     if is_active(self.alarms.ContainmentBreach) then
         -- boom? or was boom disabled
         if self.plc_i ~= nil and self.plc_i.get_rps().force_dis then
-            self.status_text = { "REACTOR FORCE DISABLED", "meltdown would have occurred" }
+            self.status_text = { "反应堆强制禁用", "本会发生堆芯熔毁" }
         else
-            self.status_text = { "CORE MELTDOWN", "reactor destroyed" }
+            self.status_text = { "堆芯熔毁", "反应堆已毁坏" }
         end
     elseif is_active(self.alarms.CriticalDamage) then
         -- so much for it being a "routine turbin' trip"...
-        self.status_text = { "MELTDOWN IMMINENT", "evacuate facility immediately" }
+        self.status_text = { "熔毁迫在眉睫", "立即撤离设施" }
     elseif is_active(self.alarms.ReactorDamage) then
         -- attempt to determine when a chance of a meltdown will occur
-        self.status_text[1] = "CONTAINMENT TAKING DAMAGE"
+        self.status_text[1] = "围阻体受损中"
         if self.plc_cache.damage >= 100 then
-            self.status_text[2] = "damage critical"
+            self.status_text[2] = "损伤严重"
         elseif (self.plc_cache.damage < self.damage_last) or ((self.plc_cache.damage - self.damage_initial) < 0) then
             self.damage_decreasing = true
-            self.status_text = { "CONTAINMENT TOOK DAMAGE", "damage level lowering..." }
+            self.status_text = { "围阻体曾受损", "损伤水平正在下降..." }
 
             -- reset damage estimation data in case it goes back up again
             self.damage_initial = self.plc_cache.damage
@@ -651,125 +651,125 @@ function logic.update_status_text(self)
                     self.damage_est_last = (100 - self.plc_cache.damage) / rate
                 end
 
-                self.status_text[2] = util.c("damage critical in ", util.sprintf("%.1f", self.damage_est_last), "s")
+                self.status_text[2] = util.c("将在 ", util.sprintf("%.1f", self.damage_est_last), " 秒后达到临界损伤")
             else
-                self.status_text[2] = "estimating time to critical..."
+                self.status_text[2] = "正在估算达到临界的时间..."
             end
         else
-            self.status_text = { "CONTAINMENT TOOK DAMAGE", "damage level lowering..." }
+            self.status_text = { "围阻体曾受损", "损伤水平正在下降..." }
         end
 
         self.damage_last = self.plc_cache.damage
     elseif is_active(self.alarms.ContainmentRadiation) then
-        self.status_text[1] = "RADIATION DETECTED"
+        self.status_text[1] = "检测到辐射"
 
         if self.last_radiation >= const.EXTREME_RADIATION then
-            self.status_text[2] = "extremely high radiation level"
+            self.status_text[2] = "辐射水平极高"
         elseif self.last_radiation >= const.SEVERE_RADIATION then
-            self.status_text[2] = "severely high radiation level"
+            self.status_text[2] = "辐射水平严重偏高"
         elseif self.last_radiation >= const.VERY_HIGH_RADIATION then
-            self.status_text[2] = "very high level of radiation"
+            self.status_text[2] = "辐射水平非常高"
         elseif self.last_radiation >= const.HIGH_RADIATION then
-            self.status_text[2] = "high level of radiation"
+            self.status_text[2] = "高辐射水平"
         elseif self.last_radiation >= const.HAZARD_RADIATION then
-            self.status_text[2] = "hazardous level of radiation"
+            self.status_text[2] = "危险辐射水平"
         else
-            self.status_text[2] = "elevated level of radiation"
+            self.status_text[2] = "辐射水平升高"
         end
     elseif is_active(self.alarms.ReactorOverTemp) then
-        self.status_text = { "CORE OVER TEMP", "reactor core temp damaging" }
+        self.status_text = { "堆芯过热", "堆芯温度正在造成损伤" }
     elseif is_active(self.alarms.ReactorWasteLeak) then
-        self.status_text = { "WASTE LEAK", "radioactive waste leak detected" }
+        self.status_text = { "废料泄漏", "检测到放射性废料泄漏" }
     elseif is_active(self.alarms.ReactorHighTemp) then
-        self.status_text = { "CORE TEMP HIGH", "reactor core temperature high" }
+        self.status_text = { "堆芯温度高", "反应堆堆芯温度偏高" }
     elseif is_active(self.alarms.ReactorHighWaste) then
-        self.status_text = { "WASTE LEVEL HIGH", "waste accumulating in reactor" }
+        self.status_text = { "废料水平高", "反应堆内废料正在积累" }
     elseif is_active(self.alarms.TurbineTrip) then
-        self.status_text = { "TURBINE TRIP", "turbine stall occurred" }
+        self.status_text = { "涡轮机跳闸", "涡轮机发生失速" }
     elseif is_active(self.alarms.RCSTransient) then
-        self.status_text = { "RCS TRANSIENT", "check coolant system" }
+        self.status_text = { "冷却系统瞬变", "请检查冷却剂系统" }
     -- elseif is_active(self.alarms.RPSTransient) then
         -- RPS status handled when checking reactor status
     elseif self.em_cool_opened then
-        self.status_text = { "EMERGENCY COOLANT OPENED", "reset RPS to close valve" }
+        self.status_text = { "紧急冷却已开启", "重置 RPS 以关闭阀门" }
     -- connection dependent states
     elseif self.plc_i ~= nil then
         local plc_db = self.plc_i.get_db()
         if plc_db.mek_status.status then
-            self.status_text[1] = "ACTIVE"
+            self.status_text[1] = "运行中"
 
             if plc_db.mek_status.fuel == 0 then
-                self.status_text[2] = "no fuel remaining"
+                self.status_text[2] = "燃料已耗尽"
             elseif self.fuel_burn_rate_limited then
-                self.status_text[2] = "low fuel limiting max burn rate"
+                self.status_text[2] = "燃料不足，限制最大燃烧速率"
             elseif annunc.ReactorHighDeltaT then
-                self.status_text[2] = "core temperature rising"
+                self.status_text[2] = "堆芯温度正在上升"
             elseif annunc.FuelInputRateLow then
-                self.status_text[2] = "insufficient fuel input rate"
+                self.status_text[2] = "燃料输入速率不足"
             elseif annunc.WasteLineOcclusion then
-                self.status_text[2] = "insufficient waste output rate"
+                self.status_text[2] = "废料输出速率不足"
             elseif (util.time_ms() - self.last_rate_change_ms) <= FLOW_STABILITY_DELAY_MS then
-                self.status_text[2] = "awaiting coolant flow stability"
+                self.status_text[2] = "等待冷却剂流量稳定"
             elseif not self.turbine_flow_stable then
-                self.status_text[2] = "awaiting turbine flow stability"
+                self.status_text[2] = "等待涡轮机流量稳定"
             elseif annunc.ReactorTempHigh then
-                self.status_text[2] = "core temp high, system nominal"
+                self.status_text[2] = "堆芯温度高，系统正常"
             else
-                self.status_text[2] = "system nominal"
+                self.status_text[2] = "系统正常"
             end
         elseif plc_db.rps_tripped then
-            local cause = "unknown"
+            local cause = "未知"
 
             if plc_db.rps_trip_cause == RPS_TRIP_CAUSE.OK then
                 -- hmm...
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.HIGH_DMG then
-                cause = "core damage high"
+                cause = "堆芯损伤严重"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.HIGH_TEMP then
-                cause = "core temperature high"
+                cause = "堆芯温度高"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.LOW_COOLANT then
-                cause = "insufficient coolant"
+                cause = "冷却剂不足"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.EX_WASTE then
-                cause = "excess waste"
+                cause = "废料过量"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.EX_HCOOLANT then
-                cause = "excess heated coolant"
+                cause = "加热冷却剂过量"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.FAULT then
-                cause = "hardware fault"
+                cause = "硬件故障"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.TIMEOUT then
-                cause = "connection timed out"
+                cause = "连接超时"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.MANUAL then
-                cause = "manual operator SCRAM"
+                cause = "操作员手动急停"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.AUTOMATIC then
-                cause = "automated system SCRAM"
+                cause = "系统自动急停"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.SYS_FAIL then
-                cause = "PLC system failure"
+                cause = "PLC 系统故障"
             elseif plc_db.rps_trip_cause == RPS_TRIP_CAUSE.FORCE_DISABLED then
-                cause = "reactor force disabled"
+                cause = "反应堆强制禁用"
             end
 
-            self.status_text = { "RPS SCRAM", cause }
+            self.status_text = { "RPS 急停", cause }
         elseif annunc.RadiationWarning then
             -- elevated, non-hazardous level of radiation is low priority, so display it now if everything else was fine
-            self.status_text = { "RADIATION DETECTED", "elevated level of radiation" }
+            self.status_text = { "检测到辐射", "辐射水平升高" }
         else
-            self.status_text[1] = "IDLE"
+            self.status_text[1] = "待机"
 
             local temp = plc_db.mek_status.temp
 
             if plc_db.mek_status.fuel == 0 then
-                self.status_text[2] = "no fuel remaining"
+                self.status_text[2] = "燃料已耗尽"
             elseif temp < 350 then
-                self.status_text[2] = "core cold"
+                self.status_text[2] = "堆芯冷却"
             elseif temp < 600 then
-                self.status_text[2] = "core warm"
+                self.status_text[2] = "堆芯温热"
             else
-                self.status_text[2] = "core hot"
+                self.status_text[2] = "堆芯高温"
             end
         end
     elseif annunc.RadiationWarning then
         -- in case PLC was disconnected but radiation is present
-        self.status_text = { "RADIATION DETECTED", "elevated level of radiation" }
+        self.status_text = { "检测到辐射", "辐射水平升高" }
     else
-        self.status_text = { "REACTOR OFF-LINE", "awaiting connection..." }
+        self.status_text = { "反应堆离线", "等待连接..." }
     end
 end
 
@@ -853,7 +853,7 @@ function logic.handle_redstone(self)
         is_active(self.alarms.ReactorOverTemp))
 
     if enable_emer_cool and not self.em_cool_opened then
-        log.debug(util.c(">> Emergency Coolant Enable Detail Report (Unit ", self.r_id, ") <<"))
+        log.debug(util.c(">> 紧急冷却启用详细报告（机组 ", self.r_id, "）<<"))
         log.debug(util.c("| CoolantLevelLow[", annunc.CoolantLevelLow, "] CoolantLevelLowLow[", rps.low_cool, "] ExcessHeatedCoolant[", rps.ex_hcool, "]"))
         log.debug(util.c("| ReactorOverTemp[", alarm_ctl.AISTATE_NAMES[self.alarms.ReactorOverTemp.state], "]"))
 
@@ -877,8 +877,8 @@ function logic.handle_redstone(self)
         end
 
         if annunc.EmergencyCoolant > 1 and self.em_cool_opened then
-            log.info(util.c("UNIT ", self.r_id, " emergency coolant valve closed"))
-            log.info(util.c("UNIT ", self.r_id, " turbines set to not dump steam"))
+            log.info(util.c("UNIT ", self.r_id, " 紧急冷却阀已关闭"))
+            log.info(util.c("UNIT ", self.r_id, " 涡轮机已设置为不排放蒸汽"))
         end
 
         self.em_cool_opened = false
@@ -904,8 +904,8 @@ function logic.handle_redstone(self)
         end
 
         if annunc.EmergencyCoolant > 1 and not self.em_cool_opened then
-            log.info(util.c("UNIT ", self.r_id, " emergency coolant valve opened"))
-            log.info(util.c("UNIT ", self.r_id, " turbines set to dump excess steam"))
+            log.info(util.c("UNIT ", self.r_id, " 紧急冷却阀已开启"))
+            log.info(util.c("UNIT ", self.r_id, " 涡轮机已设置为排放多余蒸汽"))
         end
 
         self.em_cool_opened = true
@@ -920,10 +920,10 @@ function logic.handle_redstone(self)
 
     if self.aux_coolant then
         if self.enable_aux_cool and (not self.aux_cool_opened) then
-            log.info(util.c("UNIT ", self.r_id, " auxiliary coolant valve opened"))
+            log.info(util.c("UNIT ", self.r_id, " 辅助冷却阀已开启"))
             self.aux_cool_opened = true
         elseif (not self.enable_aux_cool) and self.aux_cool_opened then
-            log.info(util.c("UNIT ", self.r_id, " auxiliary coolant valve closed"))
+            log.info(util.c("UNIT ", self.r_id, " 辅助冷却阀已关闭"))
             self.aux_cool_opened = false
         end
 

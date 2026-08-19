@@ -32,13 +32,13 @@ local CENTER = core.ALIGN.CENTER
 
 -- changes to the config data/format to let the user know
 local changes = {
-    { "v1.2.4", { "Added temperature scale options" } },
-    { "v1.2.12", { "Added main UI theme", "Added front panel UI theme", "Added color accessibility modes" } },
-    { "v1.3.3", { "Added standard with black off state color mode", "Added blue indicator color modes" } },
-    { "v1.5.1", { "Added energy scale options" } },
-    { "v1.6.13", { "Added option for Po/Pu pellet green/cyan pairing" } },
-    { "v1.7.0", { "Added support for wired communications modems", "Added option for allowing Pocket connections" } },
-    { "v1.9.7", { "Removed Disable Flow View option" } }
+    { "v1.2.4", { "新增温度单位选项" } },
+    { "v1.2.12", { "新增主 UI 主题", "新增前面板 UI 主题", "新增颜色无障碍模式" } },
+    { "v1.3.3", { "新增关闭状态为黑色的标准颜色模式", "新增蓝色指示灯颜色模式" } },
+    { "v1.5.1", { "新增能量单位选项" } },
+    { "v1.6.13", { "新增 Po/Pu 燃料丸绿/青配色选项" } },
+    { "v1.7.0", { "新增对有线通信调制解调器的支持", "新增允许 Pocket 连接的选项" } },
+    { "v1.9.7", { "移除“禁用流程视图”选项" } }
 }
 
 ---@class crd_configurator
@@ -137,32 +137,32 @@ local settings_cfg = {}
 
 -- all settings fields, their nice names, and their default values
 local fields = {
-    { "UnitCount", "Number of Reactors", 1 },
-    { "MainDisplay", "Main Monitor", nil },
-    { "FlowDisplay", "Flow Monitor", nil },
-    { "UnitDisplays", "Unit Monitors", {} },
-    { "SpeakerVolume", "Speaker Volume", 1.0 },
-    { "Time24Hour", "Use 24-hour Time Format", true },
-    { "GreenPuPellet", "Pellet Colors", false },
-    { "TempScale", "Temperature Scale", types.TEMP_SCALE.KELVIN },
-    { "EnergyScale", "Energy Scale", types.ENERGY_SCALE.FE },
-    { "WirelessModem", "Wireless/Ender Comms Modem", true },
-    { "WiredModem", "Wired Comms Modem", false },
-    { "PreferWireless", "Prefer Wireless Modem", true },
-    { "API_Enabled", "Pocket API Connectivity", true },
-    { "SVR_Channel", "SVR Channel", 16240 },
-    { "CRD_Channel", "CRD Channel", 16243 },
-    { "PKT_Channel", "PKT Channel", 16244 },
-    { "SVR_Timeout", "Supervisor Connection Timeout", 5 },
-    { "API_Timeout", "API Connection Timeout", 5 },
-    { "TrustedRange", "Trusted Range", 0 },
-    { "AuthKey", "Facility Auth Key" , ""},
-    { "LogMode", "Log Mode", log.MODE.APPEND },
-    { "LogPath", "Log Path", "/log.txt" },
-    { "LogDebug", "Log Debug Messages", false },
-    { "MainTheme", "Main UI Theme", themes.UI_THEME.SMOOTH_STONE },
-    { "FrontPanelTheme", "Front Panel Theme", themes.FP_THEME.SANDSTONE },
-    { "ColorMode", "Color Mode", themes.COLOR_MODE.STANDARD }
+    { "UnitCount", "反应堆数量", 1 },
+    { "MainDisplay", "主监视器", nil },
+    { "FlowDisplay", "流程监视器", nil },
+    { "UnitDisplays", "机组监视器", {} },
+    { "SpeakerVolume", "扬声器音量", 1.0 },
+    { "Time24Hour", "使用 24 小时时间格式", true },
+    { "GreenPuPellet", "燃料丸颜色", false },
+    { "TempScale", "温度单位", types.TEMP_SCALE.KELVIN },
+    { "EnergyScale", "能量单位", types.ENERGY_SCALE.FE },
+    { "WirelessModem", "无线/末影通信调制解调器", true },
+    { "WiredModem", "有线通信调制解调器", false },
+    { "PreferWireless", "优先使用无线调制解调器", true },
+    { "API_Enabled", "Pocket API 连接", true },
+    { "SVR_Channel", "SVR 频道", 16240 },
+    { "CRD_Channel", "CRD 频道", 16243 },
+    { "PKT_Channel", "PKT 频道", 16244 },
+    { "SVR_Timeout", "上位机连接超时", 5 },
+    { "API_Timeout", "API 连接超时", 5 },
+    { "TrustedRange", "受信范围", 0 },
+    { "AuthKey", "设施认证密钥" , ""},
+    { "LogMode", "日志模式", log.MODE.APPEND },
+    { "LogPath", "日志路径", "/log.txt" },
+    { "LogDebug", "日志调试消息", false },
+    { "MainTheme", "主 UI 主题", themes.UI_THEME.SMOOTH_STONE },
+    { "FrontPanelTheme", "前面板主题", themes.FP_THEME.SANDSTONE },
+    { "ColorMode", "颜色模式", themes.COLOR_MODE.STANDARD }
 }
 
 -- load tmp_cfg fields from ini_cfg fields for displays
@@ -198,7 +198,7 @@ local function config_view(display)
 
     local function exit() os.queueEvent("terminate") end
 
-    TextBox{parent=display,y=1,text="Coordinator Configurator",alignment=CENTER,fg_bg=style.header}
+    TextBox{parent=display,y=1,text="协调器配置器",alignment=CENTER,fg_bg=style.header}
 
     local root_pane_div = Div{parent=display,y=2}
 
@@ -228,14 +228,14 @@ local function config_view(display)
 
     local y_start = 5
 
-    TextBox{parent=main_page,x=2,y=2,height=2,text="Welcome to the Coordinator configurator! Please select one of the following options."}
+    TextBox{parent=main_page,x=2,y=2,height=2,text="欢迎使用协调器配置器！请选择以下选项之一。"}
 
     if tool_ctl.start_fail == 2 then
-        local msg = util.c("Notice: There is a problem with your monitor configuration. ", tool_ctl.fail_message, " Please reconfigure monitors or correct their sizes.")
+        local msg = util.c("提示：您的监视器配置存在问题。", tool_ctl.fail_message, " 请重新配置监视器或修正其尺寸。")
         TextBox{parent=main_page,x=2,y=y_start,height=4,width=49,text=msg,fg_bg=cpair(colors.red,colors.lightGray)}
         y_start = y_start + 5
     elseif tool_ctl.start_fail > 0 then
-        TextBox{parent=main_page,x=2,y=y_start,height=4,width=49,text="Notice: This device is not configured for this version of the Coordinator. If you previously had a valid config, it's not lost. You may want to check the Change Log to see what changed.",fg_bg=cpair(colors.red,colors.lightGray)}
+        TextBox{parent=main_page,x=2,y=y_start,height=4,width=49,text="提示：此设备未针对此版本的协调器进行配置。如果您之前有有效的配置，它并未丢失。您可能希望查看更新日志以了解发生了什么变化。",fg_bg=cpair(colors.red,colors.lightGray)}
         y_start = y_start + 5
     end
 
@@ -247,12 +247,12 @@ local function config_view(display)
     end
 
     if fs.exists("/coordinator/config.lua") then
-        PushButton{parent=main_page,x=2,y=y_start,min_width=28,text="Import Legacy 'config.lua'",callback=function()tool_ctl.load_legacy()end,fg_bg=cpair(colors.black,colors.cyan),active_fg_bg=btn_act_fg_bg}
+        PushButton{parent=main_page,x=2,y=y_start,min_width=28,text="导入旧版 'config.lua'",callback=function()tool_ctl.load_legacy()end,fg_bg=cpair(colors.black,colors.cyan),active_fg_bg=btn_act_fg_bg}
         y_start = y_start + 2
     end
 
-    PushButton{parent=main_page,x=2,y=y_start,min_width=18,text="Configure System",callback=function()main_pane.set_value(2)end,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg}
-    tool_ctl.view_cfg = PushButton{parent=main_page,x=2,y=y_start+2,min_width=20,text="View Configuration",callback=view_config,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+    PushButton{parent=main_page,x=2,y=y_start,min_width=18,text="配置系统",callback=function()main_pane.set_value(2)end,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg}
+    tool_ctl.view_cfg = PushButton{parent=main_page,x=2,y=y_start+2,min_width=20,text="查看配置",callback=view_config,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
 
     local function jump_color()
         tool_ctl.jumped_to_color = true
@@ -266,15 +266,15 @@ local function config_view(display)
         exit()
     end
 
-    tool_ctl.color_cfg = PushButton{parent=main_page,x=36,y=y_start,min_width=15,text="Color Options",callback=jump_color,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg,dis_fg_bg=cpair(colors.lightGray,colors.white)}
-    PushButton{parent=main_page,x=39,y=y_start+2,min_width=12,text="Change Log",callback=function()main_pane.set_value(10)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    tool_ctl.color_cfg = PushButton{parent=main_page,x=36,y=y_start,min_width=15,text="颜色选项",callback=jump_color,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg,dis_fg_bg=cpair(colors.lightGray,colors.white)}
+    PushButton{parent=main_page,x=39,y=y_start+2,min_width=12,text="更新日志",callback=function()main_pane.set_value(10)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
     if tool_ctl.start_fail ~= 0 then
-        PushButton{parent=main_page,x=2,y=17,min_width=6,text="Exit",callback=exit,dis_fg_bg=btn_dis_fg_bg}.disable()
-        PushButton{parent=main_page,x=35,y=17,min_width=16,text="Resume Startup",callback=exit,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg}
+        PushButton{parent=main_page,x=2,y=17,min_width=6,text="退出",callback=exit,dis_fg_bg=btn_dis_fg_bg}.disable()
+        PushButton{parent=main_page,x=35,y=17,min_width=16,text="继续启动",callback=exit,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg}
     else
-        PushButton{parent=main_page,x=2,y=17,min_width=6,text="Exit",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg}
-        PushButton{parent=main_page,x=42,y=17,min_width=9,text="Startup",callback=startup,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
+        PushButton{parent=main_page,x=2,y=17,min_width=6,text="退出",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg}
+        PushButton{parent=main_page,x=42,y=17,min_width=9,text="启动",callback=startup,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
     end
 
     if not tool_ctl.has_config then
@@ -286,7 +286,7 @@ local function config_view(display)
 
     -- #region Disk Space Warning
 
-    TextBox{parent=disk_warn,y=2,text=" Insufficent Disk Space",fg_bg=cpair(colors.white,colors.black)}
+    TextBox{parent=disk_warn,y=2,text=" 磁盘空间不足",fg_bg=cpair(colors.white,colors.black)}
 
     local disk_page = Div{parent=disk_warn,x=2,y=4,width=49}
 
@@ -294,33 +294,33 @@ local function config_view(display)
         fs.delete(ini_cfg.LogPath)
 
         local space = fs.getFreeSpace("/")
-        tool_ctl.dw_free_space.set_value("Available Free Space: "..space.." bytes")
+        tool_ctl.dw_free_space.set_value("可用空间："..space.." 字节")
 
         if not fs.exists(ini_cfg.LogPath) then
-            tool_ctl.dw_log_size.set_value("Log File Size: 0 bytes")
+            tool_ctl.dw_log_size.set_value("日志文件大小：0 字节")
             tool_ctl.dw_del_log_btn.disable()
         end
 
         if space >= req_space then tool_ctl.dw_continue.enable() end
     end
 
-    TextBox{parent=disk_page,height=3,text="There is not enough disk space to safely configure this device. Saving the configuration may fail and cause loss of configuration data."}
+    TextBox{parent=disk_page,height=3,text="磁盘空间不足，无法安全配置此设备。保存配置可能失败并导致配置数据丢失。"}
 
-    TextBox{parent=disk_page,y=5,height=1,text="Capacity:             "..fs.getCapacity("/").." bytes",fg_bg=cpair(colors.gray,colors._INHERIT)}
-    tool_ctl.dw_free_space = TextBox{parent=disk_page,height=1,text="Available Free Space: "..fs.getFreeSpace("/").." bytes",fg_bg=cpair(colors.gray,colors._INHERIT)}
-    TextBox{parent=disk_page,height=1,text="Required Free Space:  "..req_space.." bytes",fg_bg=cpair(colors.gray,colors._INHERIT)}
+    TextBox{parent=disk_page,y=5,height=1,text="容量：                  "..fs.getCapacity("/").." 字节",fg_bg=cpair(colors.gray,colors._INHERIT)}
+    tool_ctl.dw_free_space = TextBox{parent=disk_page,height=1,text="可用空间：              "..fs.getFreeSpace("/").." 字节",fg_bg=cpair(colors.gray,colors._INHERIT)}
+    TextBox{parent=disk_page,height=1,text="所需空间：              "..req_space.." 字节",fg_bg=cpair(colors.gray,colors._INHERIT)}
 
     if fs.exists(ini_cfg.LogPath) then
-        TextBox{parent=disk_page,y=9,height=2,text="If your log file is on this computer and not an external disk, deleting it may help."}
-        tool_ctl.dw_log_size = TextBox{parent=disk_page,y=12,height=1,text="Log File Size: "..fs.getSize(ini_cfg.LogPath).." bytes",fg_bg=cpair(colors.gray,colors._INHERIT)}
+        TextBox{parent=disk_page,y=9,height=2,text="如果您的日志文件位于此电脑上而非外部磁盘，删除它可能会有所帮助。"}
+        tool_ctl.dw_log_size = TextBox{parent=disk_page,y=12,height=1,text="日志文件大小："..fs.getSize(ini_cfg.LogPath).." 字节",fg_bg=cpair(colors.gray,colors._INHERIT)}
 
-        tool_ctl.dw_del_log_btn = PushButton{parent=disk_page,x=33,y=12,min_width=17,text="Delete Log File",callback=delete_log,fg_bg=cpair(colors.black,colors.orange),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+        tool_ctl.dw_del_log_btn = PushButton{parent=disk_page,x=33,y=12,min_width=17,text="删除日志文件",callback=delete_log,fg_bg=cpair(colors.black,colors.orange),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
     else
-        TextBox{parent=disk_page,y=9,height=4,text="The log file wasn't found, so you'll need to manually make space. Please remove any files unrelated to this application that you may have manually created."}
+        TextBox{parent=disk_page,y=9,height=4,text="未找到日志文件，因此您需要手动腾出空间。请删除您可能手动创建的任何与此应用无关的文件。"}
     end
 
-    PushButton{parent=disk_page,y=14,min_width=6,text="Exit",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg}
-    tool_ctl.dw_continue = PushButton{parent=disk_page,x=40,y=14,min_width=10,text="Continue",callback=function()main_pane.set_value(1)end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+    PushButton{parent=disk_page,y=14,min_width=6,text="退出",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg}
+    tool_ctl.dw_continue = PushButton{parent=disk_page,x=40,y=14,min_width=10,text="继续",callback=function()main_pane.set_value(1)end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
     tool_ctl.dw_continue.disable()
 
     -- #endregion
@@ -352,7 +352,7 @@ local function config_view(display)
 
     local cl = Div{parent=changelog,x=2,y=4,width=49}
 
-    TextBox{parent=changelog,y=2,text=" Config Change Log",fg_bg=bw_fg_bg}
+    TextBox{parent=changelog,y=2,text=" 配置更新日志",fg_bg=bw_fg_bg}
 
     local c_log = ListBox{parent=cl,y=1,height=12,width=49,scroll_height=100,fg_bg=bw_fg_bg,nav_fg_bg=g_lg_fg_bg,nav_active=cpair(colors.black,colors.gray)}
 
@@ -365,7 +365,7 @@ local function config_view(display)
         end
     end
 
-    PushButton{parent=cl,y=14,text="\x1b Back",callback=function()main_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=cl,y=14,text="\x1b 返回",callback=function()main_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
     --#endregion
 end
@@ -453,7 +453,7 @@ function configurator.configure(start_code, message)
 
     reset_term()
     if not status then
-        println("configurator error: " .. error)
+        println("配置器错误：" .. error)
     end
 
     return status, error, tool_ctl.launch_startup

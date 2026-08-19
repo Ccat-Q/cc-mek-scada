@@ -25,7 +25,7 @@ TANKS = 1000
 }
 function sps.new(session_id, unit_id, advert, out_queue)
 if advert.type ~= RTU_UNIT_TYPE.SPS then
-log.error("attempt to instantiate sps RTU for type " .. types.rtu_type_to_string(advert.type))
+log.error("尝试实例化 sps RTU，类型 " .. types.rtu_type_to_string(advert.type))
 return nil
 end
 local log_tag = util.c("session.rtu(", session_id, ").sps[@", unit_id, "]: ")

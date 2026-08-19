@@ -52,9 +52,9 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
 
     local mon_pane = MultiPane{parent=mon_cfg,y=4,panes={mon_c_1,mon_c_2,mon_c_3}}
 
-    TextBox{parent=mon_cfg,y=2,text=" Monitor Configuration",fg_bg=cpair(colors.black,colors.blue)}
+    TextBox{parent=mon_cfg,y=2,text=" 监视器配置",fg_bg=cpair(colors.black,colors.blue)}
 
-    TextBox{parent=mon_c_1,y=1,height=5,text="Your configuration requires the following monitors. The main and flow monitors' heights are dependent on your unit count and cooling setup. If you manually entered the unit count, a * will be shown on potentially inaccurate calculations."}
+    TextBox{parent=mon_c_1,y=1,height=5,text="您的配置需要以下监视器。主监视器和流程监视器的高度取决于您的机组数量和冷却配置。如果您手动输入了机组数量，可能不准确的计算会显示 *。"}
     local mon_reqs = ListBox{parent=mon_c_1,y=7,height=6,width=49,scroll_height=100,fg_bg=bw_fg_bg,nav_fg_bg=g_lg_fg_bg,nav_active=cpair(colors.black,colors.gray)}
 
     local function next_from_reqs()
@@ -65,10 +65,10 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
         mon_pane.set_value(2)
     end
 
-    PushButton{parent=mon_c_1,y=14,text="\x1b Back",callback=function()main_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-    PushButton{parent=mon_c_1,x=44,y=14,text="Next \x1a",callback=next_from_reqs,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mon_c_1,y=14,text="\x1b 返回",callback=function()main_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mon_c_1,x=44,y=14,text="下一步 \x1a",callback=next_from_reqs,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
-    TextBox{parent=mon_c_2,y=1,height=5,text="Please configure your monitors below. You can go back to the prior page without losing progress to double check what you need. All of those monitors must be assigned before you can proceed."}
+    TextBox{parent=mon_c_2,y=1,height=5,text="请在下方配置您的监视器。您可以返回上一页而不丢失进度，以再次核对您需要的配置。所有监视器都必须完成分配后才能继续。"}
 
     local mon_list = ListBox{parent=mon_c_2,y=6,height=7,width=49,scroll_height=100,fg_bg=bw_fg_bg,nav_fg_bg=g_lg_fg_bg,nav_active=cpair(colors.black,colors.gray)}
 
@@ -76,13 +76,13 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
 
     local function submit_monitors()
         if tmp_cfg.MainDisplay == nil then
-            assign_err.set_value("Please assign the main monitor.")
+            assign_err.set_value("请分配主监视器。")
         elseif tmp_cfg.FlowDisplay == nil then
-            assign_err.set_value("Please assign the flow monitor.")
+            assign_err.set_value("请分配流程监视器。")
         elseif util.table_len(tmp_cfg.UnitDisplays) ~= tmp_cfg.UnitCount then
             for i = 1, tmp_cfg.UnitCount do
                 if tmp_cfg.UnitDisplays[i] == nil then
-                    assign_err.set_value("Please assign the unit " .. i .. " monitor.")
+                    assign_err.set_value("请分配机组 " .. i .. " 的监视器。")
                     break
                 end
             end
@@ -95,8 +95,8 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
         assign_err.show()
     end
 
-    PushButton{parent=mon_c_2,y=14,text="\x1b Back",callback=function()mon_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-    PushButton{parent=mon_c_2,x=44,y=14,text="Next \x1a",callback=submit_monitors,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mon_c_2,y=14,text="\x1b 返回",callback=function()mon_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=mon_c_2,x=44,y=14,text="下一步 \x1a",callback=submit_monitors,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
     local mon_desc = TextBox{parent=mon_c_3,y=1,height=4,text=""}
 
@@ -108,7 +108,7 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
     local function on_assign_mon(val)
         if not util.table_contains(self.mon_expect, val) then
             self.apply_mon.disable()
-            mon_warn.set_value("That assignment doesn't fit monitor dimensions. You'll need to resize the monitor for it to work.")
+            mon_warn.set_value("该分配与监视器尺寸不匹配。您需要调整监视器大小才能使其正常工作。")
             mon_warn.show()
         else
             self.apply_mon.enable()
@@ -128,13 +128,13 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
         if value == "0" or value == nil then mon_unit.set_value(0) end
     end
 
-    TextBox{parent=mon_c_3,y=6,width=10,text="Assignment"}
-    local mon_assign = RadioButton{parent=mon_c_3,y=7,default=1,options={"Main Monitor","Flow Monitor","Unit Monitor"},callback=on_assign_mon,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.blue}
+    TextBox{parent=mon_c_3,y=6,width=10,text="分配"}
+    local mon_assign = RadioButton{parent=mon_c_3,y=7,default=1,options={"主监视器","流程监视器","机组监视器"},callback=on_assign_mon,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.blue}
 
-    mon_unit_l = TextBox{parent=mon_c_3,x=18,y=6,width=7,text="Unit ID"}
+    mon_unit_l = TextBox{parent=mon_c_3,x=18,y=6,width=7,text="机组 ID"}
     mon_unit = NumberField{parent=mon_c_3,x=18,y=7,width=10,max_chars=2,min=1,max=4,fg_bg=bw_fg_bg}
 
-    local mon_u_err = TextBox{parent=mon_c_3,x=8,y=14,width=35,text="Please provide a unit ID.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+    local mon_u_err = TextBox{parent=mon_c_3,x=8,y=14,width=35,text="请提供机组 ID。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 
     -- purge all assignments for a given monitor
     ---@param iface string
@@ -174,8 +174,8 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
         mon_pane.set_value(2)
     end
 
-    PushButton{parent=mon_c_3,y=14,text="\x1b Back",callback=function()mon_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-    self.apply_mon = PushButton{parent=mon_c_3,x=43,y=14,min_width=7,text="Apply",callback=apply_monitor,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+    PushButton{parent=mon_c_3,y=14,text="\x1b 返回",callback=function()mon_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    self.apply_mon = PushButton{parent=mon_c_3,x=43,y=14,min_width=7,text="应用",callback=apply_monitor,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
 
     --#endregion
 
@@ -183,16 +183,16 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
 
     local spkr_c = Div{parent=spkr_cfg,x=2,y=4,width=49}
 
-    TextBox{parent=spkr_cfg,y=2,text=" Speaker Configuration",fg_bg=cpair(colors.black,colors.cyan)}
+    TextBox{parent=spkr_cfg,y=2,text=" 扬声器配置",fg_bg=cpair(colors.black,colors.cyan)}
 
-    TextBox{parent=spkr_c,y=1,height=2,text="The coordinator uses a speaker to play alarm sounds."}
-    TextBox{parent=spkr_c,y=4,height=3,text="You can change the speaker audio volume from the default. The range is 0.0 to 3.0, where 1.0 is standard volume."}
+    TextBox{parent=spkr_c,y=1,height=2,text="协调器使用扬声器播放警报音。"}
+    TextBox{parent=spkr_c,y=4,height=3,text="您可以更改扬声器音频音量（相对于默认值）。范围为 0.0 至 3.0，其中 1.0 为标准音量。"}
 
     tool_ctl.s_vol = NumberField{parent=spkr_c,y=8,width=9,max_chars=7,allow_decimal=true,default=ini_cfg.SpeakerVolume,min=0,max=3,fg_bg=bw_fg_bg}
 
-    TextBox{parent=spkr_c,y=10,height=3,text="Note: alarm sine waves are at half scale so that multiple will be required to reach full scale.",fg_bg=g_lg_fg_bg}
+    TextBox{parent=spkr_c,y=10,height=3,text="注意：警报正弦波为半幅度，因此需要多个才能达到满幅度。",fg_bg=g_lg_fg_bg}
 
-    local s_vol_err = TextBox{parent=spkr_c,x=8,y=14,width=35,text="Please set a volume.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+    local s_vol_err = TextBox{parent=spkr_c,x=8,y=14,width=35,text="请设置音量。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 
     local function submit_vol()
         local vol = tonumber(tool_ctl.s_vol.get_value())
@@ -203,8 +203,8 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
         else s_vol_err.show() end
     end
 
-    PushButton{parent=spkr_c,y=14,text="\x1b Back",callback=function()main_pane.set_value(4)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-    PushButton{parent=spkr_c,x=44,y=14,text="Next \x1a",callback=submit_vol,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=spkr_c,y=14,text="\x1b 返回",callback=function()main_pane.set_value(4)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=spkr_c,x=44,y=14,text="下一步 \x1a",callback=submit_vol,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
     --#endregion
 
@@ -212,20 +212,20 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
 
     local crd_c_1 = Div{parent=crd_cfg,x=2,y=4,width=49}
 
-    TextBox{parent=crd_cfg,y=2,text=" Coordinator UI Configuration",fg_bg=cpair(colors.black,colors.lime)}
+    TextBox{parent=crd_cfg,y=2,text=" 协调器 UI 配置",fg_bg=cpair(colors.black,colors.lime)}
 
-    TextBox{parent=crd_c_1,y=1,height=2,text="You can customize the UI with the interface options below."}
+    TextBox{parent=crd_c_1,y=1,height=2,text="您可以使用下面的界面选项自定义 UI。"}
 
-    TextBox{parent=crd_c_1,y=4,text="Clock Time Format"}
-    tool_ctl.clock_fmt = RadioButton{parent=crd_c_1,y=5,default=util.trinary(ini_cfg.Time24Hour,1,2),options={"24-Hour","12-Hour"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
+    TextBox{parent=crd_c_1,y=4,text="时钟时间格式"}
+    tool_ctl.clock_fmt = RadioButton{parent=crd_c_1,y=5,default=util.trinary(ini_cfg.Time24Hour,1,2),options={"24 小时","12 小时"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
 
-    TextBox{parent=crd_c_1,x=20,y=4,text="Po/Pu Pellet Color"}
-    tool_ctl.pellet_color = RadioButton{parent=crd_c_1,x=20,y=5,default=util.trinary(ini_cfg.GreenPuPellet,1,2),options={"Green Pu/Cyan Po","Cyan Pu/Green Po (Mek 10.4+)"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
+    TextBox{parent=crd_c_1,x=20,y=4,text="Po/Pu 燃料丸颜色"}
+    tool_ctl.pellet_color = RadioButton{parent=crd_c_1,x=20,y=5,default=util.trinary(ini_cfg.GreenPuPellet,1,2),options={"绿色 Pu/青色 Po","青色 Pu/绿色 Po (Mek 10.4+)"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
 
-    TextBox{parent=crd_c_1,y=8,text="Temperature Scale"}
+    TextBox{parent=crd_c_1,y=8,text="温度单位"}
     tool_ctl.temp_scale = RadioButton{parent=crd_c_1,y=9,default=ini_cfg.TempScale,options=types.TEMP_SCALE_NAMES,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
 
-    TextBox{parent=crd_c_1,x=20,y=8,text="Energy Scale"}
+    TextBox{parent=crd_c_1,x=20,y=8,text="能量单位"}
     tool_ctl.energy_scale = RadioButton{parent=crd_c_1,x=20,y=9,default=ini_cfg.EnergyScale,options=types.ENERGY_SCALE_NAMES,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.lime}
 
     local function submit_ui_opts()
@@ -236,8 +236,8 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
         main_pane.set_value(7)
     end
 
-    PushButton{parent=crd_c_1,y=14,text="\x1b Back",callback=function()main_pane.set_value(5)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-    PushButton{parent=crd_c_1,x=44,y=14,text="Next \x1a",callback=submit_ui_opts,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=crd_c_1,y=14,text="\x1b 返回",callback=function()main_pane.set_value(5)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+    PushButton{parent=crd_c_1,x=44,y=14,text="下一步 \x1a",callback=submit_ui_opts,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 
     --#endregion
 
@@ -270,17 +270,17 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
         tool_ctl.flow_mon_h = 2 + tmp_cfg.UnitCount
 
         local asterisk = util.trinary(tool_ctl.sv_cool_conf == nil, "*", "")
-        local m_at_least = util.trinary(tool_ctl.main_mon_h < 6, "at least ", "")
-        local f_at_least = util.trinary(tool_ctl.flow_mon_h < 6, "at least ", "")
+        local m_at_least = util.trinary(tool_ctl.main_mon_h < 6, "至少 ", "")
+        local f_at_least = util.trinary(tool_ctl.flow_mon_h < 6, "至少 ", "")
 
         mon_reqs.remove_all()
 
-        TextBox{parent=mon_reqs,y=1,text="\x1a "..tmp_cfg.UnitCount.." Unit View Monitor"..util.trinary(plural,"s","")}
-        TextBox{parent=mon_reqs,y=1,text="  "..util.trinary(plural,"each ","").."must be 4 blocks wide by 4 tall",fg_bg=cpair(colors.gray,colors.white)}
-        TextBox{parent=mon_reqs,y=1,text="\x1a 1 Main View Monitor"}
-        TextBox{parent=mon_reqs,y=1,text="  must be 8 blocks wide by "..m_at_least..tool_ctl.main_mon_h..asterisk.." tall",fg_bg=cpair(colors.gray,colors.white)}
-        TextBox{parent=mon_reqs,y=1,text="\x1a 1 Flow View Monitor"}
-        TextBox{parent=mon_reqs,y=1,text="  must be 8 blocks wide by "..f_at_least..tool_ctl.flow_mon_h.." tall",fg_bg=cpair(colors.gray,colors.white)}
+        TextBox{parent=mon_reqs,y=1,text="\x1a "..tmp_cfg.UnitCount.." 台机组视图监视器"..util.trinary(plural,"","")}
+        TextBox{parent=mon_reqs,y=1,text="  "..util.trinary(plural,"每台","").."必须为 4 格宽 × 4 格高",fg_bg=cpair(colors.gray,colors.white)}
+        TextBox{parent=mon_reqs,y=1,text="\x1a 1 台主视图监视器"}
+        TextBox{parent=mon_reqs,y=1,text="  必须为 8 格宽 × "..m_at_least..tool_ctl.main_mon_h..asterisk.." 格高",fg_bg=cpair(colors.gray,colors.white)}
+        TextBox{parent=mon_reqs,y=1,text="\x1a 1 台流程视图监视器"}
+        TextBox{parent=mon_reqs,y=1,text="  必须为 8 格宽 × "..f_at_least..tool_ctl.flow_mon_h.." 格高",fg_bg=cpair(colors.gray,colors.white)}
     end
 
     -- set/edit a monitor's assignment
@@ -292,26 +292,26 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
         local dev = device.dev
         local w, h = ppm.monitor_block_size(dev.getSize())
 
-        local msg = "This size doesn't match a required screen. Please go back and resize it, or configure below at the risk of it not working."
+        local msg = "此尺寸与所需屏幕不匹配。请返回并调整大小，或冒其无法正常工作的风险在下方进行配置。"
 
         self.mon_expect = {}
         mon_assign.set_value(1)
         mon_unit.set_value(0)
 
         if w == 4 and h == 4 then
-            msg = "This could work as a unit display. Please configure below."
+            msg = "此尺寸可用作机组显示器。请在下方配置。"
             self.mon_expect = { 3 }
             mon_assign.set_value(3)
         elseif w == 8 then
             if h >= tool_ctl.main_mon_h and h >= tool_ctl.flow_mon_h then
-                msg = "This could work as either your main monitor or flow monitor. Please configure below."
+                msg = "此尺寸可用作主监视器或流程监视器。请在下方配置。"
                 self.mon_expect = { 1, 2 }
                 if tmp_cfg.MainDisplay then mon_assign.set_value(2) end
             elseif h >= tool_ctl.main_mon_h then
-                msg = "This could work as your main monitor. Please configure below."
+                msg = "此尺寸可用作主监视器。请在下方配置。"
                 self.mon_expect = { 1 }
             elseif h >= tool_ctl.flow_mon_h then
-                msg = "This could work as your flow monitor. Please configure below."
+                msg = "此尺寸可用作流程监视器。请在下方配置。"
                 self.mon_expect = { 2 }
                 mon_assign.set_value(2)
             end
@@ -334,7 +334,7 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
 
         on_assign_mon(mon_assign.get_value())
 
-        mon_desc.set_value(util.c("You have selected '", iface, "', which has a block size of ", w, " wide by ", h, " tall. ", msg))
+        mon_desc.set_value(util.c("您已选择 '", iface, "'，其尺寸为 ", w, " 格宽 × ", h, " 格高。", msg))
         mon_pane.set_value(3)
     end
 
@@ -356,7 +356,7 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
             dev.clear()
             dev.setCursorPos(1, 1)
             dev.setTextColor(colors.magenta)
-            dev.write("This is monitor")
+            dev.write("这是监视器")
             dev.setCursorPos(1, 2)
             dev.setTextColor(colors.white)
             dev.write(iface)
@@ -364,16 +364,16 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
             local assignment = "Unused"
 
             if tmp_cfg.MainDisplay == iface then
-                assignment = "Main"
+                assignment = "主"
                 missing.main = false
             elseif tmp_cfg.FlowDisplay == iface then
-                assignment = "Flow"
+                assignment = "流程"
                 missing.flow = false
             else
                 for i = 1, tmp_cfg.UnitCount do
                     if tmp_cfg.UnitDisplays[i] == iface then
                         missing.unit[i] = false
-                        assignment = "Unit " .. i
+                        assignment = "机组 " .. i
                         break
                     end
                 end
@@ -392,18 +392,18 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
             end
 
             TextBox{parent=line,x=33,y=1,width=4,text=w.."x"..h,fg_bg=cpair(colors.black,colors.white)}
-            PushButton{parent=line,x=37,y=1,min_width=5,height=1,text="SET",callback=function()self.edit_monitor(iface,device)end,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg}
-            local unset = PushButton{parent=line,x=42,y=1,min_width=7,height=1,text="UNSET",callback=unset_mon,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg,dis_fg_bg=cpair(colors.black,colors.gray)}
+            PushButton{parent=line,x=37,y=1,min_width=5,height=1,text="设置",callback=function()self.edit_monitor(iface,device)end,fg_bg=cpair(colors.black,colors.blue),active_fg_bg=btn_act_fg_bg}
+            local unset = PushButton{parent=line,x=42,y=1,min_width=7,height=1,text="取消",callback=unset_mon,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg,dis_fg_bg=cpair(colors.black,colors.gray)}
 
             if assignment == "Unused" then unset.disable() end
         end
 
         local dc_list = {} -- disconnected monitor list
 
-        if missing.main then table.insert(dc_list, { "Main", tmp_cfg.MainDisplay }) end
-        if missing.flow then table.insert(dc_list, { "Flow", tmp_cfg.FlowDisplay }) end
+        if missing.main then table.insert(dc_list, { "主", tmp_cfg.MainDisplay }) end
+        if missing.flow then table.insert(dc_list, { "流程", tmp_cfg.FlowDisplay }) end
         for i = 1, tmp_cfg.UnitCount do
-            if missing.unit[i] then table.insert(dc_list, { "Unit " .. i, tmp_cfg.UnitDisplays[i] }) end
+            if missing.unit[i] then table.insert(dc_list, { "机组 " .. i, tmp_cfg.UnitDisplays[i] }) end
         end
 
         -- add monitors that are assigned but not connected
@@ -411,7 +411,7 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
             local line = Div{parent=mon_list,y=1,height=1}
 
             TextBox{parent=line,y=1,width=6,text=dc_list[i][1],fg_bg=cpair(colors.blue,colors.white)}
-            TextBox{parent=line,x=8,y=1,text="disconnected",fg_bg=cpair(colors.red,colors.white)}
+            TextBox{parent=line,x=8,y=1,text="已断开",fg_bg=cpair(colors.red,colors.white)}
 
             local function unset_mon()
                 purge_assignments(dc_list[i][2])
@@ -419,8 +419,8 @@ function hmi.create(tool_ctl, main_pane, cfg_sys, divs, style)
             end
 
             TextBox{parent=line,x=33,y=1,width=4,text="?x?",fg_bg=cpair(colors.black,colors.white)}
-            PushButton{parent=line,x=37,y=1,min_width=5,height=1,text="SET",callback=function()end,dis_fg_bg=cpair(colors.black,colors.gray)}.disable()
-            PushButton{parent=line,x=42,y=1,min_width=7,height=1,text="UNSET",callback=unset_mon,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg,dis_fg_bg=cpair(colors.black,colors.gray)}
+            PushButton{parent=line,x=37,y=1,min_width=5,height=1,text="设置",callback=function()end,dis_fg_bg=cpair(colors.black,colors.gray)}.disable()
+            PushButton{parent=line,x=42,y=1,min_width=7,height=1,text="取消",callback=unset_mon,fg_bg=cpair(colors.black,colors.red),active_fg_bg=btn_act_fg_bg,dis_fg_bg=cpair(colors.black,colors.gray)}
         end
     end
 

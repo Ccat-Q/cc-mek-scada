@@ -31,9 +31,9 @@ show_key_btn = nil,
 auth_key_textbox = nil,
 auth_key_value = ""
 }
-local side_options = { "Top", "Bottom", "Left", "Right", "Front", "Back" }
+local side_options = { "顶部", "底部", "左侧", "右侧", "正面", "背面" }
 local side_options_map = { "top", "bottom", "left", "right", "front", "back" }
-local color_options = { "Red", "Orange", "Yellow", "Lime", "Green", "Cyan", "Light Blue", "Blue", "Purple", "Magenta", "Pink", "White", "Light Gray", "Gray", "Black", "Brown" }
+local color_options = { "红色", "橙色", "黄色", "黄绿", "绿色", "青色", "浅蓝", "蓝色", "紫色", "品红", "粉色", "白色", "浅灰", "灰色", "黑色", "棕色" }
 local color_options_map = { colors.red, colors.orange, colors.yellow, colors.lime, colors.green, colors.cyan, colors.lightBlue, colors.blue, colors.purple, colors.magenta, colors.pink, colors.white, colors.lightGray, colors.gray, colors.black, colors.brown }
 local function side_to_idx(side)
 for k, v in ipairs(side_options_map) do
@@ -64,21 +64,21 @@ local plc_c_7 = Div{parent=plc_cfg,x=2,y=4,width=49}
 local plc_c_8 = Div{parent=plc_cfg,x=2,y=4,width=49}
 local plc_c_9 = Div{parent=plc_cfg,x=2,y=4,width=49}
 local plc_pane = MultiPane{parent=plc_cfg,y=4,panes={plc_c_1,plc_c_2,plc_c_3,plc_c_4,plc_c_5,plc_c_6,plc_c_7,plc_c_8,plc_c_9}}
-TextBox{parent=plc_cfg,y=2,text=" PLC Configuration",fg_bg=cpair(colors.black,colors.orange)}
-TextBox{parent=plc_c_1,y=1,text="Would you like to set this PLC as networked?"}
-TextBox{parent=plc_c_1,y=3,height=4,text="If you have a supervisor, select the box. You will later be prompted to select the network configuration. If you instead want to use this as a standalone safety system, don't select the box.",fg_bg=g_lg_fg_bg}
-local networked = Checkbox{parent=plc_c_1,y=8,label="Networked",default=ini_cfg.Networked,box_fg_bg=cpair(colors.orange,colors.black)}
+TextBox{parent=plc_cfg,y=2,text=" PLC 配置",fg_bg=cpair(colors.black,colors.orange)}
+TextBox{parent=plc_c_1,y=1,text="是否要将此 PLC 设置为联网？"}
+TextBox{parent=plc_c_1,y=3,height=4,text="如果您有监控端，请勾选此框。稍后系统会提示您选择网络配置。如果您想将其用作独立安全系统，请不要勾选。",fg_bg=g_lg_fg_bg}
+local networked = Checkbox{parent=plc_c_1,y=8,label="联网",default=ini_cfg.Networked,box_fg_bg=cpair(colors.orange,colors.black)}
 local function submit_networked()
 self.set_networked(networked.get_value())
 plc_pane.set_value(2)
 end
-PushButton{parent=plc_c_1,y=14,text="\x1b Back",callback=function()main_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=plc_c_1,x=44,y=14,text="Next \x1a",callback=submit_networked,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=plc_c_2,y=1,text="Please enter the reactor unit ID for this PLC."}
-TextBox{parent=plc_c_2,y=3,height=3,text="If this is a networked PLC, currently only IDs 1 through 4 are acceptable.",fg_bg=g_lg_fg_bg}
-TextBox{parent=plc_c_2,y=6,text="Unit #"}
+PushButton{parent=plc_c_1,y=14,text="\x1b 返回",callback=function()main_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_1,x=44,y=14,text="下一步 \x1a",callback=submit_networked,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=plc_c_2,y=1,text="请输入此 PLC 的反应堆机组 ID。"}
+TextBox{parent=plc_c_2,y=3,height=3,text="如果这是联网 PLC，目前仅接受 1 至 4 的 ID。",fg_bg=g_lg_fg_bg}
+TextBox{parent=plc_c_2,y=6,text="机组 #"}
 local u_id = NumberField{parent=plc_c_2,x=7,y=6,width=5,max_chars=3,default=ini_cfg.UnitID,min=1,fg_bg=bw_fg_bg}
-local u_id_err = TextBox{parent=plc_c_2,x=8,y=14,width=35,text="Please set a unit ID.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+local u_id_err = TextBox{parent=plc_c_2,x=8,y=14,width=35,text="请设置机组 ID。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 function self.set_networked(enable)
 tmp_cfg.Networked = enable
 if enable then u_id.set_max(4) else u_id.set_max(999) end
@@ -91,11 +91,11 @@ tmp_cfg.UnitID = unit_id
 plc_pane.set_value(3)
 else u_id_err.show() end
 end
-PushButton{parent=plc_c_2,y=14,text="\x1b Back",callback=function()plc_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=plc_c_2,x=44,y=14,text="Next \x1a",callback=submit_id,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=plc_c_3,y=1,height=4,text="When networked, the Supervisor takes care of emergency coolant via RTUs. However, you can configure independent emergency coolant via the PLC."}
-TextBox{parent=plc_c_3,y=6,height=5,text="This independent control can be used with or without a supervisor. To configure, you would next select the interface of the redstone output connected to one or more mekanism pipes.",fg_bg=g_lg_fg_bg}
-local en_em_cool = Checkbox{parent=plc_c_3,y=11,label="Enable PLC Emergency Coolant Control",default=ini_cfg.EmerCoolEnable,box_fg_bg=cpair(colors.orange,colors.black)}
+PushButton{parent=plc_c_2,y=14,text="\x1b 返回",callback=function()plc_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_2,x=44,y=14,text="下一步 \x1a",callback=submit_id,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=plc_c_3,y=1,height=4,text="联网时，监控端通过 RTU 负责紧急冷却。不过，您也可以通过 PLC 配置独立的紧急冷却。"}
+TextBox{parent=plc_c_3,y=6,height=5,text="此独立控制可以在有或没有监控端的情况下使用。要进行配置，您接下来需要选择连接到一条或多条通用机械（Mekanism）管道的红石输出接口。",fg_bg=g_lg_fg_bg}
+local en_em_cool = Checkbox{parent=plc_c_3,y=11,label="启用 PLC 紧急冷却控制",default=ini_cfg.EmerCoolEnable,box_fg_bg=cpair(colors.orange,colors.black)}
 local function next_from_emcool()
 if tmp_cfg.Networked then plc_pane.set_value(6) else main_pane.set_value(4) end
 end
@@ -103,32 +103,32 @@ local function submit_en_emcool()
 tmp_cfg.EmerCoolEnable = en_em_cool.get_value()
 if tmp_cfg.EmerCoolEnable then plc_pane.set_value(4) else next_from_emcool() end
 end
-PushButton{parent=plc_c_3,y=14,text="\x1b Back",callback=function()plc_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=plc_c_3,x=44,y=14,text="Next \x1a",callback=submit_en_emcool,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=plc_c_4,y=1,text="Emergency Coolant Redstone Output Side"}
+PushButton{parent=plc_c_3,y=14,text="\x1b 返回",callback=function()plc_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_3,x=44,y=14,text="下一步 \x1a",callback=submit_en_emcool,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=plc_c_4,y=1,text="紧急冷却红石输出面"}
 local side = Radio2D{parent=plc_c_4,y=2,rows=2,columns=3,default=side_to_idx(ini_cfg.EmerCoolSide),options=side_options,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.orange}
-TextBox{parent=plc_c_4,y=5,text="Bundled Redstone Configuration"}
-local bundled = Checkbox{parent=plc_c_4,y=6,label="Is Bundled?",default=ini_cfg.EmerCoolColor~=nil,box_fg_bg=cpair(colors.orange,colors.black),callback=function(v)self.bundled_emcool(v)end}
+TextBox{parent=plc_c_4,y=5,text="束线红石配置"}
+local bundled = Checkbox{parent=plc_c_4,y=6,label="是否束线？",default=ini_cfg.EmerCoolColor~=nil,box_fg_bg=cpair(colors.orange,colors.black),callback=function(v)self.bundled_emcool(v)end}
 local color = Radio2D{parent=plc_c_4,y=8,rows=4,columns=4,default=color_to_idx(ini_cfg.EmerCoolColor),options=color_options,radio_colors=cpair(colors.lightGray,colors.black),color_map=color_options_map,disable_color=colors.gray,disable_fg_bg=g_lg_fg_bg}
 if ini_cfg.EmerCoolColor == nil then color.disable() end
 function self.bundled_emcool(en) if en then color.enable() else color.disable() end end
-TextBox{parent=plc_c_5,y=1,height=5,text="Advanced Options"}
-local invert = Checkbox{parent=plc_c_5,y=3,label="Invert",default=ini_cfg.EmerCoolInvert,box_fg_bg=cpair(colors.orange,colors.black)}
-TextBox{parent=plc_c_5,x=3,y=4,height=4,text="Digital I/O is already inverted (or not) based on intended use. If you have a non-standard setup, you can use this option to avoid needing a redstone inverter.",fg_bg=cpair(colors.gray,colors.lightGray)}
-PushButton{parent=plc_c_5,y=14,text="\x1b Back",callback=function()plc_pane.set_value(4)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=plc_c_5,y=1,height=5,text="高级选项"}
+local invert = Checkbox{parent=plc_c_5,y=3,label="反转",default=ini_cfg.EmerCoolInvert,box_fg_bg=cpair(colors.orange,colors.black)}
+TextBox{parent=plc_c_5,x=3,y=4,height=4,text="数字 I/O 已根据预期用途进行反转（或不反转）。如果您的设置非标准，可以使用此选项以避免需要红石逆变器。",fg_bg=cpair(colors.gray,colors.lightGray)}
+PushButton{parent=plc_c_5,y=14,text="\x1b 返回",callback=function()plc_pane.set_value(4)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local function submit_emcool()
 tmp_cfg.EmerCoolSide = side_options_map[side.get_value()]
 tmp_cfg.EmerCoolColor = tri(bundled.get_value(), color_options_map[color.get_value()], nil)
 tmp_cfg.EmerCoolInvert = invert.get_value()
 next_from_emcool()
 end
-PushButton{parent=plc_c_4,y=14,text="\x1b Back",callback=function()plc_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=plc_c_4,x=33,y=14,min_width=10,text="Advanced",callback=function()plc_pane.set_value(5)end,fg_bg=cpair(colors.black,colors.yellow),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
-PushButton{parent=plc_c_4,x=44,y=14,text="Next \x1a",callback=submit_emcool,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=plc_c_6,y=1,height=6,text="Slow ramping is always used up to 40 mB/t, which is ~5 mB/t per second. If you enable fast ramping, it will then hold at 40 mB/t until cooled coolant stabilizes (at least 2 seconds) then increase to a faster ramp rate, which is a percentage of the maximum burn rate."}
-TextBox{parent=plc_c_6,y=8,height=3,text="When fast ramping is used, if the reactor drops below 80% cooled coolant, it will scale back the ramping proportionally as the coolant level drops.",fg_bg=g_lg_fg_bg}
-local fast_ramp = Checkbox{parent=plc_c_6,y=12,label="Enable Fast Ramping",default=ini_cfg.FastRamp,box_fg_bg=cpair(colors.orange,colors.black)}
-TextBox{parent=plc_c_6,x=23,y=12,text="new!",fg_bg=cpair(colors.red,colors._INHERIT)}
+PushButton{parent=plc_c_4,y=14,text="\x1b 返回",callback=function()plc_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_4,x=33,y=14,min_width=10,text="高级",callback=function()plc_pane.set_value(5)end,fg_bg=cpair(colors.black,colors.yellow),active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+PushButton{parent=plc_c_4,x=44,y=14,text="下一步 \x1a",callback=submit_emcool,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=plc_c_6,y=1,height=6,text="慢速爬升始终用于最高 40 mB/t 的速率，约为每秒 5 mB/t。如果启用快速爬升，它将保持在 40 mB/t，直到冷却后的冷却剂稳定（至少 2 秒），然后以更快的爬升速率增加，该速率是最大燃烧速率的百分比。"}
+TextBox{parent=plc_c_6,y=8,height=3,text="使用快速爬升时，如果反应堆冷却后的冷却剂低于 80%，随着冷却剂液位下降，爬升将按比例缩减。",fg_bg=g_lg_fg_bg}
+local fast_ramp = Checkbox{parent=plc_c_6,y=12,label="启用快速爬升",default=ini_cfg.FastRamp,box_fg_bg=cpair(colors.orange,colors.black)}
+TextBox{parent=plc_c_6,x=23,y=12,text="新！",fg_bg=cpair(colors.red,colors._INHERIT)}
 local function back_from_ramp()
 if tmp_cfg.EmerCoolEnable then plc_pane.set_value(4) else plc_pane.set_value(3) end
 end
@@ -138,47 +138,47 @@ if tmp_cfg.FastRampConfirmed or ini_cfg.FastRampConfirmed then
 plc_pane.set_value(8)
 else plc_pane.set_value(7) end
 end
-PushButton{parent=plc_c_6,y=14,text="\x1b Back",callback=back_from_ramp,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=plc_c_6,x=44,y=14,text="Next \x1a",callback=submit_ramp,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=plc_c_7,y=1,text="!! CAUTION !!",fg_bg=cpair(colors.red,colors._INHERIT)}
-TextBox{parent=plc_c_7,y=2,height=6,text="Fast ramping has an increased risk of your reactor running low on coolant and overheating. First test this under supervision, as an insufficient cooling setup or lack of auxiliary coolant can cause the reactor to ramp faster than your turbine(s)/boiler(s) can handle."}
-TextBox{parent=plc_c_7,y=9,height=3,text="In nearly all cases, the automatic SCRAM will still prevent a meltdown if coolant was not lost.",fg_bg=g_lg_fg_bg}
-TextBox{parent=plc_c_7,y=12,height=1,text="If you didn't mean to enable this, go back.",fg_bg=cpair(colors.cyan,colors._INHERIT)}
-local fast_ramp_confirm = Checkbox{parent=plc_c_7,y=14,x=13,label="Don't show this warning again",default=ini_cfg.FastRampConfirmed,box_fg_bg=cpair(colors.orange,colors.black)}
+PushButton{parent=plc_c_6,y=14,text="\x1b 返回",callback=back_from_ramp,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_6,x=44,y=14,text="下一步 \x1a",callback=submit_ramp,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=plc_c_7,y=1,text="！！ 警告 ！！",fg_bg=cpair(colors.red,colors._INHERIT)}
+TextBox{parent=plc_c_7,y=2,height=6,text="快速爬升会增加反应堆冷却剂不足和过热的风险。请先在监督下进行测试，因为冷却设置不足或缺少辅助冷却剂可能导致反应堆爬升速度快于涡轮机/锅炉所能承受的范围。"}
+TextBox{parent=plc_c_7,y=9,height=3,text="在几乎所有情况下，只要冷却剂未流失，自动 SCRAM 仍可防止熔毁。",fg_bg=g_lg_fg_bg}
+TextBox{parent=plc_c_7,y=12,height=1,text="如果您并非有意启用此功能，请返回。",fg_bg=cpair(colors.cyan,colors._INHERIT)}
+local fast_ramp_confirm = Checkbox{parent=plc_c_7,y=14,x=13,label="不再显示此警告",default=ini_cfg.FastRampConfirmed,box_fg_bg=cpair(colors.orange,colors.black)}
 local function submit_ramp_conf()
 tmp_cfg.FastRampConfirmed = fast_ramp_confirm.get_value()
 plc_pane.set_value(8)
 end
-PushButton{parent=plc_c_7,y=14,text="\x1b Back",callback=function()plc_pane.set_value(6)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=plc_c_7,x=8,y=14,text=" OK ",callback=submit_ramp_conf,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=plc_c_8,y=1,height=2,text="Below you can enable burn rate limiting under low fuel conditions during automatic control."}
-TextBox{parent=plc_c_8,y=4,height=4,text="When under automatic control and below 30% fuel, the PLC can attempt to limit the maximum burn rate to a sustainable level until fuel is filled beyond 40%.",fg_bg=g_lg_fg_bg}
-local fuel_limit = Checkbox{parent=plc_c_8,y=9,label="Enable Low-Fuel Burn Rate Limiting",default=ini_cfg.FuelAutoLimiting,box_fg_bg=cpair(colors.orange,colors.black)}
-TextBox{parent=plc_c_8,x=3,y=10,text="Supervisor Auto Control Only",fg_bg=g_lg_fg_bg}
-TextBox{parent=plc_c_8,x=38,y=9,text="new!",fg_bg=cpair(colors.red,colors._INHERIT)}
+PushButton{parent=plc_c_7,y=14,text="\x1b 返回",callback=function()plc_pane.set_value(6)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_7,x=8,y=14,text=" 确定 ",callback=submit_ramp_conf,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=plc_c_8,y=1,height=2,text="在下方，您可以在自动控制期间启用低燃料条件下的燃烧速率限制。"}
+TextBox{parent=plc_c_8,y=4,height=4,text="处于自动控制且燃料低于 30% 时，PLC 可以尝试将最大燃烧速率限制在可持续水平，直到燃料补充超过 40%。",fg_bg=g_lg_fg_bg}
+local fuel_limit = Checkbox{parent=plc_c_8,y=9,label="启用低燃料燃烧速率限制",default=ini_cfg.FuelAutoLimiting,box_fg_bg=cpair(colors.orange,colors.black)}
+TextBox{parent=plc_c_8,x=3,y=10,text="仅限监控端自动控制",fg_bg=g_lg_fg_bg}
+TextBox{parent=plc_c_8,x=38,y=9,text="新！",fg_bg=cpair(colors.red,colors._INHERIT)}
 local function submit_fuel_limit()
 tmp_cfg.FuelAutoLimiting = fuel_limit.get_value()
 plc_pane.set_value(9)
 end
-PushButton{parent=plc_c_8,y=14,text="\x1b Back",callback=function()plc_pane.set_value(6)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=plc_c_8,x=44,y=14,text="Next \x1a",callback=submit_fuel_limit,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=plc_c_9,y=1,height=3,text="A separate front panel page can be enabled to view diagnostics information. This is useful for debugging, development, or satisfying curiosity."}
-TextBox{parent=plc_c_9,y=5,height=6,text="A DIAG button will be shown on the front panel to access it. Be aware that the diagnostics rapidly refresh with information, which can negatively impact performance. When not in use, use BACK to close it. Using escape to close out the computer does not stop the page from updating.",fg_bg=g_lg_fg_bg}
-local en_diag = Checkbox{parent=plc_c_9,y=12,label="Enable Diagnostics Panel",default=ini_cfg.EnableDiagnostics,box_fg_bg=cpair(colors.orange,colors.black)}
-TextBox{parent=plc_c_9,x=28,y=12,text="new!",fg_bg=cpair(colors.red,colors._INHERIT)}
+PushButton{parent=plc_c_8,y=14,text="\x1b 返回",callback=function()plc_pane.set_value(6)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_8,x=44,y=14,text="下一步 \x1a",callback=submit_fuel_limit,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=plc_c_9,y=1,height=3,text="可以启用一个独立的前面板页面来查看诊断信息。这对于调试、开发或满足好奇心很有用。"}
+TextBox{parent=plc_c_9,y=5,height=6,text="前面板将显示一个“诊断”按钮以访问它。请注意，诊断信息会快速刷新，这可能对性能产生负面影响。不使用时，请使用“返回”关闭它。使用 ESC 退出计算机并不会停止该页面更新。",fg_bg=g_lg_fg_bg}
+local en_diag = Checkbox{parent=plc_c_9,y=12,label="启用诊断面板",default=ini_cfg.EnableDiagnostics,box_fg_bg=cpair(colors.orange,colors.black)}
+TextBox{parent=plc_c_9,x=28,y=12,text="新！",fg_bg=cpair(colors.red,colors._INHERIT)}
 local function submit_diag()
 tmp_cfg.EnableDiagnostics = en_diag.get_value()
 main_pane.set_value(3)
 end
-PushButton{parent=plc_c_9,y=14,text="\x1b Back",callback=function()plc_pane.set_value(8)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=plc_c_9,x=44,y=14,text="Next \x1a",callback=submit_diag,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_9,y=14,text="\x1b 返回",callback=function()plc_pane.set_value(8)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=plc_c_9,x=44,y=14,text="下一步 \x1a",callback=submit_diag,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local net_c_1 = Div{parent=net_cfg,x=2,y=4,width=49}
 local net_c_2 = Div{parent=net_cfg,x=2,y=4,width=49}
 local net_c_3 = Div{parent=net_cfg,x=2,y=4,width=49}
 local net_c_4 = Div{parent=net_cfg,x=2,y=4,width=49}
 local net_pane = MultiPane{parent=net_cfg,y=4,panes={net_c_1,net_c_2,net_c_3,net_c_4}}
-TextBox{parent=net_cfg,y=2,text=" Network Configuration",fg_bg=cpair(colors.black,colors.lightBlue)}
-TextBox{parent=net_c_1,y=1,text="Please select the network interface(s)."}
+TextBox{parent=net_cfg,y=2,text=" 网络配置",fg_bg=cpair(colors.black,colors.lightBlue)}
+TextBox{parent=net_c_1,y=1,text="请选择网络接口。"}
 local function en_dis_pref()
 if self.wireless.get_value() and self.wired.get_value() then
 self.wl_pref.enable()
@@ -191,11 +191,11 @@ local function on_wired_change(_)
 en_dis_pref()
 tool_ctl.gen_modem_list()
 end
-self.wireless = Checkbox{parent=net_c_1,y=3,label="Wireless/Ender Modem",default=ini_cfg.WirelessModem,box_fg_bg=cpair(colors.lightBlue,colors.black),callback=en_dis_pref}
-self.wl_pref = Checkbox{parent=net_c_1,x=30,y=3,label="Prefer Wireless",default=ini_cfg.PreferWireless,box_fg_bg=cpair(colors.lightBlue,colors.black),disable_fg_bg=g_lg_fg_bg}
-self.wired = Checkbox{parent=net_c_1,y=5,label="Wired Modem",default=ini_cfg.WiredModem~=false,box_fg_bg=cpair(colors.lightBlue,colors.black),callback=on_wired_change}
-TextBox{parent=net_c_1,x=3,y=6,text="this one MUST ONLY connect to SCADA computers",fg_bg=cpair(colors.red,colors._INHERIT)}
-TextBox{parent=net_c_1,x=3,y=7,text="connecting it to peripherals will cause issues",fg_bg=g_lg_fg_bg}
+self.wireless = Checkbox{parent=net_c_1,y=3,label="无线/末影调制解调器",default=ini_cfg.WirelessModem,box_fg_bg=cpair(colors.lightBlue,colors.black),callback=en_dis_pref}
+self.wl_pref = Checkbox{parent=net_c_1,x=30,y=3,label="优先无线",default=ini_cfg.PreferWireless,box_fg_bg=cpair(colors.lightBlue,colors.black),disable_fg_bg=g_lg_fg_bg}
+self.wired = Checkbox{parent=net_c_1,y=5,label="有线调制解调器",default=ini_cfg.WiredModem~=false,box_fg_bg=cpair(colors.lightBlue,colors.black),callback=on_wired_change}
+TextBox{parent=net_c_1,x=3,y=6,text="此接口必须仅连接 SCADA 计算机",fg_bg=cpair(colors.red,colors._INHERIT)}
+TextBox{parent=net_c_1,x=3,y=7,text="将其连接到外设会导致问题",fg_bg=g_lg_fg_bg}
 local modem_list = ListBox{parent=net_c_1,y=8,height=5,width=49,scroll_height=100,fg_bg=bw_fg_bg,nav_fg_bg=g_lg_fg_bg,nav_active=cpair(colors.black,colors.gray)}
 local modem_err = TextBox{parent=net_c_1,x=8,y=14,width=35,text="",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 en_dis_pref()
@@ -212,10 +212,10 @@ tmp_cfg.WiredModem = false
 tool_ctl.gen_modem_list()
 end
 if not (self.wired.get_value() or self.wireless.get_value()) then
-modem_err.set_value("Please select a modem type.")
+modem_err.set_value("请选择调制解调器类型。")
 modem_err.show()
 elseif self.wired.get_value() and type(tmp_cfg.WiredModem) ~= "string" then
-modem_err.set_value("Please select a wired modem.")
+modem_err.set_value("请选择有线调制解调器。")
 modem_err.show()
 else
 if tmp_cfg.WirelessModem then
@@ -228,14 +228,14 @@ net_pane.set_value(2)
 modem_err.hide(true)
 end
 end
-PushButton{parent=net_c_1,y=14,text="\x1b Back",callback=function()main_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=net_c_1,x=44,y=14,text="Next \x1a",callback=submit_interfaces,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=net_c_2,y=1,text="Please set the network channels below."}
-TextBox{parent=net_c_2,y=3,height=4,text="Each of the 5 uniquely named channels, including the 2 below, must be the same for each device in this SCADA network. For multiplayer servers, it is recommended to not use the default channels.",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_2,y=8,text="Supervisor Channel"}
+PushButton{parent=net_c_1,y=14,text="\x1b 返回",callback=function()main_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_1,x=44,y=14,text="下一步 \x1a",callback=submit_interfaces,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=net_c_2,y=1,text="请在下方设置网络频道。"}
+TextBox{parent=net_c_2,y=3,height=4,text="包括下方 2 个频道在内的 5 个唯一命名的频道，对于此 SCADA 网络中的每个设备都必须相同。对于多人服务器，建议不要使用默认频道。",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_2,y=8,text="监控端频道"}
 local svr_chan = NumberField{parent=net_c_2,y=9,width=7,default=ini_cfg.SVR_Channel,min=1,max=65535,fg_bg=bw_fg_bg}
 TextBox{parent=net_c_2,x=9,y=9,height=4,text="[SVR_CHANNEL]",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_2,y=11,text="PLC Channel"}
+TextBox{parent=net_c_2,y=11,text="PLC 频道"}
 local plc_chan = NumberField{parent=net_c_2,y=12,width=7,default=ini_cfg.PLC_Channel,min=1,max=65535,fg_bg=bw_fg_bg}
 TextBox{parent=net_c_2,x=9,y=12,height=4,text="[PLC_CHANNEL]",fg_bg=g_lg_fg_bg}
 local chan_err = TextBox{parent=net_c_2,x=8,y=14,width=35,text="",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
@@ -248,31 +248,31 @@ tmp_cfg.PLC_Channel = plc_c
 net_pane.set_value(3)
 chan_err.hide(true)
 elseif svr_c == nil then
-chan_err.set_value("Please set the supervisor channel.")
+chan_err.set_value("请设置监控端频道。")
 chan_err.show()
 else
-chan_err.set_value("Please set the PLC channel.")
+chan_err.set_value("请设置 PLC 频道。")
 chan_err.show()
 end
 end
-PushButton{parent=net_c_2,y=14,text="\x1b Back",callback=function()net_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=net_c_2,x=44,y=14,text="Next \x1a",callback=submit_channels,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=net_c_3,y=1,text="Connection Timeout"}
+PushButton{parent=net_c_2,y=14,text="\x1b 返回",callback=function()net_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_2,x=44,y=14,text="下一步 \x1a",callback=submit_channels,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=net_c_3,y=1,text="连接超时"}
 local timeout = NumberField{parent=net_c_3,y=2,width=7,default=ini_cfg.ConnTimeout,min=2,max=25,max_chars=6,max_frac_digits=2,allow_decimal=true,fg_bg=bw_fg_bg}
-TextBox{parent=net_c_3,x=9,y=2,height=2,text="seconds (default 5)",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_3,y=3,height=4,text="You generally do not want or need to modify this. On slow servers, you can increase this to make the system wait longer before assuming a disconnection.",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_3,y=8,text="Trusted Range (Wireless Only)"}
+TextBox{parent=net_c_3,x=9,y=2,height=2,text="秒（默认 5）",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_3,y=3,height=4,text="您通常不需要修改此项。在较慢的服务器上，您可以增大此值，让系统在判定断开前等待更长时间。",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_3,y=8,text="可信范围（仅无线）"}
 self.range = NumberField{parent=net_c_3,y=9,width=10,default=ini_cfg.TrustedRange,min=0,max_chars=20,allow_decimal=true,fg_bg=bw_fg_bg,dis_fg_bg=cpair(colors.lightGray,colors.white)}
-TextBox{parent=net_c_3,y=10,height=4,text="Setting this to a value larger than 0 prevents wireless connections with devices that many meters (blocks) away in any direction.",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_3,y=10,height=4,text="将此值设置为大于 0 可阻止与任何方向相距多米的设备的无线连接。",fg_bg=g_lg_fg_bg}
 local n3_err = TextBox{parent=net_c_3,x=8,y=14,width=35,text="",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 local function submit_ct_tr()
 local timeout_val = tonumber(timeout.get_value())
 local range_val = tonumber(self.range.get_value())
 if timeout_val == nil then
-n3_err.set_value("Please set the connection timeout.")
+n3_err.set_value("请设置连接超时。")
 n3_err.show()
 elseif tmp_cfg.WirelessModem and (range_val == nil) then
-n3_err.set_value("Please set the trusted range.")
+n3_err.set_value("请设置可信范围。")
 n3_err.show()
 else
 tmp_cfg.ConnTimeout = timeout_val
@@ -286,17 +286,17 @@ end
 n3_err.hide(true)
 end
 end
-PushButton{parent=net_c_3,y=14,text="\x1b Back",callback=function()net_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=net_c_3,x=44,y=14,text="Next \x1a",callback=submit_ct_tr,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=net_c_4,y=1,height=2,text="Optionally, set the facility authentication key below. Do NOT use one of your passwords."}
-TextBox{parent=net_c_4,y=4,height=6,text="This enables verifying that messages are authentic, so it is intended for wireless security on multiplayer servers. All devices on the same wireless network MUST use the same key if any device has a key. This does result in some extra computation (can slow things down).",fg_bg=g_lg_fg_bg}
-TextBox{parent=net_c_4,y=11,text="Auth Key (Wireless Only, Not Used for Wired)"}
+PushButton{parent=net_c_3,y=14,text="\x1b 返回",callback=function()net_pane.set_value(2)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_3,x=44,y=14,text="下一步 \x1a",callback=submit_ct_tr,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=net_c_4,y=1,height=2,text="可选：在下方设置设施认证密钥。请勿使用您的任何密码。"}
+TextBox{parent=net_c_4,y=4,height=6,text="这可以验证消息的真实性，因此适用于多人服务器上的无线安全。如果任何设备设置了密钥，同一无线网络上的所有设备必须使用相同的密钥。这确实会带来一些额外的计算开销（可能会降低速度）。",fg_bg=g_lg_fg_bg}
+TextBox{parent=net_c_4,y=11,text="认证密钥（仅无线，有线不使用）"}
 local key, _ = TextField{parent=net_c_4,y=12,max_len=64,value=ini_cfg.AuthKey,width=32,height=1,fg_bg=bw_fg_bg}
 local function censor_key(enable) key.censor(tri(enable, "*", nil)) end
-local hide_key = Checkbox{parent=net_c_4,x=34,y=12,label="Hide",box_fg_bg=cpair(colors.lightBlue,colors.black),callback=censor_key}
+local hide_key = Checkbox{parent=net_c_4,x=34,y=12,label="隐藏",box_fg_bg=cpair(colors.lightBlue,colors.black),callback=censor_key}
 hide_key.set_value(true)
 censor_key(true)
-local key_err = TextBox{parent=net_c_4,x=8,y=14,width=35,text="Key must be at least 8 characters.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+local key_err = TextBox{parent=net_c_4,x=8,y=14,width=35,text="密钥必须至少 8 个字符。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 local function submit_auth()
 local v = key.get_value()
 if string.len(v) == 0 or string.len(v) >= 8 then
@@ -305,18 +305,18 @@ main_pane.set_value(4)
 key_err.hide(true)
 else key_err.show() end
 end
-PushButton{parent=net_c_4,y=14,text="\x1b Back",callback=function()net_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=net_c_4,x=44,y=14,text="Next \x1a",callback=submit_auth,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_4,y=14,text="\x1b 返回",callback=function()net_pane.set_value(3)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=net_c_4,x=44,y=14,text="下一步 \x1a",callback=submit_auth,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local log_c_1 = Div{parent=log_cfg,x=2,y=4,width=49}
-TextBox{parent=log_cfg,y=2,text=" Logging Configuration",fg_bg=cpair(colors.black,colors.pink)}
-TextBox{parent=log_c_1,y=1,text="Please configure logging below."}
-TextBox{parent=log_c_1,y=3,text="Log File Mode"}
-local mode = RadioButton{parent=log_c_1,y=4,default=ini_cfg.LogMode+1,options={"Append on Startup","Replace on Startup"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.pink}
-TextBox{parent=log_c_1,y=7,text="Log File Path"}
+TextBox{parent=log_cfg,y=2,text=" 日志配置",fg_bg=cpair(colors.black,colors.pink)}
+TextBox{parent=log_c_1,y=1,text="请在下方配置日志。"}
+TextBox{parent=log_c_1,y=3,text="日志文件模式"}
+local mode = RadioButton{parent=log_c_1,y=4,default=ini_cfg.LogMode+1,options={"启动时追加","启动时替换"},radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.pink}
+TextBox{parent=log_c_1,y=7,text="日志文件路径"}
 local path = TextField{parent=log_c_1,y=8,width=49,height=1,value=ini_cfg.LogPath,max_len=128,fg_bg=bw_fg_bg}
-local en_dbg = Checkbox{parent=log_c_1,y=10,default=ini_cfg.LogDebug,label="Enable Logging Debug Messages",box_fg_bg=cpair(colors.pink,colors.black)}
-TextBox{parent=log_c_1,x=3,y=11,height=2,text="This results in much larger log files. It is best to only use this when there is a problem.",fg_bg=g_lg_fg_bg}
-local path_err = TextBox{parent=log_c_1,x=8,y=14,width=35,text="Please provide a log file path.",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
+local en_dbg = Checkbox{parent=log_c_1,y=10,default=ini_cfg.LogDebug,label="启用日志调试消息",box_fg_bg=cpair(colors.pink,colors.black)}
+TextBox{parent=log_c_1,x=3,y=11,height=2,text="这会导致日志文件大得多。最好仅在出现问题时使用。",fg_bg=g_lg_fg_bg}
+local path_err = TextBox{parent=log_c_1,x=8,y=14,width=35,text="请提供日志文件路径。",fg_bg=cpair(colors.red,colors.lightGray),hidden=true}
 local function submit_log()
 if path.get_value() ~= "" then
 path_err.hide(true)
@@ -331,25 +331,25 @@ end
 local function back_from_log()
 if tmp_cfg.Networked then main_pane.set_value(3) else main_pane.set_value(2) end
 end
-PushButton{parent=log_c_1,y=14,text="\x1b Back",callback=back_from_log,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=log_c_1,x=44,y=14,text="Next \x1a",callback=submit_log,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=log_c_1,y=14,text="\x1b 返回",callback=back_from_log,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=log_c_1,x=44,y=14,text="下一步 \x1a",callback=submit_log,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local clr_c_1 = Div{parent=clr_cfg,x=2,y=4,width=49}
 local clr_c_2 = Div{parent=clr_cfg,x=2,y=4,width=49}
 local clr_c_3 = Div{parent=clr_cfg,x=2,y=4,width=49}
 local clr_c_4 = Div{parent=clr_cfg,x=2,y=4,width=49}
 local clr_pane = MultiPane{parent=clr_cfg,y=4,panes={clr_c_1,clr_c_2,clr_c_3,clr_c_4}}
-TextBox{parent=clr_cfg,y=2,text=" Color Configuration",fg_bg=cpair(colors.black,colors.magenta)}
-TextBox{parent=clr_c_1,y=1,height=2,text="Here you can select the color theme for the front panel."}
-TextBox{parent=clr_c_1,y=4,height=2,text="Click 'Accessibility' below to access colorblind assistive options.",fg_bg=g_lg_fg_bg}
-TextBox{parent=clr_c_1,y=7,text="Front Panel Theme"}
+TextBox{parent=clr_cfg,y=2,text=" 颜色配置",fg_bg=cpair(colors.black,colors.magenta)}
+TextBox{parent=clr_c_1,y=1,height=2,text="您可以在此选择前面板的颜色主题。"}
+TextBox{parent=clr_c_1,y=4,height=2,text="点击下方的“无障碍”以访问色盲辅助选项。",fg_bg=g_lg_fg_bg}
+TextBox{parent=clr_c_1,y=7,text="前面板主题"}
 local fp_theme = RadioButton{parent=clr_c_1,y=8,default=ini_cfg.FrontPanelTheme,options=themes.FP_THEME_NAMES,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.magenta}
-TextBox{parent=clr_c_2,y=1,height=6,text="This system uses color heavily to distinguish ok and not, with some indicators using many colors. By selecting a mode below, indicators will change as shown. For non-standard modes, indicators with more than two colors will be split up."}
-TextBox{parent=clr_c_2,x=21,y=7,text="Preview"}
-local _ = IndLight{parent=clr_c_2,x=21,y=8,label="Good",colors=cpair(colors.black,colors.green)}
-_ = IndLight{parent=clr_c_2,x=21,y=9,label="Warning",colors=cpair(colors.black,colors.yellow)}
-_ = IndLight{parent=clr_c_2,x=21,y=10,label="Bad",colors=cpair(colors.black,colors.red)}
-local b_off = IndLight{parent=clr_c_2,x=21,y=11,label="Off",colors=cpair(colors.black,colors.black),hidden=true}
-local g_off = IndLight{parent=clr_c_2,x=21,y=11,label="Off",colors=cpair(colors.gray,colors.gray),hidden=true}
+TextBox{parent=clr_c_2,y=1,height=6,text="此系统大量使用颜色来区分正常与否，部分指示灯使用多种颜色。通过选择下方的模式，指示灯将按所示方式变化。对于非标准模式，颜色超过两种的指示灯将被拆分。"}
+TextBox{parent=clr_c_2,x=21,y=7,text="预览"}
+local _ = IndLight{parent=clr_c_2,x=21,y=8,label="正常",colors=cpair(colors.black,colors.green)}
+_ = IndLight{parent=clr_c_2,x=21,y=9,label="警告",colors=cpair(colors.black,colors.yellow)}
+_ = IndLight{parent=clr_c_2,x=21,y=10,label="故障",colors=cpair(colors.black,colors.red)}
+local b_off = IndLight{parent=clr_c_2,x=21,y=11,label="关闭",colors=cpair(colors.black,colors.black),hidden=true}
+local g_off = IndLight{parent=clr_c_2,x=21,y=11,label="关闭",colors=cpair(colors.gray,colors.gray),hidden=true}
 local function recolor(value)
 local c = themes.smooth_stone.color_modes[value]
 if value == themes.COLOR_MODE.STANDARD or value == themes.COLOR_MODE.BLUE_IND then
@@ -367,10 +367,10 @@ term.setPaletteColor(colors.yellow, c[2].hex)
 term.setPaletteColor(colors.red, c[3].hex)
 end
 end
-TextBox{parent=clr_c_2,y=7,width=10,text="Color Mode"}
+TextBox{parent=clr_c_2,y=7,width=10,text="颜色模式"}
 local c_mode = RadioButton{parent=clr_c_2,y=8,default=ini_cfg.ColorMode,options=themes.COLOR_MODE_NAMES,callback=recolor,radio_colors=cpair(colors.lightGray,colors.black),select_color=colors.magenta}
-TextBox{parent=clr_c_2,x=21,y=13,height=2,width=18,text="Note: exact color varies by theme.",fg_bg=g_lg_fg_bg}
-PushButton{parent=clr_c_2,x=44,y=14,min_width=6,text="Done",callback=function()clr_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=clr_c_2,x=21,y=13,height=2,width=18,text="注意：具体颜色因主题而异。",fg_bg=g_lg_fg_bg}
+PushButton{parent=clr_c_2,x=44,y=14,min_width=6,text="完成",callback=function()clr_pane.set_value(1)end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local function back_from_colors()
 main_pane.set_value(tri(tool_ctl.jumped_to_color, 1, 4))
 tool_ctl.jumped_to_color = false
@@ -401,27 +401,27 @@ tool_ctl.settings_apply.show()
 main_pane.set_value(6)
 end
 end
-PushButton{parent=clr_c_1,y=14,text="\x1b Back",callback=back_from_colors,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=clr_c_1,x=8,y=14,min_width=15,text="Accessibility",callback=show_access,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-tool_ctl.color_next = PushButton{parent=clr_c_1,x=44,y=14,text="Next \x1a",callback=submit_colors,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-tool_ctl.color_apply = PushButton{parent=clr_c_1,x=43,y=14,min_width=7,text="Apply",callback=submit_colors,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
+PushButton{parent=clr_c_1,y=14,text="\x1b 返回",callback=back_from_colors,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=clr_c_1,x=8,y=14,min_width=15,text="无障碍",callback=show_access,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+tool_ctl.color_next = PushButton{parent=clr_c_1,x=44,y=14,text="下一步 \x1a",callback=submit_colors,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+tool_ctl.color_apply = PushButton{parent=clr_c_1,x=43,y=14,min_width=7,text="应用",callback=submit_colors,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
 tool_ctl.color_apply.hide(true)
 local function c_go_home()
 main_pane.set_value(1)
 clr_pane.set_value(1)
 end
-TextBox{parent=clr_c_3,y=1,text="Settings saved!"}
-PushButton{parent=clr_c_3,y=14,min_width=6,text="Exit",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.white,colors.gray)}
-PushButton{parent=clr_c_3,x=44,y=14,min_width=6,text="Home",callback=c_go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-TextBox{parent=clr_c_4,y=1,height=5,text="Failed to save the settings file.\n\nThere may not be enough space for the modification or server file permissions may be denying writes."}
-PushButton{parent=clr_c_4,y=14,min_width=6,text="Exit",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.white,colors.gray)}
-PushButton{parent=clr_c_4,x=44,y=14,min_width=6,text="Home",callback=c_go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=clr_c_3,y=1,text="设置已保存！"}
+PushButton{parent=clr_c_3,y=14,min_width=6,text="退出",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.white,colors.gray)}
+PushButton{parent=clr_c_3,x=44,y=14,min_width=6,text="主页",callback=c_go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+TextBox{parent=clr_c_4,y=1,height=5,text="无法保存设置文件。\n\n可能是空间不足，或服务器文件权限拒绝写入。"}
+PushButton{parent=clr_c_4,y=14,min_width=6,text="退出",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.white,colors.gray)}
+PushButton{parent=clr_c_4,x=44,y=14,min_width=6,text="主页",callback=c_go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 local sum_c_1 = Div{parent=summary,x=2,y=4,width=49}
 local sum_c_2 = Div{parent=summary,x=2,y=4,width=49}
 local sum_c_3 = Div{parent=summary,x=2,y=4,width=49}
 local sum_c_4 = Div{parent=summary,x=2,y=4,width=49}
 local sum_pane = MultiPane{parent=summary,y=4,panes={sum_c_1,sum_c_2,sum_c_3,sum_c_4}}
-TextBox{parent=summary,y=2,text=" Summary",fg_bg=cpair(colors.black,colors.green)}
+TextBox{parent=summary,y=2,text=" 汇总",fg_bg=cpair(colors.black,colors.green)}
 local setting_list = ListBox{parent=sum_c_1,y=1,height=12,width=49,scroll_height=100,fg_bg=bw_fg_bg,nav_fg_bg=g_lg_fg_bg,nav_active=cpair(colors.black,colors.gray)}
 local function back_from_settings()
 if tool_ctl.viewing_config or self.importing_legacy then
@@ -480,11 +480,11 @@ else
 sum_pane.set_value(4)
 end
 end
-PushButton{parent=sum_c_1,y=14,text="\x1b Back",callback=back_from_settings,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-self.show_key_btn = PushButton{parent=sum_c_1,x=8,y=14,min_width=17,text="Unhide Auth Key",callback=function()self.show_auth_key()end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
-tool_ctl.settings_apply = PushButton{parent=sum_c_1,x=43,y=14,min_width=7,text="Apply",callback=save_and_continue,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
-TextBox{parent=sum_c_2,y=1,text="Settings saved!"}
-TextBox{parent=sum_c_2,y=3,text="Tip: you can run a Self-Check from the configurator home screen to make sure everything is going to work right!"}
+PushButton{parent=sum_c_1,y=14,text="\x1b 返回",callback=back_from_settings,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+self.show_key_btn = PushButton{parent=sum_c_1,x=8,y=14,min_width=17,text="显示认证密钥",callback=function()self.show_auth_key()end,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg,dis_fg_bg=btn_dis_fg_bg}
+tool_ctl.settings_apply = PushButton{parent=sum_c_1,x=43,y=14,min_width=7,text="应用",callback=save_and_continue,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
+TextBox{parent=sum_c_2,y=1,text="设置已保存！"}
+TextBox{parent=sum_c_2,y=3,text="提示：您可以从配置器主页运行自检，以确保一切都能正常工作！"}
 local function go_home()
 main_pane.set_value(1)
 plc_pane.set_value(1)
@@ -492,22 +492,22 @@ net_pane.set_value(1)
 clr_pane.set_value(1)
 sum_pane.set_value(1)
 end
-PushButton{parent=sum_c_2,y=14,min_width=6,text="Home",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_2,y=14,min_width=6,text="主页",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
 if tool_ctl.ask_config then
-PushButton{parent=sum_c_2,x=34,y=14,min_width=16,text="Resume Startup",callback=exit,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_2,x=34,y=14,min_width=16,text="继续启动",callback=exit,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg}
 else
-PushButton{parent=sum_c_2,x=41,y=14,min_width=9,text="Startup",callback=startup,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_2,x=41,y=14,min_width=9,text="启动",callback=startup,fg_bg=cpair(colors.black,colors.green),active_fg_bg=btn_act_fg_bg}
 end
-TextBox{parent=sum_c_3,y=1,height=2,text="The old config.lua file will now be deleted, then the configurator will exit."}
+TextBox{parent=sum_c_3,y=1,height=2,text="旧的 config.lua 文件即将被删除，然后配置器将退出。"}
 local function delete_legacy()
 fs.delete("/reactor-plc/config.lua")
 exit()
 end
-PushButton{parent=sum_c_3,y=14,min_width=8,text="Cancel",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=sum_c_3,x=44,y=14,min_width=6,text="OK",callback=delete_legacy,fg_bg=cpair(colors.black,colors.green),active_fg_bg=cpair(colors.white,colors.gray)}
-TextBox{parent=sum_c_4,y=1,height=5,text="Failed to save the settings file.\n\nThere may not be enough space for the modification or server file permissions may be denying writes."}
-PushButton{parent=sum_c_4,y=14,min_width=6,text="Home",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
-PushButton{parent=sum_c_4,x=44,y=14,min_width=6,text="Exit",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.white,colors.gray)}
+PushButton{parent=sum_c_3,y=14,min_width=8,text="取消",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_3,x=44,y=14,min_width=6,text="确定",callback=delete_legacy,fg_bg=cpair(colors.black,colors.green),active_fg_bg=cpair(colors.white,colors.gray)}
+TextBox{parent=sum_c_4,y=1,height=5,text="无法保存设置文件。\n\n可能是空间不足，或服务器文件权限拒绝写入。"}
+PushButton{parent=sum_c_4,y=14,min_width=6,text="主页",callback=go_home,fg_bg=nav_fg_bg,active_fg_bg=btn_act_fg_bg}
+PushButton{parent=sum_c_4,x=44,y=14,min_width=6,text="退出",callback=exit,fg_bg=cpair(colors.black,colors.red),active_fg_bg=cpair(colors.white,colors.gray)}
 function tool_ctl.load_legacy()
 local config = require("reactor-plc.config")
 tmp_cfg.Networked = config.NETWORKED
@@ -557,14 +557,14 @@ local val_max_w = (inner_width - label_w) + 1
 local raw = cfg[f[1]]
 local val = util.strval(raw)
 if f[1] == "AuthKey" and raw then val = string.rep("*", string.len(val))
-elseif f[1] == "LogMode" then val = tri(raw == log.MODE.APPEND, "append", "replace")
+elseif f[1] == "LogMode" then val = tri(raw == log.MODE.APPEND, "追加", "替换")
 elseif f[1] == "EmerCoolColor" and raw ~= nil then val = rsio.color_name(raw)
 elseif f[1] == "FrontPanelTheme" then
 val = util.strval(themes.fp_theme_name(raw))
 elseif f[1] == "ColorMode" then
 val = util.strval(themes.color_mode_name(raw))
 end
-if val == "nil" then val = "<not set>" end
+if val == "nil" then val = "<未设置>" end
 local c = tri(alternate, g_lg_fg_bg, cpair(colors.gray,colors.white))
 if (string.len(val) > val_max_w) or string.find(val, "\n") then
 local lines = util.strwrap(val, inner_width)
@@ -599,25 +599,25 @@ if tmp_cfg.WiredModem == iface then missing.tmp = false end
 end
 if missing.tmp and tmp_cfg.WiredModem then
 local line = Div{parent=modem_list,y=1,height=1}
-TextBox{parent=line,y=1,width=4,text="Used",fg_bg=cpair(tri(enable,colors.blue,colors.gray),colors.white)}
-PushButton{parent=line,x=6,y=1,min_width=8,height=1,text="SELECT",callback=function()end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=g_lg_fg_bg}.disable()
-TextBox{parent=line,x=15,y=1,text="[missing]",fg_bg=cpair(colors.red,colors.white)}
+TextBox{parent=line,y=1,width=4,text="使用",fg_bg=cpair(tri(enable,colors.blue,colors.gray),colors.white)}
+PushButton{parent=line,x=6,y=1,min_width=8,height=1,text="选择",callback=function()end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=g_lg_fg_bg}.disable()
+TextBox{parent=line,x=15,y=1,text="[缺失]",fg_bg=cpair(colors.red,colors.white)}
 TextBox{parent=line,x=25,y=1,text=tmp_cfg.WiredModem}
 end
 if missing.ini and ini_cfg.WiredModem and (tmp_cfg.WiredModem ~= ini_cfg.WiredModem) then
 local line = Div{parent=modem_list,y=1,height=1}
 local used = tmp_cfg.WiredModem == ini_cfg.WiredModem
-TextBox{parent=line,y=1,width=4,text=tri(used,"Used","----"),fg_bg=cpair(tri(used and enable,colors.blue,colors.gray),colors.white)}
-local select_btn = PushButton{parent=line,x=6,y=1,min_width=8,height=1,text="SELECT",callback=function()select(ini_cfg.WiredModem)end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=g_lg_fg_bg}
-TextBox{parent=line,x=15,y=1,text="[missing]",fg_bg=cpair(colors.red,colors.white)}
+TextBox{parent=line,y=1,width=4,text=tri(used,"使用","----"),fg_bg=cpair(tri(used and enable,colors.blue,colors.gray),colors.white)}
+local select_btn = PushButton{parent=line,x=6,y=1,min_width=8,height=1,text="选择",callback=function()select(ini_cfg.WiredModem)end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=g_lg_fg_bg}
+TextBox{parent=line,x=15,y=1,text="[缺失]",fg_bg=cpair(colors.red,colors.white)}
 TextBox{parent=line,x=25,y=1,text=ini_cfg.WiredModem}
 if used or not enable then select_btn.disable() end
 end
 for iface, _ in pairs(modems) do
 local line = Div{parent=modem_list,y=1,height=1}
 local used = tmp_cfg.WiredModem == iface
-TextBox{parent=line,y=1,width=4,text=tri(used,"Used","----"),fg_bg=cpair(tri(used and enable,colors.blue,colors.gray),colors.white)}
-local select_btn = PushButton{parent=line,x=6,y=1,min_width=8,height=1,text="SELECT",callback=function()select(iface)end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=g_lg_fg_bg}
+TextBox{parent=line,y=1,width=4,text=tri(used,"使用","----"),fg_bg=cpair(tri(used and enable,colors.blue,colors.gray),colors.white)}
+local select_btn = PushButton{parent=line,x=6,y=1,min_width=8,height=1,text="选择",callback=function()select(iface)end,fg_bg=cpair(colors.black,colors.lightBlue),active_fg_bg=btn_act_fg_bg,dis_fg_bg=g_lg_fg_bg}
 TextBox{parent=line,x=15,y=1,text=iface}
 if used or not enable then select_btn.disable() end
 end

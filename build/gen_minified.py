@@ -56,7 +56,7 @@ def minify(path: str, skip_lines = 0):
 
     size_start = os.path.getsize(path)
 
-    f = open(path, "r")
+    f = open(path, "r", encoding="utf-8")
     contents = f.read()
     f.close()
 
@@ -97,7 +97,7 @@ def minify(path: str, skip_lines = 0):
         minified = re.sub(r'\n\n', '\n', minified)
 
     # write the minified file
-    f_min = open(f"{OUTPUT}/{path}", "w")
+    f_min = open(f"{OUTPUT}/{path}", "w", encoding="utf-8")
     f_min.write(skipped + minified)
     f_min.close()
 

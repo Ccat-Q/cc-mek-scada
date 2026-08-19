@@ -78,8 +78,8 @@ local function make(parent, x, y, wide, com_waste, unit_id)
     ------------------
 
     local reactor = Rectangle{parent=root,y=1,border=border(1,colors.gray,true),width=19,height=5,fg_bg=wh_gray}
-    TextBox{parent=reactor,y=1,text="FISSION REACTOR",alignment=ALIGN.CENTER}
-    TextBox{parent=reactor,y=3,text="UNIT #"..unit.unit_id,alignment=ALIGN.CENTER}
+    TextBox{parent=reactor,y=1,text="裂变反应堆",alignment=ALIGN.CENTER}
+    TextBox{parent=reactor,y=3,text="机组 #"..unit.unit_id,alignment=ALIGN.CENTER}
     TextBox{parent=root,x=19,y=2,text="\x1b \x80 \x1a",width=1,height=3,fg_bg=lg_gray}
     TextBox{parent=root,x=3,y=5,text="\x19",width=1,fg_bg=lg_gray}
 
@@ -129,8 +129,8 @@ local function make(parent, x, y, wide, com_waste, unit_id)
         hc_rate.register(unit.unit_ps, "heating_rate", hc_rate.update)
 
         local boiler = Rectangle{parent=root,x=_wide(47,40),y=1,border=border(1,colors.gray,true),width=19,height=5,fg_bg=wh_gray}
-        TextBox{parent=boiler,y=1,text="THERMO-ELECTRIC",alignment=ALIGN.CENTER}
-        TextBox{parent=boiler,y=3,text=util.trinary(unit.num_boilers>1,"BOILERS","BOILER"),alignment=ALIGN.CENTER}
+        TextBox{parent=boiler,y=1,text="热电",alignment=ALIGN.CENTER}
+        TextBox{parent=boiler,y=3,text=util.trinary(unit.num_boilers>1,"锅炉","锅炉"),alignment=ALIGN.CENTER}
         TextBox{parent=root,x=_wide(47,40),y=2,text="\x1b \x80 \x1a",width=1,height=3,fg_bg=lg_gray}
         TextBox{parent=root,x=_wide(65,58),y=2,text="\x1b \x80 \x1a",width=1,height=3,fg_bg=lg_gray}
 
@@ -148,8 +148,8 @@ local function make(parent, x, y, wide, com_waste, unit_id)
     end
 
     local turbine = Rectangle{parent=root,x=_wide(93,79),y=1,border=border(1,colors.gray,true),width=19,height=5,fg_bg=wh_gray}
-    TextBox{parent=turbine,y=1,text="STEAM TURBINE",alignment=ALIGN.CENTER}
-    TextBox{parent=turbine,y=3,text=util.trinary(unit.num_turbines>1,"GENERATORS","GENERATOR"),alignment=ALIGN.CENTER}
+    TextBox{parent=turbine,y=1,text="蒸汽涡轮机",alignment=ALIGN.CENTER}
+    TextBox{parent=turbine,y=3,text=util.trinary(unit.num_turbines>1,"发电机","发电机"),alignment=ALIGN.CENTER}
     TextBox{parent=root,x=_wide(93,79),y=2,text="\x1b \x80 \x1a",width=1,height=3,fg_bg=lg_gray}
 
     for i = 1, unit.num_turbines do

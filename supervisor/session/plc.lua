@@ -597,8 +597,8 @@ function plc.new_session(id, s_addr, i_seq_num, reactor_id, in_queue, out_queue,
     function public.close()
         _close()
         _send_mgmt(MGMT_TYPE.CLOSE, {})
-        println("connection to reactor " .. reactor_id .. " PLC closed by server")
-        log.info(log_tag .. "session closed by server")
+        println("与反应堆 " .. reactor_id .. " 的 PLC 连接已由服务器关闭")
+        log.info(log_tag .. "会话已由服务器关闭")
     end
 
     -- iterate the session
@@ -718,8 +718,8 @@ function plc.new_session(id, s_addr, i_seq_num, reactor_id, in_queue, out_queue,
 
             -- exit if connection was closed
             if not self.connected then
-                println("connection to reactor " .. reactor_id .. " PLC closed by remote host")
-                log.info(log_tag .. "session closed by remote host")
+                println("与反应堆 " .. reactor_id .. " 的 PLC 连接已由远程主机关闭")
+                log.info(log_tag .. "会话已由远程主机关闭")
                 return self.connected
             end
 

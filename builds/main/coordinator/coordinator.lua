@@ -168,11 +168,11 @@ end
 local public = {}
 function public.switch_nic(new_nic)
 if tx_nic.is_connected() then
-log.info(util.c("switching link to reconnected interface ", new_nic.phy_name(), " from ", tx_nic.phy_name()))
+log.info(util.c("正在将链路切换到已重连的接口 ", new_nic.phy_name(), "（原 ", tx_nic.phy_name(), "）"))
 tx_nic = new_nic
 _send_sv(PROTOCOL.SCADA_MGMT, MGMT_TYPE.SWITCH_NET, {})
 else
-log.info(util.c("closing link on ", tx_nic.phy_name(), ", switching to ", new_nic.phy_name()))
+log.info(util.c("正在关闭 ", tx_nic.phy_name(), " 上的链路，切换到 ", new_nic.phy_name()))
 tx_nic = new_nic
 sv_watchdog.cancel()
 public.unlink()
@@ -183,7 +183,7 @@ local ok, start_ui = true, false
 if self.sv_linked then
 local act_nic = backplane.active_nic()
 if (act_nic ~= tx_nic) and act_nic.is_network_up() and ((util.time_ms() - self.failover_init) > FAILOVER_GRACE_PERIOD_MS) then
-log.info(util.c("primary interface ", act_nic.phy_name(), " is up, requesting link switch"))
+log.info(util.c("主接口 ", act_nic.phy_name(), " 已恢复，正在请求切换链路"))
 tx_nic = act_nic
 _send_sv(PROTOCOL.SCADA_MGMT, MGMT_TYPE.SWITCH_NET, {})
 self.failover_init = util.time_ms()
@@ -206,7 +206,7 @@ if self.est_tick_waiting == nil then
 self.est_start = os.clock()
 self.est_last = self.est_start
 self.est_tick_waiting, self.est_task_done =
-coordinator.log_comms_connecting("attempting to connect to configured supervisor on channel " .. config.SVR_Channel)
+coordinator.log_comms_connecting("正在尝试连接到已配置的上位机（频道 " .. config.SVR_Channel .. "）")
 if e_nic then _send_establish(e_nic) end
 else
 self.est_tick_waiting(math.max(0, LINK_TIMEOUT - (os.clock() - self.est_start)))
@@ -214,24 +214,24 @@ end
 if abort or (os.clock() - self.est_start) >= LINK_TIMEOUT then
 self.est_task_done(false)
 if abort then
-coordinator.log_comms("supervisor connection attempt cancelled by user")
+coordinator.log_comms("上位机连接尝试已被用户取消")
 elseif self.sv_config_err then
-coordinator.log_comms("supervisor unit count does not match coordinator unit count, check configs")
+coordinator.log_comms("上位机机组数量与协调器机组数量不匹配，请检查配置")
 elseif not self.sv_linked then
 if self.last_est_ack == ESTABLISH_ACK.DENY then
-coordinator.log_comms("supervisor connection attempt denied")
+coordinator.log_comms("上位机连接尝试被拒绝")
 elseif self.last_est_ack == ESTABLISH_ACK.COLLISION then
-coordinator.log_comms("supervisor connection failed due to collision")
+coordinator.log_comms("上位机连接因冲突而失败")
 elseif self.last_est_ack == ESTABLISH_ACK.BAD_VERSION then
-coordinator.log_comms("supervisor connection failed due to version mismatch")
+coordinator.log_comms("上位机连接因版本不匹配而失败")
 else
-coordinator.log_comms("supervisor connection failed with no valid response")
+coordinator.log_comms("上位机连接失败，无有效响应")
 end
 end
 ok = false
 elseif self.sv_config_err then
 self.est_task_done(false)
-coordinator.log_comms("supervisor unit count does not match coordinator unit count, check configs")
+coordinator.log_comms("上位机机组数量与协调器机组数量不匹配，请检查配置")
 ok = false
 elseif (os.clock() - self.est_last) > 1.0 then
 if e_nic then _send_establish(e_nic) end
@@ -273,11 +273,11 @@ pkt = comms.mgmt_container().decode(frame)
 elseif frame.protocol() == PROTOCOL.SCADA_CRDN then
 pkt = comms.crdn_container().decode(frame)
 else
-log.debug("parse_packet(" .. side .. "): attempted parse of illegal packet type " .. frame.protocol(), true)
+log.debug("parse_packet(" .. side .. ")：尝试解析非法数据包类型 " .. frame.protocol(), true)
 end
 end
 else
-log.error("parse_packet(" .. side .. "): received a packet from an interface without a nic?")
+log.error("parse_packet(" .. side .. ")：从没有 nic 的接口收到数据包？")
 end
 return pkt
 end
@@ -289,17 +289,17 @@ local r_chan = packet.scada_frame.remote_channel()
 local src_addr = packet.scada_frame.src_addr()
 local protocol = packet.scada_frame.protocol()
 if l_chan ~= config.CRD_Channel then
-log.debug("received packet on unconfigured channel " .. l_chan, true)
+log.debug("在未配置的频道 " .. l_chan .. " 上收到数据包", true)
 elseif r_chan == config.PKT_Channel then
 if not config.API_Enabled then
 elseif not self.sv_linked then
-log.debug("discarding pocket API packet before linked to supervisor")
+log.debug("在连接到上位机之前丢弃 Pocket API 数据包")
 elseif protocol == PROTOCOL.SCADA_CRDN then
 local session = apisessions.find_session(src_addr)
 if session ~= nil then
 session.in_queue.push_network(packet)
 else
-log.debug("discarding SCADA_CRDN packet without a known session")
+log.debug("丢弃没有已知会话的 SCADA_CRDN 数据包")
 end
 elseif protocol == PROTOCOL.SCADA_MGMT then
 local session = apisessions.find_session(src_addr)
@@ -313,41 +313,41 @@ local dev_type = packet.data[3]
 local api_v = util.strval(packet.data[4])
 if comms_v ~= comms.version then
 if self.last_api_est_acks[src_addr] ~= ESTABLISH_ACK.BAD_VERSION then
-log.info(util.c("dropping API establish packet with incorrect comms version v", comms_v, " (expected v", comms.version, ")"))
+log.info(util.c("正在丢弃通信版本不正确的 API 建立数据包 v", comms_v, "（应为 v", comms.version, "）"))
 end
 _send_api_establish_ack(packet.scada_frame, ESTABLISH_ACK.BAD_VERSION)
 elseif api_v ~= comms.api_version then
 if self.last_api_est_acks[src_addr] ~= ESTABLISH_ACK.BAD_API_VERSION then
-log.info(util.c("dropping API establish packet with incorrect api version v", api_v, " (expected v", comms.api_version, ")"))
+log.info(util.c("正在丢弃 API 版本不正确的 API 建立数据包 v", api_v, "（应为 v", comms.api_version, "）"))
 end
 _send_api_establish_ack(packet.scada_frame, ESTABLISH_ACK.BAD_API_VERSION)
 elseif dev_type == DEVICE_TYPE.PKT then
 local id = apisessions.establish_session(src_addr, packet.scada_frame.seq_num(), firmware_v)
-coordinator.log_comms(util.c("API_ESTABLISH: pocket (", firmware_v, ") [@", src_addr, "] connected with session ID ", id))
+coordinator.log_comms(util.c("API_ESTABLISH: Pocket（", firmware_v, "）[@", src_addr, "] 已连接，会话 ID ", id))
 local conf = ioctl.get_db().facility.conf
 _send_api_establish_ack(packet.scada_frame, ESTABLISH_ACK.ALLOW, { conf.num_units, conf.cooling, conf.com_waste, conf.ess })
 else
-log.debug(util.c("API_ESTABLISH: illegal establish packet for device ", dev_type, " on pocket channel"))
+log.debug(util.c("API_ESTABLISH: Pocket 频道上收到设备的非法建立数据包 ", dev_type))
 _send_api_establish_ack(packet.scada_frame, ESTABLISH_ACK.DENY)
 end
 else
-log.debug("invalid establish packet (on API listening channel)")
+log.debug("无效的建立数据包（在 API 监听频道上）")
 _send_api_establish_ack(packet.scada_frame, ESTABLISH_ACK.DENY)
 end
 else
-log.debug(util.c("discarding pocket SCADA_MGMT packet without a known session from computer ", src_addr))
+log.debug(util.c("丢弃来自电脑 ", src_addr, " 的无已知会话 Pocket SCADA_MGMT 数据包"))
 end
 else
-log.debug("illegal packet type " .. protocol .. " on pocket channel", true)
+log.debug("Pocket 频道上的非法数据包类型 " .. protocol, true)
 end
 elseif r_chan == config.SVR_Channel then
 if self.sv_r_seq_num == nil then
 self.sv_r_seq_num = packet.scada_frame.seq_num() + 1
 elseif self.sv_r_seq_num ~= packet.scada_frame.seq_num() then
-log.warning("sequence out-of-order: next = " .. self.sv_r_seq_num .. ", new = " .. packet.scada_frame.seq_num())
+log.warning("序列乱序：期望 = " .. self.sv_r_seq_num .. "，实际 = " .. packet.scada_frame.seq_num())
 return false
 elseif self.sv_linked and src_addr ~= self.sv_addr then
-log.debug("received packet from unknown computer " .. src_addr .. " while linked; channel in use by another system?")
+log.debug("在已连接时收到来自未知电脑 " .. src_addr .. " 的数据包；频道是否被其他系统占用？")
 return false
 else
 self.sv_r_seq_num = packet.scada_frame.seq_num() + 1
@@ -362,24 +362,24 @@ local unit_builds = ioctl.record_unit_builds(packet.data[2])
 if fac_builds and unit_builds then
 _send_sv(PROTOCOL.SCADA_CRDN, CRDN_TYPE.INITIAL_BUILDS, {})
 else
-log.debug("received invalid INITIAL_BUILDS packet")
+log.debug("收到无效的 INITIAL_BUILDS 数据包")
 end
 else
-log.debug("INITIAL_BUILDS packet length mismatch")
+log.debug("INITIAL_BUILDS 数据包长度不匹配")
 end
 elseif packet.type == CRDN_TYPE.FAC_BUILDS then
 if packet.length == 1 then
 if ioctl.record_facility_builds(packet.data[1]) then
 _send_sv(PROTOCOL.SCADA_CRDN, CRDN_TYPE.FAC_BUILDS, {})
 else
-log.debug("received invalid FAC_BUILDS packet")
+log.debug("收到无效的 FAC_BUILDS 数据包")
 end
 else
-log.debug("FAC_BUILDS packet length mismatch")
+log.debug("FAC_BUILDS 数据包长度不匹配")
 end
 elseif packet.type == CRDN_TYPE.FAC_STATUS then
 if not ioctl.update_facility_status(packet.data) then
-log.debug("received invalid FAC_STATUS packet")
+log.debug("收到无效的 FAC_STATUS 数据包")
 end
 elseif packet.type == CRDN_TYPE.FAC_CMD then
 if packet.length >= 2 then
@@ -393,7 +393,7 @@ elseif cmd == FAC_COMMAND.START then
 if packet.length == 9 then
 process.start_ack_handle({ table.unpack(packet.data, 2) })
 else
-log.debug("SCADA_CRDN process start (with configuration) ack echo packet length mismatch")
+log.debug("SCADA_CRDN 工艺启动（带配置）确认回显数据包长度不匹配")
 end
 elseif cmd == FAC_COMMAND.ACK_ALL_ALARMS then
 process.fac_ack(cmd, ack)
@@ -404,24 +404,24 @@ process.pu_fb_ack_handle(packet.data[2])
 elseif cmd == FAC_COMMAND.SET_SPS_LP then
 process.sps_lp_ack_handle(packet.data[2])
 else
-log.debug(util.c("received facility command ack with unknown command ", cmd))
+log.debug(util.c("收到未知命令 ", cmd, " 的设施命令确认"))
 end
 else
-log.debug("SCADA_CRDN facility command ack packet length mismatch")
+log.debug("SCADA_CRDN 设施命令确认数据包长度不匹配")
 end
 elseif packet.type == CRDN_TYPE.UNIT_BUILDS then
 if packet.length == 1 then
 if ioctl.record_unit_builds(packet.data[1]) then
 _send_sv(PROTOCOL.SCADA_CRDN, CRDN_TYPE.UNIT_BUILDS, {})
 else
-log.debug("received invalid UNIT_BUILDS packet")
+log.debug("收到无效的 UNIT_BUILDS 数据包")
 end
 else
-log.debug("UNIT_BUILDS packet length mismatch")
+log.debug("UNIT_BUILDS 数据包长度不匹配")
 end
 elseif packet.type == CRDN_TYPE.UNIT_STATUSES then
 if not ioctl.update_unit_statuses(packet.data) then
-log.debug("received invalid UNIT_STATUSES packet")
+log.debug("收到无效的 UNIT_STATUSES 数据包")
 end
 elseif packet.type == CRDN_TYPE.UNIT_CMD then
 if packet.length == 3 then
@@ -439,19 +439,19 @@ process.unit_ack(unit_id, cmd, ack)
 elseif cmd == UNIT_COMMAND.ACK_ALL_ALARMS then
 process.unit_ack(unit_id, cmd, ack)
 else
-log.debug(util.c("received unsupported unit command ack for command ", cmd))
+log.debug(util.c("收到命令 ", cmd, " 的不受支持的机组命令确认"))
 end
 else
-log.debug(util.c("received unit command ack with unknown unit ", unit_id))
+log.debug(util.c("收到未知机组 ", unit_id, " 的机组命令确认"))
 end
 else
-log.debug("SCADA_CRDN unit command ack packet length mismatch")
+log.debug("SCADA_CRDN 机组命令确认数据包长度不匹配")
 end
 else
-log.debug("received unknown SCADA_CRDN packet type " .. packet.type)
+log.debug("收到未知 SCADA_CRDN 数据包类型 " .. packet.type)
 end
 else
-log.debug("discarding SCADA_CRDN packet before linked")
+log.debug("在连接之前丢弃 SCADA_CRDN 数据包")
 end
 elseif protocol == PROTOCOL.SCADA_MGMT then
 if self.sv_linked then
@@ -460,19 +460,19 @@ if packet.length == 1 then
 local timestamp = packet.data[1]
 local trip_time = util.time() - timestamp
 if trip_time > 750 then
-log.warning("coordinator KEEP_ALIVE trip time > 750ms (" .. trip_time .. "ms)")
+log.warning("协调器 KEEP_ALIVE 往返时间 > 750ms（" .. trip_time .. "ms）")
 end
 ioctl.get_db().facility.ps.publish("sv_ping", trip_time)
 _send_keep_alive_ack(timestamp)
 else
-log.debug("SCADA keep alive packet length mismatch")
+log.debug("SCADA 保活数据包长度不匹配")
 end
 elseif packet.type == MGMT_TYPE.CLOSE then
 sv_watchdog.cancel()
 public.unlink()
-log.info("server connection closed by remote host")
+log.info("服务器连接已被远程主机关闭")
 else
-log.debug("received unknown SCADA_MGMT packet type " .. packet.type)
+log.debug("收到未知 SCADA_MGMT 数据包类型 " .. packet.type)
 end
 elseif packet.type == MGMT_TYPE.ESTABLISH then
 if packet.length == 2 then
@@ -488,10 +488,10 @@ com_waste = sv_config[4],
 ess = sv_config[5]
 }
 if not ioctl.set_mek_config(sv_config[3]) then
-log.warning("invalid mekanism configuration table received, establish failed")
+log.warning("收到无效的 Mekanism 配置表，建立失败")
 elseif conf.num_units == config.UnitCount then
 tx_nic = backplane.nics[packet.scada_frame.interface()]
-log.info(util.c("supervisor establish request approved, linked to SV (CID#", src_addr, ") on ", tx_nic.phy_name()))
+log.info(util.c("上位机建立请求已批准，已连接到 SV（CID#", src_addr, "），位于 ", tx_nic.phy_name()))
 ioctl.init(conf, public, config.TempScale, config.EnergyScale)
 self.sv_addr = src_addr
 self.sv_linked = true
@@ -499,13 +499,13 @@ self.sv_config_err = false
 ioctl.fp_link_state(types.PANEL_LINK_STATE.LINKED)
 else
 self.sv_config_err = true
-log.warning("supervisor config's number of units don't match coordinator's config, establish failed")
+log.warning("上位机配置的机组数量与协调器配置不匹配，建立失败")
 end
 else
-log.debug("invalid supervisor configuration table received, establish failed")
+log.debug("收到无效的上位机配置表，建立失败")
 end
 else
-log.debug("SCADA_MGMT establish packet reply (len = 2) unsupported")
+log.debug("不支持 SCADA_MGMT 建立数据包回复（长度 = 2）")
 end
 self.last_est_ack = est_ack
 elseif packet.length == 1 then
@@ -513,33 +513,33 @@ local est_ack = packet.data[1]
 if est_ack == ESTABLISH_ACK.DENY then
 if self.last_est_ack ~= est_ack then
 ioctl.fp_link_state(types.PANEL_LINK_STATE.DENIED)
-log.info("supervisor connection denied")
+log.info("上位机连接被拒绝")
 end
 elseif est_ack == ESTABLISH_ACK.COLLISION then
 if self.last_est_ack ~= est_ack then
 ioctl.fp_link_state(types.PANEL_LINK_STATE.COLLISION)
-log.warning("supervisor connection denied due to collision")
+log.warning("上位机连接因冲突被拒绝")
 end
 elseif est_ack == ESTABLISH_ACK.BAD_VERSION then
 if self.last_est_ack ~= est_ack then
 ioctl.fp_link_state(types.PANEL_LINK_STATE.BAD_VERSION)
-log.warning("supervisor comms version mismatch")
+log.warning("上位机通信版本不匹配")
 end
 else
-log.debug("SCADA_MGMT establish packet reply (len = 1) unsupported")
+log.debug("不支持 SCADA_MGMT 建立数据包回复（长度 = 1）")
 end
 self.last_est_ack = est_ack
 else
-log.debug("SCADA_MGMT establish packet length mismatch")
+log.debug("SCADA_MGMT 建立数据包长度不匹配")
 end
 else
-log.debug("discarding non-link SCADA_MGMT packet before linked")
+log.debug("在连接之前丢弃非链路 SCADA_MGMT 数据包")
 end
 else
-log.debug("illegal packet type " .. protocol .. " on supervisor listening channel", true)
+log.debug("上位机监听频道上的非法数据包类型 " .. protocol, true)
 end
 else
-log.debug("received packet for unknown channel " .. r_chan, true)
+log.debug("收到未知频道 " .. r_chan .. " 的数据包", true)
 end
 end
 return was_linked and not self.sv_linked

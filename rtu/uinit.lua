@@ -67,40 +67,40 @@ return function(config, __shared_memory)
 
         if util.is_int(entry.unit) and entry.unit > 0 and entry.unit < 5 then
             ---@cast for_reactor integer
-            assignment = "reactor unit " .. entry.unit
+            assignment = "反应堆机组 " .. entry.unit
         elseif entry.unit == nil then
-            assignment = "facility"
+            assignment = "设施"
             for_reactor = 0
         else
-            log_fail(util.c("uinit> invalid unit assignment at block index #", entry_idx))
+            log_fail(util.c("uinit> 块索引 #", entry_idx, " 处的机组分配无效"))
             return false
         end
 
         -- create the appropriate RTU if it doesn't exist and check relay name validity
         if entry.relay then
             if type(entry.relay) ~= "string" then
-                log_fail(util.c("uinit> invalid redstone relay '", entry.relay, '"'))
+                log_fail(util.c("uinit> 红石继电器 '", entry.relay, '" 无效'))
                 return false
             elseif not rs_rtus[entry.relay] then
-                log.debug(util.c("uinit> allocated relay redstone RTU on interface ", entry.relay))
+                log.debug(util.c("uinit> 已在接口 ", entry.relay, " 上分配继电器红石 RTU"))
 
                 local hw_state = RTU_HW_STATE.OK
                 local relay    = ppm.get_periph(entry.relay)
 
                 if not relay then
                     hw_state = RTU_HW_STATE.OFFLINE
-                    log.warning(util.c("uinit> redstone relay ", entry.relay, " is not connected"))
+                    log.warning(util.c("uinit> 红石继电器 ", entry.relay, " 未连接"))
                     local _, v_device = ppm.mount_virtual()
                     relay = v_device
                 elseif ppm.get_type(entry.relay) ~= "redstone_relay" then
                     hw_state = RTU_HW_STATE.FAULTED
-                    log.warning(util.c("uinit> redstone relay ", entry.relay, " is not a redstone relay"))
+                    log.warning(util.c("uinit> 红石继电器 ", entry.relay, " 不是红石继电器"))
                 end
 
                 rs_rtus[entry.relay] = { name = entry.relay, hw_state = hw_state, rtu = redstone_rtu.new(relay), phy = relay, banks = { [0] = {}, {}, {}, {}, {} } }
             end
         elseif rs_rtus[0] == nil then
-            log.debug(util.c("uinit> allocated local redstone RTU"))
+            log.debug(util.c("uinit> 已分配本机红石 RTU"))
             rs_rtus[0] = { name = "redstone_local", hw_state = RTU_HW_STATE.OK, rtu = redstone_rtu.new(), phy = rs, banks = { [0] = {}, {}, {}, {}, {} } }
         end
 
@@ -114,7 +114,7 @@ return function(config, __shared_memory)
         local conns = all_conns[for_reactor]
 
         if not valid then
-            log_fail(util.c("uinit> invalid redstone definition at block index #", entry_idx))
+            log_fail(util.c("uinit> 块索引 #", entry_idx, " 处的红石定义无效"))
             return false
         else
             -- link redstone in RTU
@@ -122,7 +122,7 @@ return function(config, __shared_memory)
             if mode == rsio.IO_MODE.DIGITAL_IN then
                 -- can't have duplicate inputs
                 if util.table_contains(conns, entry.port) then
-                    local message = util.c("uinit> skipping duplicate input for port ", rsio.to_string(entry.port), " on side ", iface_name, " @ ", phy_name)
+                    local message = util.c("uinit> 跳过端口 ", rsio.to_string(entry.port), " 在侧 ", iface_name, " @ ", phy_name, " 上的重复输入")
                     println(message)
                     log.warning(message)
                 else
@@ -131,7 +131,7 @@ return function(config, __shared_memory)
             elseif mode == rsio.IO_MODE.ANALOG_IN then
                 -- can't have duplicate inputs
                 if util.table_contains(conns, entry.port) then
-                    local message = util.c("uinit> skipping duplicate input for port ", rsio.to_string(entry.port), " on side ", iface_name, " @ ", phy_name)
+                    local message = util.c("uinit> 跳过端口 ", rsio.to_string(entry.port), " 在侧 ", iface_name, " @ ", phy_name, " 上的重复输入")
                     println(message)
                     log.warning(message)
                 else
@@ -141,14 +141,14 @@ return function(config, __shared_memory)
                 table.insert(bank, entry)
             else
                 -- should be unreachable code, we already validated ports
-                log.fatal("uinit> failed to identify IO mode at block index #" .. entry_idx)
-                println("uinit> encountered a software error, check logs")
+                log.fatal("uinit> 无法识别块索引 #" .. entry_idx .. " 处的 IO 模式")
+                println("uinit> 遇到软件错误，请检查日志")
                 return false
             end
 
             table.insert(conns, entry.port)
 
-            log.debug(util.c("uinit> banked redstone ", #conns, ": ", rsio.to_string(entry.port), " (", iface_name, " @ ", phy_name, ") for ", assignment))
+            log.debug(util.c("uinit> 已分组红石 ", #conns, ": ", rsio.to_string(entry.port), " (", iface_name, " @ ", phy_name, ") 用于 ", assignment))
         end
     end
 
@@ -160,7 +160,7 @@ return function(config, __shared_memory)
         for for_reactor = 0, #def.banks do
             local bank   = def.banks[for_reactor]
             local conns  = rtu_conns[for_reactor]
-            local assign = util.trinary(for_reactor > 0, "reactor unit " .. for_reactor, "the facility")
+            local assign = util.trinary(for_reactor > 0, "反应堆机组 " .. for_reactor, "设施")
 
             -- link redstone to the RTU
             for i = 1, #bank do
@@ -177,14 +177,14 @@ return function(config, __shared_memory)
                 elseif mode == rsio.IO_MODE.ANALOG_OUT then
                     def.rtu.link_ao(conn.side)
                 else
-                    log.fatal(util.c("uinit> failed to identify IO mode of ", rsio.to_string(conn.port), " (", entry_iface_name(conn), " @ ", phy_name, ") for ", assign))
-                    println("uinit> encountered a software error, check logs")
+                    log.fatal(util.c("uinit> 无法识别 ", rsio.to_string(conn.port), " (", entry_iface_name(conn), " @ ", phy_name, ") 用于 ", assign, " 的 IO 模式"))
+                    println("uinit> 遇到软件错误，请检查日志")
                     return false
                 end
 
                 table.insert(conns, conn.port)
 
-                log.debug(util.c("uinit> linked redstone ", for_reactor, ".", #conns, ": ", rsio.to_string(conn.port), " (", entry_iface_name(conn), ")", " @ ", phy_name, ") for ", assign))
+                log.debug(util.c("uinit> 已连接红石 ", for_reactor, ".", #conns, ": ", rsio.to_string(conn.port), " (", entry_iface_name(conn), ")", " @ ", phy_name, ") 用于 ", assign))
             end
         end
 
@@ -210,7 +210,7 @@ return function(config, __shared_memory)
 
         local type = util.trinary(def.phy == rs, "redstone", "redstone_relay")
 
-        log.info(util.c("uinit> initialized RTU unit #", #units, ": ", unit.name, " (", type, ")"))
+        log.info(util.c("uinit> 已初始化 RTU 单元 #", #units, ": ", unit.name, " (", type, ")"))
 
         unit.uid = #units
 
@@ -228,21 +228,21 @@ return function(config, __shared_memory)
 
         -- CHECK: name is a string
         if type(name) ~= "string" then
-            log_fail(util.c("uinit> device entry #", i, ": device ", name, " isn't a string"))
+            log_fail(util.c("uinit> 设备条目 #", i, ": 设备 ", name, " 不是字符串"))
             return false
         end
 
         -- CHECK: index type
         if (index ~= nil) and (not util.is_int(index)) then
-            log_fail(util.c("uinit> device entry #", i, ": index ", index, " isn't valid"))
+            log_fail(util.c("uinit> 设备条目 #", i, ": 索引 ", index, " 无效"))
             return false
         end
 
         -- CHECK: index range
         local function validate_index(min, max)
             if (not util.is_int(index)) or ((index < min) and (max ~= nil and index > max)) then
-                local message = util.c("uinit> device entry #", i, ": index ", index, " isn't >= ", min)
-                if max ~= nil then message = util.c(message, " and <= ", max) end
+                local message = util.c("uinit> 设备条目 #", i, ": 索引 ", index, " 不满足 >= ", min)
+                if max ~= nil then message = util.c(message, " 且 <= ", max) end
                 log_fail(message)
                 return false
             else return true end
@@ -251,10 +251,10 @@ return function(config, __shared_memory)
         -- CHECK: reactor is an integer >= 0
         local function validate_assign(for_facility)
             if for_facility and for_reactor ~= 0 then
-                log_fail(util.c("uinit> device entry #", i, ": must only be for the facility"))
+                log_fail(util.c("uinit> 设备条目 #", i, ": 只能用于设施"))
                 return false
             elseif (not for_facility) and ((not util.is_int(for_reactor)) or (for_reactor < 1) or (for_reactor > 4)) then
-                log_fail(util.c("uinit> device entry #", i, ": unit assignment ", for_reactor, " isn't vaild"))
+                log_fail(util.c("uinit> 设备条目 #", i, ": 机组分配 ", for_reactor, " 无效"))
                 return false
             else return true end
         end
@@ -269,7 +269,7 @@ return function(config, __shared_memory)
         local faulted = nil         ---@type boolean|nil
 
         if device == nil then
-            local message = util.c("uinit> '", name, "' not found, using placeholder")
+            local message = util.c("uinit> 未找到 '", name, "'，使用占位符")
             println(message)
             log.warning(message)
 
@@ -290,8 +290,8 @@ return function(config, __shared_memory)
             formed = device.isFormed()
 
             if formed == ppm.ACCESS_FAULT then
-                println_ts(util.c("uinit> failed to check if '", name, "' is formed"))
-                log.warning(util.c("uinit> failed to check if '", name, "' is a formed boiler multiblock"))
+                println_ts(util.c("uinit> 无法检查 '", name, "' 是否成型"))
+                log.warning(util.c("uinit> 无法检查 '", name, "' 是否为成型的锅炉多方块结构"))
             end
         elseif type == "turbineValve" then
             -- turbine multiblock
@@ -304,8 +304,8 @@ return function(config, __shared_memory)
             formed = device.isFormed()
 
             if formed == ppm.ACCESS_FAULT then
-                println_ts(util.c("uinit> failed to check if '", name, "' is formed"))
-                log.warning(util.c("uinit> failed to check if '", name, "' is a formed turbine multiblock"))
+                println_ts(util.c("uinit> 无法检查 '", name, "' 是否成型"))
+                log.warning(util.c("uinit> 无法检查 '", name, "' 是否为成型的涡轮机多方块结构"))
             end
         elseif type == "dynamicValve" then
             -- dynamic tank multiblock
@@ -323,8 +323,8 @@ return function(config, __shared_memory)
             formed = device.isFormed()
 
             if formed == ppm.ACCESS_FAULT then
-                println_ts(util.c("uinit> failed to check if '", name, "' is formed"))
-                log.warning(util.c("uinit> failed to check if '", name, "' is a formed dynamic tank multiblock"))
+                println_ts(util.c("uinit> 无法检查 '", name, "' 是否成型"))
+                log.warning(util.c("uinit> 无法检查 '", name, "' 是否为成型的动态储罐多方块结构"))
             end
         elseif type == "inductionPort" or type == "reinforcedInductionPort" then
             -- induction matrix multiblock (normal or reinforced)
@@ -336,8 +336,8 @@ return function(config, __shared_memory)
             formed = device.isFormed()
 
             if formed == ppm.ACCESS_FAULT then
-                println_ts(util.c("uinit> failed to check if '", name, "' is formed"))
-                log.warning(util.c("uinit> failed to check if '", name, "' is a formed induction matrix multiblock"))
+                println_ts(util.c("uinit> 无法检查 '", name, "' 是否成型"))
+                log.warning(util.c("uinit> 无法检查 '", name, "' 是否为成型的感应矩阵多方块结构"))
             end
         elseif type == "spsPort" then
             -- SPS multiblock
@@ -349,8 +349,8 @@ return function(config, __shared_memory)
             formed = device.isFormed()
 
             if formed == ppm.ACCESS_FAULT then
-                println_ts(util.c("uinit> failed to check if '", name, "' is formed"))
-                log.warning(util.c("uinit> failed to check if '", name, "' is a formed SPS multiblock"))
+                println_ts(util.c("uinit> 无法检查 '", name, "' 是否成型"))
+                log.warning(util.c("uinit> 无法检查 '", name, "' 是否为成型的 SPS 多方块结构"))
             end
         elseif type == "solarNeutronActivator" or type == "largeSolarNeutronActivator" then
             -- SNA (normal or large)
@@ -376,20 +376,20 @@ return function(config, __shared_memory)
             rtu_type = RTU_UNIT_TYPE.VIRTUAL
             rtu_iface = rtu.init_unit().interface()
         else
-            log_fail(util.c("uinit> device '", name, "' is not a known type (", type, ")"))
+            log_fail(util.c("uinit> 设备 '", name, "' 不是已知类型 (", type, ")"))
             return false
         end
 
         if is_multiblock then
             if not formed then
                 if formed == false then
-                    log.info(util.c("uinit> device '", name, "' is not formed"))
+                    log.info(util.c("uinit> 设备 '", name, "' 未成型"))
                 else formed = false end
             elseif faulted then
                 -- sometimes there is a race condition on server boot where it reports formed, but
                 -- the other functions are not yet defined (that's the theory at least). mark as unformed to attempt connection later
                 formed = false
-                log.warning(util.c("uinit> device '", name, "' is formed, but initialization had one or more faults: marked as unformed"))
+                log.warning(util.c("uinit> 设备 '", name, "' 已成型，但初始化时出现一个或多个故障：标记为未成型"))
             end
         end
 
@@ -415,13 +415,13 @@ return function(config, __shared_memory)
 
         table.insert(units, rtu_unit)
 
-        local for_message = "the facility"
+        local for_message = "设施"
         if for_reactor > 0 then
-            for_message = util.c("reactor ", for_reactor)
+            for_message = util.c("反应堆 ", for_reactor)
         end
 
         local index_str = util.trinary(index ~= nil, util.c(" [", index, "]"), "")
-        log.info(util.c("uinit> initialized RTU unit #", #units, ": ", name, " (", types.rtu_type_to_string(rtu_type), ")", index_str, " for ", for_message))
+        log.info(util.c("uinit> 已初始化 RTU 单元 #", #units, ": ", name, " (", types.rtu_type_to_string(rtu_type), ")", index_str, " 用于 ", for_message))
 
         rtu_unit.uid = #units
 

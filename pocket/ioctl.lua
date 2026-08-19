@@ -343,13 +343,13 @@ function ioctl.report_link_state(state, sv_addr, api_addr)
     if sv_addr then
         io.ps.publish("sv_addr", util.c(sv_addr, ":", config.SVR_Channel))
     elseif sv_addr == false then
-        io.ps.publish("sv_addr", "unknown (not linked)")
+        io.ps.publish("sv_addr", "未知（未连接）")
     end
 
     if api_addr then
         io.ps.publish("api_addr", util.c(api_addr, ":", config.CRD_Channel))
     elseif api_addr == false then
-        io.ps.publish("api_addr", "unknown (not linked)")
+        io.ps.publish("api_addr", "未知（未连接）")
     end
 end
 

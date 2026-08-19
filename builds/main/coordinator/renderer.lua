@@ -47,7 +47,7 @@ monitor.setCursorPos(1, 1)
 monitor.setBackgroundColor(colors.black)
 monitor.setTextColor(colors.red)
 monitor.clear()
-monitor.write("monitor too small")
+monitor.write("屏幕太小")
 end
 function renderer.configure(config)
 engine.config = config
@@ -180,14 +180,14 @@ if not engine.monitors then return false end
 if engine.monitors.main_iface == iface then
 if engine.ui.main_display ~= nil then
 engine.ui.main_display.delete()
-log_render("closed main view due to monitor disconnect")
+log_render("主视图因显示器断开而关闭")
 end
 engine.monitors.main = nil
 engine.ui.main_display = nil
 elseif engine.monitors.flow_iface == iface then
 if engine.ui.flow_display ~= nil then
 engine.ui.flow_display.delete()
-log_render("closed flow view due to monitor disconnect")
+log_render("流程视图因显示器断开而关闭")
 end
 engine.monitors.flow = nil
 engine.ui.flow_display = nil
@@ -196,7 +196,7 @@ for idx, u_iface in pairs(engine.monitors.unit_ifaces) do
 if u_iface == iface then
 if engine.ui.unit_displays[idx] ~= nil then
 engine.ui.unit_displays[idx].delete()
-log_render("closed unit" .. idx .. "view due to monitor disconnect")
+log_render("已关闭机组" .. idx .. "视图（显示器断开）")
 end
 engine.monitors.unit_displays[idx] = nil
 engine.ui.unit_displays[idx] = nil
@@ -234,7 +234,7 @@ main_view(ui.main_display)
 end)
 if ok then
 ioctl.fp_monitor_state("main", 3)
-log_render("main view re-draw completed in " .. (util.time_ms() - draw_start) .. "ms")
+log_render("主视图重绘完成，用时 " .. (util.time_ms() - draw_start) .. "ms")
 else
 if ui.main_display then
 ui.main_display.delete()
@@ -261,7 +261,7 @@ flow_view(ui.flow_display)
 end)
 if ok then
 ioctl.fp_monitor_state("flow", 3)
-log_render("flow view re-draw completed in " .. (util.time_ms() - draw_start) .. "ms")
+log_render("流程视图重绘完成，用时 " .. (util.time_ms() - draw_start) .. "ms")
 else
 if ui.flow_display then
 ui.flow_display.delete()
@@ -290,7 +290,7 @@ unit_view(ui.unit_displays[idx], idx)
 end)
 if ok then
 ioctl.fp_monitor_state(idx, 3)
-log_render("unit " .. idx .. " view re-draw completed in " .. (util.time_ms() - draw_start) .. "ms")
+log_render("机组 " .. idx .. " 视图重绘完成，用时 " .. (util.time_ms() - draw_start) .. "ms")
 else
 if ui.unit_displays[idx] then
 ui.unit_displays[idx].delete()

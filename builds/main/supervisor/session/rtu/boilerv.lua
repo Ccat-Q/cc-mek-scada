@@ -25,10 +25,10 @@ TANKS = 1000
 }
 function boilerv.new(session_id, unit_id, advert, out_queue)
 if advert.type ~= RTU_UNIT_TYPE.BOILER_VALVE then
-log.error("attempt to instantiate boilerv RTU for type " .. types.rtu_type_to_string(advert.type))
+log.error("尝试为类型 " .. types.rtu_type_to_string(advert.type) .. " 实例化 boilerv RTU")
 return nil
 elseif not util.is_int(advert.index) then
-log.error("attempt to instantiate boilerv RTU without index")
+log.error("尝试在没有索引的情况下实例化 boilerv RTU")
 return nil
 end
 local log_tag = util.c("session.rtu(", session_id, ").boilerv(", advert.index, ")[@", unit_id, "]: ")

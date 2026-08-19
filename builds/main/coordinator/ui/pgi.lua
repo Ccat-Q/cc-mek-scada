@@ -23,7 +23,7 @@ local success, result = pcall(data.pkt_entry, data.pkt_list, session_id)
 if success then
 data.s_entries.pkt[session_id] = result
 else
-log.error(util.c("PGI: failed to create PKT entry (", result, ")"), true)
+log.error(util.c("PGI: 无法创建PKT条目 (", result, ")"), true)
 end
 end
 end
@@ -32,10 +32,10 @@ if data.s_entries.pkt[session_id] ~= nil then
 local success, result = pcall(data.s_entries.pkt[session_id].delete)
 data.s_entries.pkt[session_id] = nil
 if not success then
-log.error(util.c("PGI: failed to delete PKT entry (", result, ")"), true)
+log.error(util.c("PGI: 无法删除PKT条目 (", result, ")"), true)
 end
 else
-log.debug(util.c("PGI: tried to delete unknown PKT entry ", session_id))
+log.debug(util.c("PGI: 尝试删除未知的PKT条目 ", session_id))
 end
 end
 return pgi

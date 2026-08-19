@@ -58,7 +58,7 @@ local function _write_auto_config()
     settings.set("ControlStates", pctl.control_states)
     local saved = settings.save("/coordinator.settings")
     if not saved then
-        log.warning("process._write_auto_config(): failed to save coordinator settings file")
+        log.warning("process._write_auto_config()：保存协调器设置文件失败")
     end
 
     return saved
@@ -97,7 +97,7 @@ function process.init(crd_io, coord_comms)
             ctl_proc[key] = config[key] or ctl_proc[key]
         end
 
-        log.info("PROCESS: loaded auto control settings")
+        log.info("PROCESS: 已加载自动控制设置")
 
         -- notify supervisor of auto waste config
         pctl.comms.send_fac_command(F_CMD.SET_WASTE_MODE, ctl_proc.waste_product)
@@ -129,7 +129,7 @@ function process.init(crd_io, coord_comms)
             pctl.comms.send_unit_command(U_CMD.SET_WASTE, id, mode)
         end
 
-        log.info("PROCESS: loaded unit waste mode settings")
+        log.info("PROCESS: 已加载机组废料模式设置")
     end
 
     -- unit priority groups
@@ -140,7 +140,7 @@ function process.init(crd_io, coord_comms)
             pctl.comms.send_unit_command(U_CMD.SET_GROUP, id, group)
         end
 
-        log.info("PROCESS: loaded priority groups settings")
+        log.info("PROCESS: 已加载优先级组设置")
     end
 
     -- report to the supervisor all initial configuration data has been sent
@@ -180,7 +180,7 @@ function process.create_handle()
     function handle.fac_scram()
         if f_request(F_CMD.SCRAM_ALL, handle.fac_ack.on_scram) then
             pctl.comms.send_fac_command(F_CMD.SCRAM_ALL)
-            log.debug("PROCESS: FAC SCRAM ALL")
+            log.debug("PROCESS: 全厂急停")
         end
     end
 
@@ -188,7 +188,7 @@ function process.create_handle()
     function handle.fac_ack_alarms()
         if f_request(F_CMD.ACK_ALL_ALARMS, handle.fac_ack.on_ack_alarms) then
             pctl.comms.send_fac_command(F_CMD.ACK_ALL_ALARMS)
-            log.debug("PROCESS: FAC ACK ALL ALARMS")
+            log.debug("PROCESS: 确认全部警报")
         end
     end
 
@@ -199,7 +199,7 @@ function process.create_handle()
             local mode = util.trinary(p.alt_mode and p.mode == PROCESS.CHARGE, PROCESS.RANGE_CONTROL, p.mode)
 
             pctl.comms.send_auto_start({ mode, p.burn_target, p.range_start, p.range_stop, p.charge_target, p.gen_target, p.limits })
-            log.debug("PROCESS: START AUTO CTRL")
+            log.debug("PROCESS: 启动自动控制")
         end
     end
 
@@ -208,7 +208,7 @@ function process.create_handle()
     function handle.process_start_remote(settings)
         if f_request(F_CMD.START, handle.fac_ack.on_start) then
             pctl.comms.send_auto_start(settings)
-            log.debug("PROCESS: START AUTO CTRL")
+            log.debug("PROCESS: 启动自动控制")
         end
     end
 
@@ -216,7 +216,7 @@ function process.create_handle()
     function handle.process_stop()
         if f_request(F_CMD.STOP, handle.fac_ack.on_stop) then
             pctl.comms.send_fac_command(F_CMD.STOP)
-            log.debug("PROCESS: STOP AUTO CTRL")
+            log.debug("PROCESS: 停止自动控制")
         end
     end
 

@@ -23,7 +23,7 @@ local app = db.nav.register_app(APP_ID.GUIDE, frame)
 local load_div = Div{parent=frame,y=1}
 local main = Div{parent=frame,y=1}
 WaitingAnim{parent=load_div,x=math.floor(main.get_width()/2)-1,y=8,fg_bg=cpair(colors.cyan,colors._INHERIT)}
-TextBox{parent=load_div,y=12,text="Loading...",alignment=ALIGN.CENTER}
+TextBox{parent=load_div,y=12,text="加载中...",alignment=ALIGN.CENTER}
 local load_text_1 = TextBox{parent=load_div,y=14,text="",alignment=ALIGN.CENTER,fg_bg=cpair(colors.lightGray,colors._INHERIT)}
 local load_text_2 = TextBox{parent=load_div,y=15,text="",alignment=ALIGN.CENTER,fg_bg=cpair(colors.lightGray,colors._INHERIT)}
 local function load_text(a, b)
@@ -62,15 +62,15 @@ local panes = { home, search, use, uis, fps, gls, lnk }
 local doc_map = {}
 local search_db = {}
 local sect_construct_data = { app, page_div, panes, doc_map, search_db, btn_fg_bg, btn_active }
-TextBox{parent=home,y=1,text="cc-mek-scada Guide",alignment=ALIGN.CENTER}
-PushButton{parent=home,y=3,text="Search              >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=search_page.nav_to}
-PushButton{parent=home,y=5,text="System Usage        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=use_page.nav_to}
-PushButton{parent=home,text="Operator UIs        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=uis_page.nav_to}
-PushButton{parent=home,text="Front Panels        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fps_page.nav_to}
-PushButton{parent=home,text="Glossary            >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=gls_page.nav_to}
-PushButton{parent=home,y=10,text="Wiki and Discord    >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=lnk_page.nav_to}
-load_text("Search")
-TextBox{parent=search,y=1,text="Search",alignment=ALIGN.CENTER}
+TextBox{parent=home,y=1,text="cc-mek-scada 指南",alignment=ALIGN.CENTER}
+PushButton{parent=home,y=3,text="搜索              >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=search_page.nav_to}
+PushButton{parent=home,y=5,text="系统使用        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=use_page.nav_to}
+PushButton{parent=home,text="操作员界面        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=uis_page.nav_to}
+PushButton{parent=home,text="前面板        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fps_page.nav_to}
+PushButton{parent=home,text="术语表            >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=gls_page.nav_to}
+PushButton{parent=home,y=10,text="Wiki 与 Discord    >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=lnk_page.nav_to}
+load_text("搜索")
+TextBox{parent=search,y=1,text="搜索",alignment=ALIGN.CENTER}
 local query_field = TextField{parent=search,y=3,width=18,fg_bg=cpair(colors.white,colors.gray)}
 local func_ref = {}
 PushButton{parent=search,x=20,y=3,text="GO",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=function()func_ref.run_search()end}
@@ -80,7 +80,7 @@ local query = string.lower(query_field.get_value())
 local s_results = { {}, {}, {}, {} }
 search_results.remove_all()
 if string.len(query) < 2 then
-TextBox{parent=search_results,text="Search requires at least 2 characters."}
+TextBox{parent=search_results,text="搜索至少需要 2 个字符。"}
 return
 end
 local start = util.time_ms()
@@ -110,31 +110,31 @@ end
 end
 log.debug("App.Guide: search for \"" .. query .. "\" completed in " .. (util.time_ms() - start) .. "ms")
 if empty then
-TextBox{parent=search_results,text="No results found."}
+TextBox{parent=search_results,text="未找到结果。"}
 end
 end
-TextBox{parent=search_results,text="Click 'GO' to search..."}
+TextBox{parent=search_results,text="点击 'GO' 搜索..."}
 util.nop()
-load_text("System Usage")
-TextBox{parent=use,y=1,text="System Usage",alignment=ALIGN.CENTER}
+load_text("系统使用")
+TextBox{parent=use,y=1,text="系统使用",alignment=ALIGN.CENTER}
 PushButton{parent=use,x=2,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=main_page.nav_to}
-load_text(false, "Connecting Devices")
-local conn_dev_page = guide_section(sect_construct_data, use_page, "Connecting Devs", docs.usage.conn, 110)
-load_text(false, "Configuring Devices")
-local config_dev_page = guide_section(sect_construct_data, use_page, "Configuring Devs", docs.usage.config, 350)
-load_text(false, "Manual Control")
-local man_ctrl_page = guide_section(sect_construct_data, use_page, "Manual Control", docs.usage.manual, 100)
-load_text(false, "Auto Control")
-local auto_ctrl_page = guide_section(sect_construct_data, use_page, "Auto Control", docs.usage.auto, 200)
-load_text(false, "Waste Control")
-local waste_ctrl_page = guide_section(sect_construct_data, use_page, "Waste Control", docs.usage.waste, 120)
-PushButton{parent=use,y=3,text="Connecting Devices  >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=conn_dev_page.nav_to}
-PushButton{parent=use,text="Configuring Devices >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=config_dev_page.nav_to}
-PushButton{parent=use,text="Manual Control      >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=man_ctrl_page.nav_to}
-PushButton{parent=use,text="Automatic Control   >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=auto_ctrl_page.nav_to}
-PushButton{parent=use,text="Waste Control       >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=waste_ctrl_page.nav_to}
-load_text("Operator UIs")
-TextBox{parent=uis,y=1,text="Operator UIs",alignment=ALIGN.CENTER}
+load_text(false, "连接设备")
+local conn_dev_page = guide_section(sect_construct_data, use_page, "连接设备", docs.usage.conn, 110)
+load_text(false, "配置设备")
+local config_dev_page = guide_section(sect_construct_data, use_page, "配置设备", docs.usage.config, 350)
+load_text(false, "手动控制")
+local man_ctrl_page = guide_section(sect_construct_data, use_page, "手动控制", docs.usage.manual, 100)
+load_text(false, "自动控制")
+local auto_ctrl_page = guide_section(sect_construct_data, use_page, "自动控制", docs.usage.auto, 200)
+load_text(false, "废料控制")
+local waste_ctrl_page = guide_section(sect_construct_data, use_page, "废料控制", docs.usage.waste, 120)
+PushButton{parent=use,y=3,text="连接设备  >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=conn_dev_page.nav_to}
+PushButton{parent=use,text="配置设备 >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=config_dev_page.nav_to}
+PushButton{parent=use,text="手动控制      >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=man_ctrl_page.nav_to}
+PushButton{parent=use,text="自动控制   >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=auto_ctrl_page.nav_to}
+PushButton{parent=use,text="废料控制       >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=waste_ctrl_page.nav_to}
+load_text("操作员界面")
+TextBox{parent=uis,y=1,text="操作员界面",alignment=ALIGN.CENTER}
 PushButton{parent=uis,x=2,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=main_page.nav_to}
 local annunc_page = app.new_page(uis_page, #panes + 1)
 local annunc_div = Div{parent=page_div,x=2}
@@ -142,61 +142,61 @@ table.insert(panes, annunc_div)
 local coord_page = app.new_page(uis_page, #panes + 1)
 local coord_div = Div{parent=page_div,x=2}
 table.insert(panes, coord_div)
-load_text(false, "Alarms")
-local alarms_page = guide_section(sect_construct_data, uis_page, "Alarms", docs.alarms, 100)
-PushButton{parent=uis,y=3,text="Alarms              >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=alarms_page.nav_to}
-PushButton{parent=uis,text="Annunciators        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=annunc_page.nav_to}
-PushButton{parent=uis,text="Coordinator UI      >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=coord_page.nav_to}
-load_text(false, "Annunciators")
-TextBox{parent=annunc_div,y=1,text="Annunciators",alignment=ALIGN.CENTER}
+load_text(false, "报警")
+local alarms_page = guide_section(sect_construct_data, uis_page, "报警", docs.alarms, 100)
+PushButton{parent=uis,y=3,text="报警              >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=alarms_page.nav_to}
+PushButton{parent=uis,text="信号牌        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=annunc_page.nav_to}
+PushButton{parent=uis,text="协调端界面      >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=coord_page.nav_to}
+load_text(false, "信号牌")
+TextBox{parent=annunc_div,y=1,text="信号牌",alignment=ALIGN.CENTER}
 PushButton{parent=annunc_div,x=2,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=uis_page.nav_to}
-local fac_annunc_page = guide_section(sect_construct_data, annunc_page, "Facility", docs.annunc.facility.main_section, 110)
-local unit_gen_page = guide_section(sect_construct_data, annunc_page, "Unit General", docs.annunc.unit.main_section, 170)
-local unit_rps_page = guide_section(sect_construct_data, annunc_page, "Unit RPS", docs.annunc.unit.rps_section, 100)
-local unit_rcs_page = guide_section(sect_construct_data, annunc_page, "Unit RCS", docs.annunc.unit.rcs_section, 170)
-PushButton{parent=annunc_div,y=3,text="Facility General    >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fac_annunc_page.nav_to}
-PushButton{parent=annunc_div,text="Unit General        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=unit_gen_page.nav_to}
-PushButton{parent=annunc_div,text="Unit RPS            >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=unit_rps_page.nav_to}
-PushButton{parent=annunc_div,text="Unit RCS            >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=unit_rcs_page.nav_to}
-load_text(false, "Coordinator UI")
-TextBox{parent=coord_div,y=1,text="Coordinator UI",alignment=ALIGN.CENTER}
+local fac_annunc_page = guide_section(sect_construct_data, annunc_page, "设施", docs.annunc.facility.main_section, 110)
+local unit_gen_page = guide_section(sect_construct_data, annunc_page, "机组通用", docs.annunc.unit.main_section, 170)
+local unit_rps_page = guide_section(sect_construct_data, annunc_page, "机组RPS", docs.annunc.unit.rps_section, 100)
+local unit_rcs_page = guide_section(sect_construct_data, annunc_page, "机组RCS", docs.annunc.unit.rcs_section, 170)
+PushButton{parent=annunc_div,y=3,text="设施通用    >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fac_annunc_page.nav_to}
+PushButton{parent=annunc_div,text="机组通用        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=unit_gen_page.nav_to}
+PushButton{parent=annunc_div,text="机组RPS            >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=unit_rps_page.nav_to}
+PushButton{parent=annunc_div,text="机组RCS            >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=unit_rcs_page.nav_to}
+load_text(false, "协调端界面")
+TextBox{parent=coord_div,y=1,text="协调端界面",alignment=ALIGN.CENTER}
 PushButton{parent=coord_div,x=2,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=uis_page.nav_to}
-load_text(false, "Main Display")
-local main_disp_page = guide_section(sect_construct_data, coord_page, "Main Display", docs.c_ui.main, 340)
-load_text(false, "Flow Display")
-local flow_disp_page = guide_section(sect_construct_data, coord_page, "Flow Display", docs.c_ui.flow, 210)
-load_text(false, "Unit Displays")
-local unit_disp_page = guide_section(sect_construct_data, coord_page, "Unit Displays", docs.c_ui.unit, 150)
-PushButton{parent=coord_div,y=3,text="Main Display        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=main_disp_page.nav_to}
-PushButton{parent=coord_div,text="Flow Display        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=flow_disp_page.nav_to}
-PushButton{parent=coord_div,text="Unit Displays       >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=unit_disp_page.nav_to}
-load_text("Front Panels")
-TextBox{parent=fps,y=1,text="Front Panels",alignment=ALIGN.CENTER}
+load_text(false, "主显示")
+local main_disp_page = guide_section(sect_construct_data, coord_page, "主显示", docs.c_ui.main, 340)
+load_text(false, "流量显示")
+local flow_disp_page = guide_section(sect_construct_data, coord_page, "流量显示", docs.c_ui.flow, 210)
+load_text(false, "机组显示")
+local unit_disp_page = guide_section(sect_construct_data, coord_page, "机组显示", docs.c_ui.unit, 150)
+PushButton{parent=coord_div,y=3,text="主显示        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=main_disp_page.nav_to}
+PushButton{parent=coord_div,text="流量显示        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=flow_disp_page.nav_to}
+PushButton{parent=coord_div,text="机组显示       >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=unit_disp_page.nav_to}
+load_text("前面板")
+TextBox{parent=fps,y=1,text="前面板",alignment=ALIGN.CENTER}
 PushButton{parent=fps,x=2,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=main_page.nav_to}
-load_text(false, "Common Items")
-local fp_common_page = guide_section(sect_construct_data, fps_page, "Common Items", docs.fp.common, 130)
-load_text(false, "Reactor PLC")
-local fp_rplc_page = guide_section(sect_construct_data, fps_page, "Reactor PLC", docs.fp.r_plc, 190)
-load_text(false, "RTU Gateway")
-local fp_rtu_page = guide_section(sect_construct_data, fps_page, "RTU Gateway", docs.fp.rtu_gw, 100)
-load_text(false, "Supervisor")
-local fp_supervisor_page = guide_section(sect_construct_data, fps_page, "Supervisor", docs.fp.supervisor, 160)
-load_text(false, "Coordinator")
-local fp_coordinator_page = guide_section(sect_construct_data, fps_page, "Coordinator", docs.fp.coordinator, 80)
-PushButton{parent=fps,y=3,text="Common Items        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_common_page.nav_to}
-PushButton{parent=fps,text="Reactor PLC         >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_rplc_page.nav_to}
-PushButton{parent=fps,text="RTU Gateway         >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_rtu_page.nav_to}
-PushButton{parent=fps,text="Supervisor          >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_supervisor_page.nav_to}
-PushButton{parent=fps,text="Coordinator         >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_coordinator_page.nav_to}
-load_text("Glossary")
-TextBox{parent=gls,y=1,text="Glossary",alignment=ALIGN.CENTER}
+load_text(false, "通用项目")
+local fp_common_page = guide_section(sect_construct_data, fps_page, "通用项目", docs.fp.common, 130)
+load_text(false, "反应堆PLC")
+local fp_rplc_page = guide_section(sect_construct_data, fps_page, "反应堆PLC", docs.fp.r_plc, 190)
+load_text(false, "RTU网关")
+local fp_rtu_page = guide_section(sect_construct_data, fps_page, "RTU网关", docs.fp.rtu_gw, 100)
+load_text(false, "监控端")
+local fp_supervisor_page = guide_section(sect_construct_data, fps_page, "监控端", docs.fp.supervisor, 160)
+load_text(false, "协调端")
+local fp_coordinator_page = guide_section(sect_construct_data, fps_page, "协调端", docs.fp.coordinator, 80)
+PushButton{parent=fps,y=3,text="通用项目        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_common_page.nav_to}
+PushButton{parent=fps,text="反应堆PLC         >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_rplc_page.nav_to}
+PushButton{parent=fps,text="RTU网关         >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_rtu_page.nav_to}
+PushButton{parent=fps,text="监控端          >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_supervisor_page.nav_to}
+PushButton{parent=fps,text="协调端         >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fp_coordinator_page.nav_to}
+load_text("术语表")
+TextBox{parent=gls,y=1,text="术语表",alignment=ALIGN.CENTER}
 PushButton{parent=gls,x=3,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=main_page.nav_to}
-local gls_abbv_page = guide_section(sect_construct_data, gls_page, "Abbreviations", docs.glossary.abbvs, 140)
-local gls_term_page = guide_section(sect_construct_data, gls_page, "Terminology", docs.glossary.terms, 120)
-PushButton{parent=gls,y=3,text="Abbreviations       >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=gls_abbv_page.nav_to}
-PushButton{parent=gls,text="Terminology         >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=gls_term_page.nav_to}
-load_text("Links")
-TextBox{parent=lnk,y=1,text="Wiki and Discord",alignment=ALIGN.CENTER}
+local gls_abbv_page = guide_section(sect_construct_data, gls_page, "缩略语", docs.glossary.abbvs, 140)
+local gls_term_page = guide_section(sect_construct_data, gls_page, "术语", docs.glossary.terms, 120)
+PushButton{parent=gls,y=3,text="缩略语       >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=gls_abbv_page.nav_to}
+PushButton{parent=gls,text="术语         >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=gls_term_page.nav_to}
+load_text("链接")
+TextBox{parent=lnk,y=1,text="Wiki 与 Discord",alignment=ALIGN.CENTER}
 PushButton{parent=lnk,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=main_page.nav_to}
 lnk.line_break()
 TextBox{parent=lnk,text="GitHub",fg_bg=cpair(colors.lightGray,colors.black)}

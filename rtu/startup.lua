@@ -35,11 +35,11 @@ if not rtu.load_config() then
     local success, error = configure.configure(true)
     if success then
         if not rtu.load_config() then
-            println("failed to load a valid configuration, please reconfigure")
+            println("无法加载有效配置，请重新配置")
             return
         end
     else
-        println("configuration error: " .. error)
+        println("配置错误： " .. error)
         return
     end
 end
@@ -55,7 +55,7 @@ log.init(config.LogPath, config.LogMode, config.LogDebug)
 log.info("========================================")
 log.info("BOOTING rtu.startup v" .. RTU_VERSION)
 log.info("========================================")
-println(">> RTU GATEWAY v" .. RTU_VERSION .. " <<")
+println(">> RTU 网关 v" .. RTU_VERSION .. " <<")
 
 crash.set_env("rtu", RTU_VERSION)
 crash.dbg_log_env()
@@ -126,10 +126,10 @@ local function main()
         rtu_state.fp_ok, message = renderer.try_start_ui(config, units)
 
         if not rtu_state.fp_ok then
-            println_ts(util.c("UI error: ", message))
-            println("startup> running without front panel")
-            log.error(util.c("front panel GUI render failed with error ", message))
-            log.info("startup> running in headless mode without front panel")
+            println_ts(util.c("UI 错误： ", message))
+            println("startup> 无前面板运行")
+            log.error(util.c("前面板 GUI 渲染失败，错误： ", message))
+            log.info("startup> 无头模式运行，无前面板")
         end
 
         -- start connection watchdog
@@ -157,12 +157,12 @@ local function main()
         -- run threads
         parallel.waitForAll(table.unpack(_threads))
     else
-        println("system initialization failed, exiting...")
+        println("系统初始化失败，正在退出...")
     end
 
     renderer.close_ui()
 
-    println_ts("exited")
+    println_ts("已退出")
     log.info("exited")
 end
 

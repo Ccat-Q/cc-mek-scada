@@ -132,7 +132,7 @@ function pocket.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout)
     local function _handle_packet(pkt)
         -- check sequence number
         if self.r_seq_num ~= pkt.scada_frame.seq_num() then
-            log.warning(log_tag .. "sequence out-of-order: next = " .. self.r_seq_num .. ", new = " .. pkt.scada_frame.seq_num())
+            log.warning(log_tag .. "序号乱序：下一个 = " .. self.r_seq_num .. "，新 = " .. pkt.scada_frame.seq_num())
             return
         else
             self.r_seq_num = pkt.scada_frame.seq_num() + 1
@@ -485,7 +485,7 @@ function pocket.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout)
             elseif pkt.type == MGMT_TYPE.ESTABLISH then
                 -- something is wrong, kill the session
                 _close()
-                log.warning(log_tag .. "terminated session due to an unexpected ESTABLISH packet")
+                log.warning(log_tag .. "因意外的ESTABLISH包而终止会话")
             else
                 log.debug(log_tag .. "handler received unsupported SCADA_MGMT packet type " .. pkt.type)
             end
@@ -512,7 +512,7 @@ function pocket.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout)
     function public.close()
         _close()
         _send_mgmt(MGMT_TYPE.CLOSE, {})
-        log.info(log_tag .. "session closed by server")
+        log.info(log_tag .. "会话已被服务器关闭")
     end
 
     -- iterate the session
@@ -539,14 +539,14 @@ function pocket.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout)
 
                 -- max 100ms spent processing queue
                 if util.time() - handle_start > 100 then
-                    log.warning(log_tag .. "exceeded 100ms queue process limit")
+                    log.warning(log_tag .. "超过100ms队列处理限制")
                     break
                 end
             end
 
             -- exit if connection was closed
             if not self.connected then
-                log.info(log_tag .. "session closed by remote host")
+                log.info(log_tag .. "会话已被远程主机关闭")
                 return self.connected
             end
 

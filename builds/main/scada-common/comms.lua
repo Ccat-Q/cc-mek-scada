@@ -285,7 +285,7 @@ self.raw = { self.txn_id, self.unit_id, self.func_code }
 for i = 1, self.length do insert(self.raw, data[i]) end
 return true
 end
-log.error("COMMS: [modbus_make] data not a table")
+log.error("COMMS: [modbus_make] 数据不是表")
 return false
 end
 function public.decode(frame)
@@ -302,8 +302,8 @@ self.length    = #self.data
 if type(self.txn_id) == TYPE_NUM and type(self.unit_id) == TYPE_NUM and type(self.func_code) == TYPE_NUM then
 return public.get()
 end
-else log.debug("COMMS: [modbus_decode] attempted parse of incorrect protocol " .. frame.protocol(), true) end
-else log.debug("COMMS: [modbus_decode] discarding nil frame", true) end
+else log.debug("COMMS: [modbus_decode] 尝试解析了不正确的协议 " .. frame.protocol(), true) end
+else log.debug("COMMS: [modbus_decode] 丢弃空帧", true) end
 return nil
 end
 function public.raw_packet() return self.raw end
@@ -340,7 +340,7 @@ self.raw = { self.id, self.type }
 for i = 1, #data do insert(self.raw, data[i]) end
 return true
 end
-log.error("COMMS: [rplc_make] data not a table")
+log.error("COMMS: [rplc_make] 数据不是表")
 return false
 end
 function public.decode(frame)
@@ -356,8 +356,8 @@ self.length = #self.data
 if type(self.id) == TYPE_NUM and type(self.type) == TYPE_NUM then
 return public.get()
 end
-else log.debug("COMMS: [rplc_decode] attempted parse of incorrect protocol " .. frame.protocol(), true) end
-else log.debug("COMMS: [rplc_decode] nil frame encountered", true) end
+else log.debug("COMMS: [rplc_decode] 尝试解析了不正确的协议 " .. frame.protocol(), true) end
+else log.debug("COMMS: [rplc_decode] 遇到空帧", true) end
 return nil
 end
 function public.raw_packet() return self.raw end
@@ -391,7 +391,7 @@ self.raw = { self.type }
 for i = 1, #data do insert(self.raw, data[i]) end
 return true
 end
-log.error("COMMS: [mgmt_make] data not a table")
+log.error("COMMS: [mgmt_make] 数据不是表")
 return false
 end
 function public.decode(frame)
@@ -406,8 +406,8 @@ self.length = #self.data
 if type(self.type) == TYPE_NUM then
 return public.get()
 end
-else log.debug("COMMS: [mgmt_decode] attempted parse of incorrect protocol " .. frame.protocol(), true) end
-else log.debug("COMMS: [mgmt_decode] nil frame encountered", true) end
+else log.debug("COMMS: [mgmt_decode] 尝试解析了不正确的协议 " .. frame.protocol(), true) end
+else log.debug("COMMS: [mgmt_decode] 遇到空帧", true) end
 return nil
 end
 function public.raw_packet() return self.raw end
@@ -440,7 +440,7 @@ self.raw = { self.type }
 for i = 1, #data do insert(self.raw, data[i]) end
 return true
 end
-log.error("COMMS: [crdn_make] data not a table")
+log.error("COMMS: [crdn_make] 数据不是表")
 return false
 end
 function public.decode(frame)
@@ -455,8 +455,8 @@ self.length = #self.data
 if type(self.type) == TYPE_NUM then
 return public.get()
 end
-else log.debug("COMMS: [crdn_decode] attempted parse of incorrect protocol " .. frame.protocol(), true) end
-else log.debug("COMMS: [crdn_decode] nil frame encountered", true) end
+else log.debug("COMMS: [crdn_decode] 尝试解析了不正确的协议 " .. frame.protocol(), true) end
+else log.debug("COMMS: [crdn_decode] 遇到空帧", true) end
 return nil
 end
 function public.raw_packet() return self.raw end

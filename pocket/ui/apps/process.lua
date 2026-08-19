@@ -61,7 +61,7 @@ local function new_view(root)
     local load_div = Div{parent=frame,y=1}
     local main = Div{parent=frame,y=1}
 
-    TextBox{parent=load_div,y=12,text="Loading...",alignment=ALIGN.CENTER}
+    TextBox{parent=load_div,y=12,text="加载中...",alignment=ALIGN.CENTER}
     WaitingAnim{parent=load_div,x=math.floor(main.get_width()/2)-1,y=8,fg_bg=cpair(colors.purple,colors._INHERIT)}
 
     local load_pane = MultiPane{parent=main,y=1,panes={load_div,main}}
@@ -106,18 +106,18 @@ local function new_view(root)
             local u_page = app.new_page(nil, i)
             u_page.tasks = { update }
 
-            TextBox{parent=u_div,y=1,text="Reactor Unit #"..i,alignment=ALIGN.CENTER}
+            TextBox{parent=u_div,y=1,text="反应堆机组 #"..i,alignment=ALIGN.CENTER}
 
-            TextBox{parent=u_div,y=3,text="Auto Rate Limit",fg_bg=label_fg_bg}
+            TextBox{parent=u_div,y=3,text="自动速率限值",fg_bg=label_fg_bg}
             rate_limits[i] = NumberField{parent=u_div,y=4,width=16,default=0.01,min=0.01,max_frac_digits=2,max_chars=8,allow_decimal=true,align_right=true,fg_bg=field_fg_bg,dis_fg_bg=field_dis_fg_bg}
             TextBox{parent=u_div,x=18,y=4,text="mB/t",width=4,fg_bg=label_fg_bg}
 
             rate_limits[i].register(unit.unit_ps, "max_burn", rate_limits[i].set_max)
             rate_limits[i].register(unit.unit_ps, "burn_limit", rate_limits[i].set_value)
 
-            local ready    = IconIndicator{parent=u_div,y=6,label="Auto Ready",states=grn_ind_s}
-            local a_stb    = IconIndicator{parent=u_div,label="Auto Standby",states=wht_ind_s}
-            local degraded = IconIndicator{parent=u_div,label="Unit Degraded",states=red_ind_s}
+            local ready    = IconIndicator{parent=u_div,y=6,label="自动就绪",states=grn_ind_s}
+            local a_stb    = IconIndicator{parent=u_div,label="自动待机",states=wht_ind_s}
+            local degraded = IconIndicator{parent=u_div,label="机组降级",states=red_ind_s}
 
             ready.register(u_ps, "U_AutoReady", ready.update)
             degraded.register(u_ps, "U_AutoDegraded", degraded.update)
@@ -143,8 +143,8 @@ local function new_view(root)
 
             group.register(u_ps, "auto_group_id", function (gid) group.set_value(gid + 1) end)
 
-            TextBox{parent=u_div,y=16,text="Assigned Group",fg_bg=style.label}
-            local auto_grp = TextBox{parent=u_div,text="Manual",width=11,fg_bg=text_fg}
+            TextBox{parent=u_div,y=16,text="指定分组",fg_bg=style.label}
+            local auto_grp = TextBox{parent=u_div,text="手动",width=11,fg_bg=text_fg}
 
             auto_grp.register(u_ps, "auto_group", auto_grp.set_value)
 
@@ -161,27 +161,27 @@ local function new_view(root)
         local mode_page = app.new_page(nil, db.facility.num_units + 3)
         mode_page.tasks = { update }
 
-        TextBox{parent=m_div,y=1,text="Process Mode",alignment=ALIGN.CENTER}
+        TextBox{parent=m_div,y=1,text="工艺模式",alignment=ALIGN.CENTER}
 
         local desc = TextBox{parent=m_div,y=9,height=9,text="",fg_bg=label_fg_bg}
 
         local function _set_desc(m)
             if m == PROCESS.MAX_BURN then
-                desc.set_value("This mode runs all assigned reactors at their configured unit auto rate limits.")
+                desc.set_value("此模式按各机组配置的自动速率限值运行所有指定反应堆。")
             elseif m == PROCESS.BURN_RATE then
-                desc.set_value("This mode runs assigned reactors by priority group to meet the requested burn rate. Primary ones are used, then secondary if they can't keep up, etc.")
+                desc.set_value("此模式按优先级分组运行指定反应堆以满足目标燃烧速率。先用主组，不足时再用次组等。")
             elseif m == PROCESS.CHARGE then
-                desc.set_value("This mode runs assigned reactors by priority group to meet the requested energy storage system charge level. Primary ones are used, then secondary if they can't keep up, etc.")
+                desc.set_value("此模式按优先级分组运行指定反应堆以满足储能系统的目标充能水平。先用主组，不足时再用次组等。")
             elseif m == PROCESS.GEN_RATE then
-                desc.set_value("This mode runs assigned reactors by priority group to meet the requested energy generation rate. Primary ones are used, then secondary if they can't keep up, etc.")
+                desc.set_value("此模式按优先级分组运行指定反应堆以满足目标发电速率。先用主组，不足时再用次组等。")
             elseif m == PROCESS.RANGE_CONTROL then
-                desc.set_value("This mode runs all assigned reactors at their configured unit auto rate limits once charge drops below the start percentage until it meets the stop percentage.")
+                desc.set_value("此模式在充能低于起始百分比时按各机组自动速率限值运行所有指定反应堆，直至达到停止百分比。")
             else
-                desc.set_value("Unknown mode selected.")
+                desc.set_value("未知模式。")
             end
         end
 
-        local ctl_opts = { "Monitored Max Burn", "Combined Burn Rate", "Charge Level", "Generation Rate", "Charge Range" }
+        local ctl_opts = { "监测最大燃烧", "总燃烧速率", "充能水平", "发电速率", "充能范围" }
         local mode = RadioButton{parent=m_div,y=3,options=ctl_opts,radio_colors=cpair(colors.lightGray,colors.gray),select_color=colors.purple,callback=_set_desc,dis_fg_bg=style.btn_disable}
 
         mode.register(f_ps, "process_mode", mode.set_value)
@@ -197,17 +197,17 @@ local function new_view(root)
         local sp_page = app.new_page(nil, db.facility.num_units + 4)
         sp_page.tasks = { update }
 
-        TextBox{parent=s_div,y=1,text="Process Setpoints",alignment=ALIGN.CENTER}
+        TextBox{parent=s_div,y=1,text="工艺设定值",alignment=ALIGN.CENTER}
 
-        TextBox{parent=s_div,y=3,text="Burn Rate Target",fg_bg=label_fg_bg}
+        TextBox{parent=s_div,y=3,text="燃烧速率目标",fg_bg=label_fg_bg}
         local b_target = NumberField{parent=s_div,y=4,width=15,default=0.01,min=0.01,max_frac_digits=2,max_chars=8,allow_decimal=true,align_right=true,fg_bg=field_fg_bg,dis_fg_bg=field_dis_fg_bg}
         TextBox{parent=s_div,x=17,y=4,text="mB/t",fg_bg=label_fg_bg}
 
-        TextBox{parent=s_div,y=6,text="Charge Level Target",fg_bg=label_fg_bg}
+        TextBox{parent=s_div,y=6,text="充能水平目标",fg_bg=label_fg_bg}
         local c_target = NumberField{parent=s_div,y=7,width=15,default=0,min=0,max_chars=16,align_right=true,fg_bg=field_fg_bg,dis_fg_bg=field_dis_fg_bg}
         TextBox{parent=s_div,x=17,y=7,text="M"..db.energy_label,fg_bg=label_fg_bg}
 
-        TextBox{parent=s_div,y=9,text="Generation Target",fg_bg=label_fg_bg}
+        TextBox{parent=s_div,y=9,text="发电目标",fg_bg=label_fg_bg}
         local g_target = NumberField{parent=s_div,y=10,width=15,default=0,min=0,max_chars=16,align_right=true,fg_bg=field_fg_bg,dis_fg_bg=field_dis_fg_bg}
         TextBox{parent=s_div,x=17,y=10,text="k"..db.energy_label.."/t",fg_bg=label_fg_bg}
 
@@ -216,11 +216,11 @@ local function new_view(root)
         local function _update_start_val(value) range_start.set_value(math.min(range_start.get_value(), value - 1)) end
         local function _update_stop_val(value) range_stop.set_value(math.max(range_stop.get_value(), value + 1)) end
 
-        TextBox{parent=s_div,y=12,text="Charge Range - Start",fg_bg=label_fg_bg}
+        TextBox{parent=s_div,y=12,text="充能范围 - 起始",fg_bg=label_fg_bg}
         range_start = NumberField{parent=s_div,y=13,width=15,default=0,min=0,max=99,align_right=true,on_unfocus=_update_stop_val,fg_bg=field_fg_bg,dis_fg_bg=field_dis_fg_bg}
         TextBox{parent=s_div,x=17,y=13,text="%",fg_bg=label_fg_bg}
 
-        TextBox{parent=s_div,y=15,text="Charge Range - Stop",fg_bg=label_fg_bg}
+        TextBox{parent=s_div,y=15,text="充能范围 - 停止",fg_bg=label_fg_bg}
         range_stop = NumberField{parent=s_div,y=16,width=15,default=0,min=1,max=100,align_right=true,on_unfocus=_update_start_val,fg_bg=field_fg_bg,dis_fg_bg=field_dis_fg_bg}
         TextBox{parent=s_div,x=17,y=16,text="%",fg_bg=label_fg_bg}
 
@@ -240,11 +240,11 @@ local function new_view(root)
         local proc_ctrl = app.new_page(nil, db.facility.num_units + 1)
         proc_ctrl.tasks = { update }
 
-        TextBox{parent=c_div,y=1,text="Process Control",alignment=ALIGN.CENTER}
+        TextBox{parent=c_div,y=1,text="工艺控制",alignment=ALIGN.CENTER}
 
         local u_stat      = Rectangle{parent=c_div,border=border(1,colors.gray,true),thin=true,width=21,height=5,y=3,fg_bg=cpair(colors.black,colors.lightGray)}
-        local stat_line_1 = TextBox{parent=u_stat,y=1,text="UNKNOWN",alignment=ALIGN.CENTER}
-        local stat_line_2 = TextBox{parent=u_stat,y=2,text="awaiting data...",height=2,alignment=ALIGN.CENTER,trim_whitespace=true,fg_bg=cpair(colors.gray,colors.lightGray)}
+        local stat_line_1 = TextBox{parent=u_stat,y=1,text="未知",alignment=ALIGN.CENTER}
+        local stat_line_2 = TextBox{parent=u_stat,y=2,text="等待数据...",height=2,alignment=ALIGN.CENTER,trim_whitespace=true,fg_bg=cpair(colors.gray,colors.lightGray)}
 
         stat_line_1.register(f_ps, "status_line_1", stat_line_1.set_value)
         stat_line_2.register(f_ps, "status_line_2", stat_line_2.set_value)
@@ -262,8 +262,8 @@ local function new_view(root)
                                   db.energy_convert_to_fe(c_target.get_numeric()), db.energy_convert_to_fe(g_target.get_numeric()), limits)
         end
 
-        local start = HazardButton{parent=c_div,x=2,y=9,text="START",accent=colors.lightBlue,callback=_start_auto,timeout=3,fg_bg=hzd_fg_bg,dis_colors=dis_colors}
-        local stop  = HazardButton{parent=c_div,x=13,y=9,text="STOP",accent=colors.red,callback=process.process_stop,timeout=3,fg_bg=hzd_fg_bg,dis_colors=dis_colors}
+        local start = HazardButton{parent=c_div,x=2,y=9,text="启动",accent=colors.lightBlue,callback=_start_auto,timeout=3,fg_bg=hzd_fg_bg,dis_colors=dis_colors}
+        local stop  = HazardButton{parent=c_div,x=13,y=9,text="停止",accent=colors.red,callback=process.process_stop,timeout=3,fg_bg=hzd_fg_bg,dis_colors=dis_colors}
 
         db.facility.start_ack = start.on_response
         db.facility.stop_ack = stop.on_response
@@ -272,10 +272,10 @@ local function new_view(root)
             if ready and (not db.facility.auto_active) then start.enable() else start.disable() end
         end)
 
-        local auto_ready = IconIndicator{parent=c_div,y=14,label="Units Ready",states=grn_ind_s}
-        local auto_act   = IconIndicator{parent=c_div,label="Process Active",states=grn_ind_s}
-        local auto_ramp  = IconIndicator{parent=c_div,label="Process Ramping",states=wht_ind_s}
-        local auto_sat   = IconIndicator{parent=c_div,label="Min/Max Burn Rate",states=yel_ind_s}
+        local auto_ready = IconIndicator{parent=c_div,y=14,label="机组就绪",states=grn_ind_s}
+        local auto_act   = IconIndicator{parent=c_div,label="工艺运行中",states=grn_ind_s}
+        local auto_ramp  = IconIndicator{parent=c_div,label="工艺升速中",states=wht_ind_s}
+        local auto_sat   = IconIndicator{parent=c_div,label="最小/最大燃烧速率",states=yel_ind_s}
 
         auto_ready.register(f_ps, "auto_ready", auto_ready.update)
         auto_act.register(f_ps, "auto_active", auto_act.update)
@@ -321,22 +321,22 @@ local function new_view(root)
         local annunc_page = app.new_page(nil, db.facility.num_units + 2)
         annunc_page.tasks = { update }
 
-        TextBox{parent=a_div,y=1,text="Automatic SCRAM",alignment=ALIGN.CENTER}
+        TextBox{parent=a_div,y=1,text="自动急停",alignment=ALIGN.CENTER}
 
-        local auto_scram = IconIndicator{parent=a_div,y=3,label="Automatic SCRAM",states=red_ind_s}
+        local auto_scram = IconIndicator{parent=a_div,y=3,label="自动急停",states=red_ind_s}
 
-        TextBox{parent=a_div,y=5,text="Energy Storage System",fg_bg=label_fg_bg}
-        local ess_fault = IconIndicator{parent=a_div,label="Hardware Fault",states=yel_ind_s}
-        local ess_fill  = IconIndicator{parent=a_div,label="Charge High",states=red_ind_s}
+        TextBox{parent=a_div,y=5,text="储能系统",fg_bg=label_fg_bg}
+        local ess_fault = IconIndicator{parent=a_div,label="硬件故障",states=yel_ind_s}
+        local ess_fill  = IconIndicator{parent=a_div,label="充能过高",states=red_ind_s}
 
-        TextBox{parent=a_div,y=9,text="Assigned Units",fg_bg=label_fg_bg}
-        local unit_crit = IconIndicator{parent=a_div,label="Critical Alarm",states=red_ind_s}
+        TextBox{parent=a_div,y=9,text="指定机组",fg_bg=label_fg_bg}
+        local unit_crit = IconIndicator{parent=a_div,label="严重报警",states=red_ind_s}
 
-        TextBox{parent=a_div,y=12,text="Facility",fg_bg=label_fg_bg}
-        local fac_rad_h = IconIndicator{parent=a_div,label="Radiation High",states=red_ind_s}
+        TextBox{parent=a_div,y=12,text="设施",fg_bg=label_fg_bg}
+        local fac_rad_h = IconIndicator{parent=a_div,label="辐射过高",states=red_ind_s}
 
-        TextBox{parent=a_div,y=15,text="Generation Rate Mode",fg_bg=label_fg_bg}
-        local gen_fault = IconIndicator{parent=a_div,label="Control Fault",states=yel_ind_s}
+        TextBox{parent=a_div,y=15,text="发电速率模式",fg_bg=label_fg_bg}
+        local gen_fault = IconIndicator{parent=a_div,label="控制故障",states=yel_ind_s}
 
         auto_scram.register(f_ps, "auto_scram", auto_scram.update)
         ess_fault.register(f_ps, "as_ess_fault", ess_fault.update)

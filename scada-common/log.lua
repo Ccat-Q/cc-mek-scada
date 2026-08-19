@@ -71,11 +71,11 @@ local function write_log(msg_bits)
         log.init(_log.path, _log.mode, _log.debug, _log.dmesg_out)
 
         -- log the message and recycle warning
-        _log.file.writeLine(time_stamp .. WRN_TAG .. "recycled log file")
+        _log.file.writeLine(time_stamp .. WRN_TAG .. "日志文件已回收")
         _log.file.writeLine(stamped)
         _log.file.flush()
     elseif (not status) and (result ~= nil) then
-        util.println("unexpected error writing to the log file: " .. result)
+        util.println("写入日志文件时出现意外错误：" .. result)
     end
 end
 
@@ -114,11 +114,11 @@ function log.init(path, write_mode, include_debug, dmesg_redirect)
                 _log.file, err_msg = fs.open(path, util.trinary(_log.mode == MODE.APPEND, "a", "w"))
 
                 if _log.file then
-                    _log.file.writeLine(os.date(TIME_FMT) .. WRN_TAG .. "init recycled log file")
+                    _log.file.writeLine(os.date(TIME_FMT) .. WRN_TAG .. "初始化时回收日志文件")
                     _log.file.flush()
-                else error("failed to setup the log file: " .. err_msg) end
-            else error("failed to make space for the log file, please delete unused files") end
-        else error("unexpected error setting up the log file: " .. err_msg) end
+                else error("无法设置日志文件：" .. err_msg) end
+            else error("无法为日志文件腾出空间，请删除未使用的文件") end
+        else error("设置日志文件时出现意外错误：" .. err_msg) end
     end
 
     _log.not_ready = false
@@ -293,10 +293,10 @@ function log.dmesg_working(msg, tag, tag_color)
 
             if ok or ok == nil then
                 out.setTextColor(colors.green)
-                out.write(util.pad("DONE", width))
+                out.write(util.pad("完成", width))
             else
                 out.setTextColor(colors.red)
-                out.write(util.pad("FAIL", width))
+                out.write(util.pad("失败", width))
             end
 
             out.setTextColor(initial_color)

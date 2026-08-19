@@ -56,7 +56,7 @@ local function create_pages(root)
     root_pane.register(db.ps, "link_state", update)
     root_pane.register(db.ps, "loader_reqs", update)
 
-    TextBox{parent=main_pane,text="Connected!",y=6,alignment=core.ALIGN.CENTER}
+    TextBox{parent=main_pane,text="已连接！",y=6,alignment=core.ALIGN.CENTER}
 end
 
 return create_pages

@@ -43,17 +43,17 @@ local function new_view(root)
 
     local active_fg_bg = cpair(colors.white,colors.gray)
 
-    App{parent=apps_1,x=2,y=2,text="U",title="Units",callback=function()open(APP_ID.UNITS)end,app_fg_bg=cpair(colors.black,colors.yellow),active_fg_bg=active_fg_bg}
-    App{parent=apps_1,x=9,y=2,text="F",title="Facil",callback=function()open(APP_ID.FACILITY)end,app_fg_bg=cpair(colors.black,colors.orange),active_fg_bg=active_fg_bg}
-    App{parent=apps_1,x=16,y=2,text="\x15",title="Control",callback=function()open(APP_ID.CONTROL)end,app_fg_bg=cpair(colors.black,colors.green),active_fg_bg=active_fg_bg}
-    App{parent=apps_1,x=2,y=7,text="\x17",title="Process",callback=function()open(APP_ID.PROCESS)end,app_fg_bg=cpair(colors.black,colors.purple),active_fg_bg=active_fg_bg}
-    App{parent=apps_1,x=9,y=7,text="\x7f",title="Waste",callback=function()open(APP_ID.WASTE)end,app_fg_bg=cpair(colors.black,colors.brown),active_fg_bg=active_fg_bg}
-    App{parent=apps_1,x=16,y=7,text="\xb6",title="Guide",callback=function()open(APP_ID.GUIDE)end,app_fg_bg=cpair(colors.black,colors.cyan),active_fg_bg=active_fg_bg}
-    App{parent=apps_1,x=2,y=12,text="?",title="About",callback=function()open(APP_ID.ABOUT)end,app_fg_bg=cpair(colors.black,colors.white),active_fg_bg=active_fg_bg}
+    App{parent=apps_1,x=2,y=2,text="U",title="机组",callback=function()open(APP_ID.UNITS)end,app_fg_bg=cpair(colors.black,colors.yellow),active_fg_bg=active_fg_bg}
+    App{parent=apps_1,x=9,y=2,text="F",title="设施",callback=function()open(APP_ID.FACILITY)end,app_fg_bg=cpair(colors.black,colors.orange),active_fg_bg=active_fg_bg}
+    App{parent=apps_1,x=16,y=2,text="\x15",title="控制",callback=function()open(APP_ID.CONTROL)end,app_fg_bg=cpair(colors.black,colors.green),active_fg_bg=active_fg_bg}
+    App{parent=apps_1,x=2,y=7,text="\x17",title="工艺",callback=function()open(APP_ID.PROCESS)end,app_fg_bg=cpair(colors.black,colors.purple),active_fg_bg=active_fg_bg}
+    App{parent=apps_1,x=9,y=7,text="\x7f",title="废料",callback=function()open(APP_ID.WASTE)end,app_fg_bg=cpair(colors.black,colors.brown),active_fg_bg=active_fg_bg}
+    App{parent=apps_1,x=16,y=7,text="\xb6",title="指南",callback=function()open(APP_ID.GUIDE)end,app_fg_bg=cpair(colors.black,colors.cyan),active_fg_bg=active_fg_bg}
+    App{parent=apps_1,x=2,y=12,text="?",title="关于",callback=function()open(APP_ID.ABOUT)end,app_fg_bg=cpair(colors.black,colors.white),active_fg_bg=active_fg_bg}
 
-    App{parent=apps_2,x=2,y=2,text="\x0f",title="Alarm",callback=function()open(APP_ID.ALARMS)end,app_fg_bg=cpair(colors.black,colors.red),active_fg_bg=active_fg_bg}
-    App{parent=apps_2,x=9,y=2,text="@",title="Comps",callback=function()open(APP_ID.COMPS)end,app_fg_bg=cpair(colors.black,colors.orange),active_fg_bg=active_fg_bg}
-    App{parent=apps_2,x=16,y=2,text="\x1e",title="Rad",callback=function()open(APP_ID.RADMON)end,app_fg_bg=cpair(colors.black,colors.yellow),active_fg_bg=active_fg_bg}
+    App{parent=apps_2,x=2,y=2,text="\x0f",title="报警",callback=function()open(APP_ID.ALARMS)end,app_fg_bg=cpair(colors.black,colors.red),active_fg_bg=active_fg_bg}
+    App{parent=apps_2,x=9,y=2,text="@",title="组件",callback=function()open(APP_ID.COMPS)end,app_fg_bg=cpair(colors.black,colors.orange),active_fg_bg=active_fg_bg}
+    App{parent=apps_2,x=16,y=2,text="\x1e",title="辐射",callback=function()open(APP_ID.RADMON)end,app_fg_bg=cpair(colors.black,colors.yellow),active_fg_bg=active_fg_bg}
 
     return main
 end

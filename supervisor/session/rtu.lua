@@ -131,7 +131,7 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
 
             if u_type == false then
                 -- validation fail
-                log.debug(log_tag .. "_handle_advertisement(): advertisement unit validation failure")
+                log.debug(log_tag .. "_handle_advertisement(): 广告单元验证失败")
             else
                 if unit_advert.reactor == -1 then
                     -- redstone RTUs can be used in multiple different assignments
@@ -148,13 +148,13 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
                                     elseif assignment > 0 and assignment <= #self.fac_units then
                                         self.fac_units[assignment].add_redstone(unit)
                                     else
-                                        log.warning(util.c(log_tag, "_handle_advertisement(): invalid redstone RTU assignment ", assignment))
+                                        log.warning(util.c(log_tag, "_handle_advertisement(): 无效的 redstone RTU 分配 ", assignment))
                                     end
                                 end
                             end
                         end
                     else
-                        log.warning(util.c(log_tag, "_handle_advertisement(): encountered unsupported multi-assignment RTU type ", type_string))
+                        log.warning(util.c(log_tag, "_handle_advertisement(): 遇到不支持的多分配 RTU 类型 ", type_string))
                     end
                 elseif unit_advert.reactor > 0 then
                     local target_unit = self.fac_units[unit_advert.reactor]
@@ -182,9 +182,9 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
                         if type(unit) ~= "nil" then target_unit.add_envd(unit) end
                     elseif u_type == RTU_UNIT_TYPE.VIRTUAL then
                         -- skip virtual units
-                        log.debug(util.c(log_tag, "skipping virtual RTU #", i))
+                        log.debug(util.c(log_tag, "跳过虚拟 RTU #", i))
                     else
-                        log.warning(util.c(log_tag, "_handle_advertisement(): encountered unsupported reactor-specific RTU type ", type_string))
+                        log.warning(util.c(log_tag, "_handle_advertisement(): 遇到不支持的特定反应堆 RTU 类型 ", type_string))
                     end
                 else
                     -- facility RTUs
@@ -218,9 +218,9 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
                         if type(unit) ~= "nil" then facility.add_envd(unit) end
                     elseif u_type == RTU_UNIT_TYPE.VIRTUAL then
                         -- skip virtual units
-                        log.debug(util.c(log_tag, "skipping virtual RTU #", i))
+                        log.debug(util.c(log_tag, "跳过虚拟 RTU #", i))
                     else
-                        log.warning(util.c(log_tag, "_handle_advertisement(): encountered unsupported facility RTU type ", type_string))
+                        log.warning(util.c(log_tag, "_handle_advertisement(): 遇到不支持的设施 RTU 类型 ", type_string))
                     end
                 end
             end
@@ -229,7 +229,7 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
                 self.units[i] = unit
                 unit_count = unit_count + 1
             elseif u_type ~= RTU_UNIT_TYPE.VIRTUAL then
-                log.warning(util.c(log_tag, "_handle_advertisement(): problem occured while creating a unit (type is ", type_string, ")"))
+                log.warning(util.c(log_tag, "_handle_advertisement(): 创建单元时出现问题 (类型为 ", type_string, ")"))
             end
         end
 
@@ -275,7 +275,7 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
     local function _handle_packet(pkt)
         -- check sequence number
         if self.r_seq_num ~= pkt.scada_frame.seq_num() then
-            log.warning(log_tag .. "sequence out-of-order: next = " .. self.r_seq_num .. ", new = " .. pkt.scada_frame.seq_num())
+            log.warning(log_tag .. "序列乱序：next = " .. self.r_seq_num .. ", new = " .. pkt.scada_frame.seq_num())
             return
         else
             self.r_seq_num = pkt.scada_frame.seq_num() + 1
@@ -302,7 +302,7 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
                     self.last_rtt = srv_now - srv_start
 
                     if self.last_rtt > 750 then
-                        log.warning(log_tag .. "RTU GW KEEP_ALIVE round trip time > 750ms (" .. self.last_rtt .. "ms)")
+                        log.warning(log_tag .. "RTU GW KEEP_ALIVE 往返时间 > 750ms (" .. self.last_rtt .. "ms)")
                     end
 
                     -- log.debug(log_tag .. "RTU GW RTT = " .. self.last_rtt .. "ms")
@@ -310,21 +310,21 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
 
                     databus.tx_rtu_rtt(id, self.last_rtt)
                 else
-                    log.debug(log_tag .. "SCADA keep alive packet length mismatch")
+                    log.debug(log_tag .. "SCADA 保活数据包长度不匹配")
                 end
             elseif pkt.type == MGMT_TYPE.CLOSE then
                 -- close the session
                 _close()
             elseif pkt.type == MGMT_TYPE.SWITCH_NET then
                 -- request to change the network, passed sequence ID check
-                log.debug(log_tag .. "received valid connection switch request")
+                log.debug(log_tag .. "收到有效的连接切换请求")
             elseif pkt.type == MGMT_TYPE.ESTABLISH then
                 -- something is wrong, kill the session
                 _close()
-                log.warning(log_tag .. "terminated session due to an unexpected ESTABLISH packet")
+                log.warning(log_tag .. "因意外收到 ESTABLISH 数据包而终止会话")
             elseif pkt.type == MGMT_TYPE.RTU_ADVERT then
                 -- RTU advertisement
-                log.debug(log_tag .. "received updated advertisement")
+                log.debug(log_tag .. "收到更新的广告信息")
                 self.advert = pkt.data
 
                 -- handle advertisement; this will re-create all unit sub-sessions
@@ -336,10 +336,10 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
                         self.units[unit_id].invalidate_cache()
                     end
                 else
-                    log.debug(log_tag .. "SCADA RTU GW device re-mount packet length mismatch")
+                    log.debug(log_tag .. "SCADA RTU GW 设备重挂载数据包长度不匹配")
                 end
             else
-                log.debug(log_tag .. "handler received unsupported SCADA_MGMT packet type " .. pkt.type)
+                log.debug(log_tag .. "处理程序收到不支持的 SCADA_MGMT 数据包类型 " .. pkt.type)
             end
         end
     end
@@ -360,8 +360,8 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
     function public.close()
         _close()
         _send_mgmt(MGMT_TYPE.CLOSE, {})
-        println(log_tag .. "connection to RTU GW closed by server")
-        log.info(log_tag .. "session closed by server")
+        println(log_tag .. "到 RTU GW 的连接已被服务器关闭")
+        log.info(log_tag .. "会话已被服务器关闭")
     end
 
     -- iterate the session
@@ -388,15 +388,15 @@ function rtu.new_session(id, s_addr, i_seq_num, in_queue, out_queue, timeout, ad
 
                 -- max 100ms spent processing queue
                 if util.time() - handle_start > 100 then
-                    log.warning(log_tag .. "exceeded 100ms queue process limit")
+                    log.warning(log_tag .. "超过 100ms 队列处理上限")
                     break
                 end
             end
 
             -- exit if connection was closed
             if not self.connected then
-                println("RTU connection " .. id .. " closed by remote host")
-                log.info(log_tag .. "session closed by remote host")
+                println("RTU 连接 " .. id .. " 已被远端主机关闭")
+                log.info(log_tag .. "会话已被远端主机关闭")
                 return self.connected
             end
 

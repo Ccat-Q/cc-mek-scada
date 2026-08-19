@@ -47,8 +47,8 @@ wl_nic.open(config.RTU_Channel)
 databus.tx_hw_wl_modem(modem ~= nil)
 end
 if not ((_bp.wd_nic and _bp.wd_nic.is_connected()) or (_bp.wl_nic and _bp.wl_nic.is_connected())) then
-println("startup> no comms modem found")
-log.warning("BKPLN: no comms modem on startup")
+println("startup> 未找到通讯调制解调器")
+log.warning("BKPLN: 启动时未找到通讯调制解调器")
 return false
 end
 local speakers = ppm.get_all_devices("speaker")
@@ -78,38 +78,38 @@ if wd_nic and (_bp.lan_iface == iface) then
 wd_nic.connect(device)
 _bp.nic_map[iface] = wd_nic
 log.info("BKPLN: WIRED PHY_UP " .. iface)
-print_no_fp("wired comms modem reconnected")
+print_no_fp("有线通讯调制解调器已重连")
 databus.tx_hw_wd_modem(true)
 if (_bp.act_nic ~= wd_nic) and not _bp.wlan_pref then
 _bp.act_nic = wd_nic
 comms.switch_nic(_bp.act_nic, _bp.smem.rtu_state)
-log.info("BKPLN: switched comms to wired modem (preferred)")
+log.info("BKPLN: 通讯已切换到有线调制解调器（优先）")
 end
 elseif wl_nic and (not wl_nic.is_connected()) and m_is_wl then
 wl_nic.connect(device)
 _bp.nic_map[iface] = wl_nic
 log.info("BKPLN: WIRELESS PHY_UP " .. iface)
-print_no_fp("wireless comms modem reconnected")
+print_no_fp("无线通讯调制解调器已重连")
 databus.tx_hw_wl_modem(true)
 if (_bp.act_nic ~= wl_nic) and _bp.wlan_pref then
 _bp.act_nic = wl_nic
 comms.switch_nic(_bp.act_nic, _bp.smem.rtu_state)
-log.info("BKPLN: switched comms to wireless modem (preferred)")
+log.info("BKPLN: 通讯已切换到无线调制解调器（优先）")
 end
 elseif wl_nic and m_is_wl then
 device.closeAll()
-print_no_fp("standby wireless modem connected")
-log.info("BKPLN: standby wireless modem connected")
+print_no_fp("备用无线调制解调器已连接")
+log.info("BKPLN: 备用无线调制解调器已连接")
 else
 device.closeAll()
-print_no_fp("unassigned modem connected")
-log.warning("BKPLN: unassigned modem connected")
+print_no_fp("未分配调制解调器已连接")
+log.warning("BKPLN: 未分配调制解调器已连接")
 end
 elseif type == "speaker" then
 log.info("BKPLN: SPEAKER LINK_UP " .. iface)
 table.insert(_bp.sounders, rtu.init_sounder(device))
-print_no_fp("a speaker was connected")
-log.info("BKPLN: setup speaker sounder for speaker " .. iface)
+print_no_fp("音响已连接")
+log.info("BKPLN: 已为音响 " .. iface .. " 设置音响发声器")
 databus.tx_hw_spkr_count(#_bp.sounders)
 end
 end
@@ -129,46 +129,46 @@ log.info("BKPLN: WIRELESS PHY_DOWN " .. iface)
 databus.tx_hw_wl_modem(false)
 end
 if _bp.act_nic.is_modem(device) then
-print_no_fp("active comms modem disconnected")
-log.warning("BKPLN: active comms modem disconnected")
+print_no_fp("活动通讯调制解调器已断开")
+log.warning("BKPLN: 活动通讯调制解调器已断开")
 if _bp.act_nic == wl_nic then
 local modem, m_iface = ppm.get_wireless_modem()
 if wl_nic and modem then
-log.info("BKPLN: found another wireless modem, using it for comms")
+log.info("BKPLN: 找到另一个无线调制解调器，用于通讯")
 wl_nic.connect(modem)
 log.info("BKPLN: WIRELESS PHY_UP " .. m_iface)
 databus.tx_hw_wl_modem(true)
 elseif wd_nic and wd_nic.is_connected() then
 _bp.act_nic = wd_nic
 comms.switch_nic(_bp.act_nic, _bp.smem.rtu_state)
-log.info("BKPLN: switched comms to wired modem")
+log.info("BKPLN: 通讯已切换到有线调制解调器")
 else
 comms.close(_bp.smem.rtu_state)
 end
 elseif wl_nic and wl_nic.is_connected() then
 _bp.act_nic = wl_nic
 comms.switch_nic(_bp.act_nic, _bp.smem.rtu_state)
-log.info("BKPLN: switched comms to wireless modem")
+log.info("BKPLN: 通讯已切换到无线调制解调器")
 else
 comms.close(_bp.smem.rtu_state)
 end
 elseif wd_nic and wd_nic.is_modem(device) then
-print_no_fp("standby wired modem disconnected")
-log.info("BKPLN: standby wired modem disconnected")
+print_no_fp("备用有线调制解调器已断开")
+log.info("BKPLN: 备用有线调制解调器已断开")
 elseif wl_nic and wl_nic.is_modem(device) then
-print_no_fp("standby wireless modem disconnected")
-log.info("BKPLN: standby wireless modem disconnected")
+print_no_fp("备用无线调制解调器已断开")
+log.info("BKPLN: 备用无线调制解调器已断开")
 else
-print_no_fp("unassigned modem disconnected")
-log.warning("BKPLN: unassigned modem disconnected")
+print_no_fp("未分配调制解调器已断开")
+log.warning("BKPLN: 未分配调制解调器已断开")
 end
 elseif type == "speaker" then
 log.info("BKPLN: SPEAKER LINK_DOWN " .. iface)
 for i = 1, #_bp.sounders do
 if _bp.sounders[i].speaker == device then
 table.remove(_bp.sounders, i)
-print_no_fp("a speaker was disconnected")
-log.warning("BKPLN: speaker sounder " .. iface .. " disconnected")
+print_no_fp("音响已断开")
+log.warning("BKPLN: 音响发声器 " .. iface .. " 已断开")
 databus.tx_hw_spkr_count(#_bp.sounders)
 break
 end

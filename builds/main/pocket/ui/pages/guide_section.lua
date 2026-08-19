@@ -75,7 +75,7 @@ elseif item.type == DOC_TYPE.NOTE then
 TextBox{parent=def_list,text=item.text,fg_bg=cpair(colors.gray,colors._INHERIT)}
 page_end = Div{parent=def_list,height=1,can_focus=true}
 elseif item.type == DOC_TYPE.TIP then
-TextBox{parent=def_list,text="TIP!",fg_bg=cpair(colors.orange,colors._INHERIT)}
+TextBox{parent=def_list,text="提示!",fg_bg=cpair(colors.orange,colors._INHERIT)}
 TextBox{parent=def_list,text=item.text}
 page_end = Div{parent=def_list,height=1,can_focus=true}
 elseif item.type == DOC_TYPE.LIST then

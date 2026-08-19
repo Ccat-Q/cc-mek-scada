@@ -74,7 +74,7 @@ local function make(parent, x, y, wide, com_waste, v_fields, v_names, ps)
     local function _valve(vx, vy, n)
         TextBox{parent=root,x=vx,y=vy,text="\x10\x11",fg_bg=text_c,width=2}
         local conn = IndicatorLight{parent=root,x=vx-3,y=vy+1,label=v_names[n],colors=ind_grn}
-        local open = IndicatorLight{parent=root,x=vx-3,y=vy+2,label="OPEN",colors=ind_wht}
+        local open = IndicatorLight{parent=root,x=vx-3,y=vy+2,label="开启",colors=ind_wht}
         conn.register(ps, util.c("V_", v_fields[n], "_conn"), conn.update)
         open.register(ps, util.c("V_", v_fields[n], "_state"), open.update)
     end
@@ -109,14 +109,14 @@ local function make(parent, x, y, wide, com_waste, v_fields, v_names, ps)
 
     TextBox{parent=root,x=_wide(18,13),y=3,text="SNAs [Po]",alignment=ALIGN.CENTER,width=19,fg_bg=wh_gray}
     local sna_po  = Rectangle{parent=root,x=_wide(18,13),y=4,border=border(1,colors.gray,true),width=19,height=8,thin=true,fg_bg=style.theme.highlight_box_bright}
-    local sna_act = IndicatorLight{parent=sna_po,label="ACTIVE",colors=ind_grn}
-    local sna_cnt = DataIndicator{parent=sna_po,x=12,y=1,lu_colors=lu_c_d,label="CNT",unit="",format="%2d",value=0,width=7}
-    TextBox{parent=sna_po,y=3,text="PEAK\x1a",width=5,fg_bg=cpair(style.theme.label_dark,colors._INHERIT)}
-    TextBox{parent=sna_po,text="MAX \x1a",width=5,fg_bg=cpair(style.theme.label_dark,colors._INHERIT)}
+    local sna_act = IndicatorLight{parent=sna_po,label="运行中",colors=ind_grn}
+    local sna_cnt = DataIndicator{parent=sna_po,x=12,y=1,lu_colors=lu_c_d,label="数量",unit="",format="%2d",value=0,width=7}
+    TextBox{parent=sna_po,y=3,text="峰值\x1a",width=5,fg_bg=cpair(style.theme.label_dark,colors._INHERIT)}
+    TextBox{parent=sna_po,text="最大 \x1a",width=5,fg_bg=cpair(style.theme.label_dark,colors._INHERIT)}
     local sna_pk = DataIndicator{parent=sna_po,x=6,y=3,lu_colors=lu_c_d,label="",unit="mB/t",format="%7.2f",value=0,width=17}
     local sna_max_o = DataIndicator{parent=sna_po,x=6,lu_colors=lu_c_d,label="",unit="mB/t",format="%7.2f",value=0,width=17}
-    local sna_max_i = DataIndicator{parent=sna_po,lu_colors=lu_c_d,label="\x1aMAX",unit="mB/t",format="%7.2f",value=0,width=17}
-    local sna_in = DataIndicator{parent=sna_po,lu_colors=lu_c_d,label="\x1aIN",unit="mB/t",format="%8.2f",value=0,width=17}
+    local sna_max_i = DataIndicator{parent=sna_po,lu_colors=lu_c_d,label="\x1a最大",unit="mB/t",format="%7.2f",value=0,width=17}
+    local sna_in = DataIndicator{parent=sna_po,lu_colors=lu_c_d,label="\x1a入",unit="mB/t",format="%8.2f",value=0,width=17}
 
     sna_act.register(ps, "po_rate", function (r) sna_act.update(r > 0) end)
     sna_cnt.register(ps, "sna_count", sna_cnt.update)

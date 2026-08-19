@@ -324,54 +324,54 @@ function iorx.record_unit_data(data)
     -- end
 
     if tripped(unit.alarms[ALARM.ContainmentBreach]) then
-        local items = { white("REACTOR MELTDOWN"), blue("DON HAZMAT SUIT") }
-        table.insert(ecam, { color = colors.red, text = "CONTAINMENT BREACH", help = "ContainmentBreach", items = items })
+        local items = { white("反应堆熔毁"), blue("穿戴防护服") }
+        table.insert(ecam, { color = colors.red, text = "安全壳破裂", help = "ContainmentBreach", items = items })
     end
 
     if tripped(unit.alarms[ALARM.ContainmentRadiation]) then
         local items = {
-            white("RADIATION DETECTED"),
-            blue("DON HAZMAT SUIT"),
-            blue("RESOLVE LEAK"),
-            blue("AWAIT SAFE LEVELS")
+            white("检测到辐射"),
+            blue("穿戴防护服"),
+            blue("解决泄漏"),
+            blue("等待安全水平")
         }
 
-        table.insert(ecam, { color = colors.red, text = "RADIATION LEAK", help = "ContainmentRadiation", items = items })
+        table.insert(ecam, { color = colors.red, text = "辐射泄漏", help = "ContainmentRadiation", items = items })
     end
 
     if tripped(unit.alarms[ALARM.CriticalDamage]) then
-        local items = { white("MELTDOWN IMMINENT"), blue("EVACUATE") }
-        table.insert(ecam, { color = colors.red, text = "RCT DAMAGE CRITICAL", help = "CriticalDamage", items = items })
+        local items = { white("熔毁即将发生"), blue("立即撤离") }
+        table.insert(ecam, { color = colors.red, text = "反应堆损坏严重", help = "CriticalDamage", items = items })
     end
 
     if tripped(unit.alarms[ALARM.ReactorLost]) then
-        local items = { white("REACTOR OFF-LINE"), blue("CHECK PLC") }
-        table.insert(ecam, { color = colors.red, text = "REACTOR CONN LOST", help = "ReactorLost", items = items })
+        local items = { white("反应堆离线"), blue("检查 PLC") }
+        table.insert(ecam, { color = colors.red, text = "反应堆连接丢失", help = "ReactorLost", items = items })
     end
 
     if tripped(unit.alarms[ALARM.ReactorDamage]) then
-        local items = { white("REACTOR DAMAGED"), blue("CHECK RCS"), blue("AWAIT DMG REDUCED") }
-        table.insert(ecam, { color = colors.red, text = "REACTOR DAMAGE", help = "ReactorDamage", items = items })
+        local items = { white("反应堆已损坏"), blue("检查 RCS"), blue("等待损伤降低") }
+        table.insert(ecam, { color = colors.red, text = "反应堆损坏", help = "ReactorDamage", items = items })
     end
 
     if tripped(unit.alarms[ALARM.ReactorOverTemp]) then
-        local items = { white("DAMAGING TEMP"), blue("CHECK RCS"), blue("AWAIT COOLDOWN") }
-        table.insert(ecam, { color = colors.red, text = "REACTOR OVER TEMP", help = "ReactorOverTemp", items = items })
+        local items = { white("损伤性温度"), blue("检查 RCS"), blue("等待冷却") }
+        table.insert(ecam, { color = colors.red, text = "反应堆超温", help = "ReactorOverTemp", items = items })
     end
 
     if tripped(unit.alarms[ALARM.ReactorHighTemp]) then
-        local items = { white("OVER EXPECTED TEMP"), blue("CHECK RCS") }
-        table.insert(ecam, { color = colors.yellow, text = "REACTOR HIGH TEMP", help = "ReactorHighTemp", items = items})
+        local items = { white("超过预期温度"), blue("检查 RCS") }
+        table.insert(ecam, { color = colors.yellow, text = "反应堆温度偏高", help = "ReactorHighTemp", items = items})
     end
 
     if tripped(unit.alarms[ALARM.ReactorWasteLeak]) then
-        local items = { white("AT WASTE CAPACITY"), blue("CHECK WASTE OUTPUT"), blue("KEEP RCT DISABLED") }
-        table.insert(ecam, { color = colors.red, text = "REACTOR WASTE LEAK", help = "ReactorWasteLeak", items = items})
+        local items = { white("废料已满"), blue("检查废料输出"), blue("保持反应堆禁用") }
+        table.insert(ecam, { color = colors.red, text = "反应堆废料泄漏", help = "ReactorWasteLeak", items = items})
     end
 
     if tripped(unit.alarms[ALARM.ReactorHighWaste]) then
-        local items = { blue("CHECK WASTE OUTPUT") }
-        table.insert(ecam, { color = colors.yellow, text = "REACTOR WASTE HIGH", help = "ReactorHighWaste", items = items})
+        local items = { blue("检查废料输出") }
+        table.insert(ecam, { color = colors.yellow, text = "反应堆废料过多", help = "ReactorHighWaste", items = items})
     end
 
     if tripped(unit.alarms[ALARM.RPSTransient]) then
@@ -382,22 +382,22 @@ function iorx.record_unit_data(data)
 
         local function insert(cond, key, text, color) if cond[key] then table.insert(items, { text = text, help = key, color = color }) end end
 
-        table.insert(items, white("REACTOR SCRAMMED"))
-        insert(stat, "high_dmg", "HIGH DAMAGE", colors.red)
-        insert(stat, "high_temp", "HIGH TEMPERATURE", colors.red)
-        insert(stat, "low_cool", "CRIT LOW COOLANT")
-        insert(stat, "ex_waste", "EXCESS WASTE")
-        insert(stat, "ex_hcool", "EXCESS HEATED COOL")
-        insert(stat, "fault", "HARDWARE FAULT")
-        insert(stat, "timeout", "SUPERVISOR DISCONN")
-        insert(stat, "manual", "MANUAL SCRAM", colors.white)
-        insert(stat, "automatic", "AUTOMATIC SCRAM")
-        insert(stat, "sys_fail", "NOT FORMED", colors.red)
-        insert(stat, "force_dis", "FORCE DISABLED", colors.red)
-        table.insert(items, blue("RESOLVE PROBLEM"))
-        table.insert(items, blue("RESET RPS"))
+        table.insert(items, white("反应堆已急停"))
+        insert(stat, "high_dmg", "高损伤", colors.red)
+        insert(stat, "high_temp", "高温", colors.red)
+        insert(stat, "low_cool", "冷却剂严重不足")
+        insert(stat, "ex_waste", "废料过多")
+        insert(stat, "ex_hcool", "受热冷却剂过多")
+        insert(stat, "fault", "硬件故障")
+        insert(stat, "timeout", "监管端断开")
+        insert(stat, "manual", "手动急停", colors.white)
+        insert(stat, "automatic", "自动急停")
+        insert(stat, "sys_fail", "未成形", colors.red)
+        insert(stat, "force_dis", "强制禁用", colors.red)
+        table.insert(items, blue("解决问题"))
+        table.insert(items, blue("重置 RPS"))
 
-        table.insert(ecam, { color = colors.yellow, text = "RPS TRANSIENT", help = "RPSTransient", items = items})
+        table.insert(ecam, { color = colors.yellow, text = "RPS 瞬态", help = "RPSTransient", items = items})
     end
 
     if tripped(unit.alarms[ALARM.RCSTransient]) then
@@ -416,97 +416,97 @@ function iorx.record_unit_data(data)
             if cond == true or (type(cond) == "table" and cond[key]) then table.insert(items, { text = text, help = key, color = color }) end
         end
 
-        table.insert(items, white("COOLANT PROBLEM"))
+        table.insert(items, white("冷却剂问题"))
 
-        insert(annunc, "RCPTrip", "RCP TRIP", colors.red)
-        insert(annunc, "CoolantLevelLow", "LOW COOLANT")
+        insert(annunc, "RCPTrip", "RCP 跳闸", colors.red)
+        insert(annunc, "CoolantLevelLow", "冷却剂不足")
 
         if unit.num_boilers == 0 then
             if (util.time_ms() - unit.last_rate_change_ms) > const.FLOW_STABILITY_DELAY_MS then
-                insert(annunc, "BoilRateMismatch", "BOIL RATE MISMATCH")
+                insert(annunc, "BoilRateMismatch", "沸腾速率不匹配")
             end
 
             if unit.turbine_flow_stable then
-                insert(annunc, "RCSFlowLow", "RCS FLOW LOW")
-                insert(annunc, "CoolantFeedMismatch", "COOL FEED MISMATCH")
-                insert(annunc, "SteamFeedMismatch", "STM FEED MISMATCH")
+                insert(annunc, "RCSFlowLow", "RCS 流量低")
+                insert(annunc, "CoolantFeedMismatch", "冷却供给不匹配")
+                insert(annunc, "SteamFeedMismatch", "蒸汽供给不匹配")
             end
         else
             if (util.time_ms() - unit.last_rate_change_ms) > const.FLOW_STABILITY_DELAY_MS then
-                insert(annunc, "RCSFlowLow", "RCS FLOW LOW")
-                insert(annunc, "BoilRateMismatch", "BOIL RATE MISMATCH")
-                insert(annunc, "CoolantFeedMismatch", "COOL FEED MISMATCH")
+                insert(annunc, "RCSFlowLow", "RCS 流量低")
+                insert(annunc, "BoilRateMismatch", "沸腾速率不匹配")
+                insert(annunc, "CoolantFeedMismatch", "冷却供给不匹配")
             end
 
             if unit.turbine_flow_stable then
-                insert(annunc, "SteamFeedMismatch", "STM FEED MISMATCH")
+                insert(annunc, "SteamFeedMismatch", "蒸汽供给不匹配")
             end
         end
 
-        insert(annunc, "MaxWaterReturnFeed", "MAX WTR RTRN FEED")
+        insert(annunc, "MaxWaterReturnFeed", "最大回水供给")
 
-        for k, v in ipairs(annunc.WaterLevelLow) do insert(v, "WaterLevelLow", "BOILER " .. k .. " WTR LOW", colors.red) end
-        for k, v in ipairs(annunc.HeatingRateLow) do insert(v, "HeatingRateLow", "BOILER " .. k .. " HEAT RATE") end
-        for k, v in ipairs(annunc.TurbineOverSpeed) do insert(v, "TurbineOverSpeed", "TURBINE " .. k .. " OVERSPD", colors.red) end
-        for k, v in ipairs(annunc.GeneratorTrip) do insert(v, "GeneratorTrip", "TURBINE " .. k .. " GEN TRIP") end
+        for k, v in ipairs(annunc.WaterLevelLow) do insert(v, "WaterLevelLow", "锅炉 " .. k .. " 水位低", colors.red) end
+        for k, v in ipairs(annunc.HeatingRateLow) do insert(v, "HeatingRateLow", "锅炉 " .. k .. " 加热速率") end
+        for k, v in ipairs(annunc.TurbineOverSpeed) do insert(v, "TurbineOverSpeed", "涡轮机 " .. k .. " 超速", colors.red) end
+        for k, v in ipairs(annunc.GeneratorTrip) do insert(v, "GeneratorTrip", "涡轮机 " .. k .. " 发电机跳闸") end
 
-        table.insert(items, blue("CHECK COOLING SYS"))
+        table.insert(items, blue("检查冷却系统"))
 
-        table.insert(ecam, { color = colors.yellow, text = "RCS TRANSIENT", help = "RCSTransient", items = items})
+        table.insert(ecam, { color = colors.yellow, text = "RCS 瞬态", help = "RCSTransient", items = items})
     end
 
     if tripped(unit.alarms[ALARM.TurbineTrip]) then
         local items = {}
 
         for k, v in ipairs(annunc.TurbineTrip) do
-            if v then table.insert(items, { text = "TURBINE " .. k .. " TRIP", help = "TurbineTrip" }) end
+            if v then table.insert(items, { text = "涡轮机 " .. k .. " 跳闸", help = "TurbineTrip" }) end
         end
 
-        table.insert(items, blue("CHECK ENERGY OUT"))
-        table.insert(ecam, { color = colors.red, text = "TURBINE TRIP", help = "TurbineTripAlarm", items = items})
+        table.insert(items, blue("检查能量输出"))
+        table.insert(ecam, { color = colors.red, text = "涡轮机跳闸", help = "TurbineTripAlarm", items = items})
     end
 
     if not (tripped(unit.alarms[ALARM.ReactorLost]) or unit.connected) then
-        local items = { blue("CHECK PLC") }
-        table.insert(ecam, { color = colors.yellow, text = "REACTOR OFF-LINE", items = items })
+        local items = { blue("检查 PLC") }
+        table.insert(ecam, { color = colors.yellow, text = "反应堆离线", items = items })
     end
 
     if annunc.FuelInputRateLow then
-        table.insert(ecam, { color = colors.yellow, text = "FUEL INPUT RATE LOW", help = "FuelInputRateLow", items = { blue("CHECK FUEL INPUT") } })
+        table.insert(ecam, { color = colors.yellow, text = "燃料输入速率低", help = "FuelInputRateLow", items = { blue("检查燃料输入") } })
     end
 
     if unit.fuel_burn_rate_limited then
-        table.insert(ecam, { color = colors.yellow, text = "MAX BURN LIMITED", items = { white("INSUFFICIENT FUEL"), white("INJECTION RATE"), blue("CHECK FUEL INPUT") } })
+        table.insert(ecam, { color = colors.yellow, text = "最大燃烧受限", items = { white("燃料不足"), white("注入速率"), blue("检查燃料输入") } })
     end
 
     if annunc.WasteLineOcclusion then
-        table.insert(ecam, { color = colors.yellow, text = "WASTE LINE OCCLUSION", help = "WasteLineOcclusion", items = { blue("CHECK WASTE OUTPUT") } })
+        table.insert(ecam, { color = colors.yellow, text = "废料管线堵塞", help = "WasteLineOcclusion", items = { blue("检查废料输出") } })
     end
 
     for k, v in ipairs(annunc.BoilerOnline) do
         if not v then
-            local items = { blue("CHECK RTU") }
-            table.insert(ecam, { color = colors.yellow, text = "BOILER " .. k .. " OFF-LINE", items = items})
+            local items = { blue("检查 RTU") }
+            table.insert(ecam, { color = colors.yellow, text = "锅炉 " .. k .. " 离线", items = items})
         end
     end
 
     for k, v in ipairs(annunc.TurbineOnline) do
         if not v then
-            local items = { blue("CHECK RTU") }
-            table.insert(ecam, { color = colors.yellow, text = "TURBINE " .. k .. " OFF-LINE", items = items})
+            local items = { blue("检查 RTU") }
+            table.insert(ecam, { color = colors.yellow, text = "涡轮机 " .. k .. " 离线", items = items})
         end
     end
 
     -- if no alarms, put some basic status messages in
     if #ecam == 0 then
-        table.insert(ecam, { color = colors.green, text = "REACTOR " .. util.trinary(unit.reactor_data.mek_status.status, "NOMINAL", "IDLE"), items = {}})
+        table.insert(ecam, { color = colors.green, text = "反应堆 " .. util.trinary(unit.reactor_data.mek_status.status, "正常", "待机"), items = {}})
 
         if (not unit.reactor_data.mek_status.status) and annunc.HighStartupRate then
-            table.insert(ecam, { color = colors.yellow, text = "HIGH STARTUP RATE", help = "HighStartupRate", items = {}})
+            table.insert(ecam, { color = colors.yellow, text = "启动速率过高", help = "HighStartupRate", items = {}})
         end
 
-        local plural = util.trinary(unit.num_turbines > 1, "S", "")
-        table.insert(ecam, { color = colors.green, text = "TURBINE" .. plural .. util.trinary(unit.turbine_flow_stable, " STABLE", " STABILIZING"), items = {}})
+        local plural = util.trinary(unit.num_turbines > 1, "", "")
+        table.insert(ecam, { color = colors.green, text = "涡轮机" .. plural .. util.trinary(unit.turbine_flow_stable, " 稳定", " 稳定中"), items = {}})
     end
 
     u_ps.publish("U_ECAM", textutils.serialize(ecam))

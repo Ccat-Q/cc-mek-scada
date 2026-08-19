@@ -85,10 +85,10 @@ FAHRENHEIT = 3,
 RANKINE = 4
 }
 types.TEMP_SCALE_NAMES = {
-"Kelvin",
-"Celsius",
-"Fahrenheit",
-"Rankine"
+"开尔文",
+"摄氏度",
+"华氏度",
+"兰氏度"
 }
 types.TEMP_SCALE_UNITS = {
 "K",
@@ -102,9 +102,9 @@ FE = 2,
 RF = 3
 }
 types.ENERGY_SCALE_NAMES = {
-"Joules (J)",
-"Forge Energy (FE)",
-"Redstone Flux (RF)"
+"焦耳 (J)",
+"锻造能量 (FE)",
+"红石通量 (RF)"
 }
 types.ENERGY_SCALE_UNITS = {
 "J",
@@ -243,11 +243,11 @@ TERTIARY = 3,
 BACKUP = 4
 }
 types.AUTO_GROUP_NAMES = {
-"Manual",
-"Primary",
-"Secondary",
-"Tertiary",
-"Backup"
+"手动",
+"主",
+"次",
+"第三",
+"备用"
 }
 types.COOLANT_TYPE = {
 WATER = 1,

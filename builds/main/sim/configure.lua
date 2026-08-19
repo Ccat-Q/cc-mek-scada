@@ -18,7 +18,7 @@ return input
 end
 end
 function configure.configure()
-println("SCADA Simulator Configuration")
+println("SCADA 模拟器配置")
 println("=============================")
 println("")
 local loaded = settings.load("/sim.settings")
@@ -40,31 +40,31 @@ TurbinesPerUnit = settings.get("TurbinesPerUnit"),
 ModemSide = settings.get("ModemSide")
 }
 end
-println("== Network ==")
-local svr = prompt("SVR channel (supervisor listens here)", cur.SVR_Channel or 16240, true)
-local plc = prompt("PLC channel (supervisor sends PLC frames here)", cur.PLC_Channel or 16241, true)
-local rtu = prompt("RTU channel (supervisor sends RTU frames here)", cur.RTU_Channel or 16242, true)
-local auth = prompt("AuthKey (HMAC key, must match supervisor; empty = off)", cur.AuthKey or "", false)
-local range = prompt("TrustedRange (max distance, 0 = unlimited)", cur.TrustedRange or 0, true)
+println("== 网络 ==")
+local svr = prompt("SVR 频道（监控端在此监听）", cur.SVR_Channel or 16240, true)
+local plc = prompt("PLC 频道（监控端在此发送 PLC 帧）", cur.PLC_Channel or 16241, true)
+local rtu = prompt("RTU 频道（监控端在此发送 RTU 帧）", cur.RTU_Channel or 16242, true)
+local auth = prompt("AuthKey（HMAC 密钥，须与监控端一致；留空 = 关闭）", cur.AuthKey or "", false)
+local range = prompt("TrustedRange（最大距离，0 = 不限）", cur.TrustedRange or 0, true)
 println("")
-println("== Simulation Topology ==")
-local plc_en = prompt("Simulate a reactor PLC? (y/n)", (cur.SimulatePLC ~= false) and "y" or "n", false)
-local rtu_en = prompt("Simulate an RTU gateway? (y/n)", (cur.SimulateRTU ~= false) and "y" or "n", false)
-local units = prompt("Number of reactor units (1-4)", cur.UnitCount or 1, true)
+println("== 模拟拓扑 ==")
+local plc_en = prompt("模拟反应堆 PLC？(y/n)", (cur.SimulatePLC ~= false) and "y" or "n", false)
+local rtu_en = prompt("模拟 RTU 网关？(y/n)", (cur.SimulateRTU ~= false) and "y" or "n", false)
+local units = prompt("反应堆机组数量（1-4）", cur.UnitCount or 1, true)
 units = math.max(1, math.min(4, units or 1))
 local boilers = 0
 local turbines = 0
 if string.lower(tostring(rtu_en)) ~= "n" then
-print("NOTE: boiler/turbine counts MUST match the supervisor's facility")
-print("      configuration or devices will show 'bad index'.")
-boilers = prompt("Boilers per unit (1-2)", cur.BoilersPerUnit or 1, true)
+print("注意：锅炉/涡轮机数量必须与监控端的设施配置一致")
+print("      否则设备将显示 'bad index'。")
+boilers = prompt("每机组锅炉数量（1-2）", cur.BoilersPerUnit or 1, true)
 boilers = math.max(1, math.min(2, boilers or 1))
-turbines = prompt("Turbines per unit (1-3)", cur.TurbinesPerUnit or 1, true)
+turbines = prompt("每机组涡轮机数量（1-3）", cur.TurbinesPerUnit or 1, true)
 turbines = math.max(1, math.min(3, turbines or 1))
 end
-local sps_en = prompt("Simulate a facility SPS? (y/n)", (cur.SimulateSPS ~= false) and "y" or "n", false)
-local ui_en = prompt("Show front panel UI? (y/n)", (cur.ShowUI ~= false) and "y" or "n", false)
-local modem_side = prompt("Modem side (optional, auto-detect if empty)", cur.ModemSide or "", false)
+local sps_en = prompt("模拟设施 SPS？(y/n)", (cur.SimulateSPS ~= false) and "y" or "n", false)
+local ui_en = prompt("显示前面板界面？(y/n)", (cur.ShowUI ~= false) and "y" or "n", false)
+local modem_side = prompt("调制解调器侧（可选，留空自动检测）", cur.ModemSide or "", false)
 if modem_side == "" then modem_side = nil end
 settings.set("SVR_Channel", svr)
 settings.set("PLC_Channel", plc)
@@ -82,11 +82,11 @@ if modem_side then settings.set("ModemSide", modem_side) end
 local saved = settings.save("/sim.settings")
 println("")
 if saved then
-println("Configuration saved to /sim.settings")
+println("配置已保存到 /sim.settings")
 return true
 else
-println("ERROR: failed to save configuration")
-return false, "failed to save /sim.settings"
+println("错误：保存配置失败")
+return false, "无法保存 /sim.settings"
 end
 end
 return configure

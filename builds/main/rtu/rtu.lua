@@ -211,11 +211,11 @@ end
 local public = {}
 function public.switch_nic(new_nic, rtu_state)
 if tx_nic.is_connected() then
-log.info(util.c("switching link to reconnected interface ", new_nic.phy_name(), " from ", tx_nic.phy_name()))
+log.info(util.c("正在将链接切换到已重连接口 ", new_nic.phy_name(), " （原 ", tx_nic.phy_name(), "）"))
 tx_nic = new_nic
 _send(MGMT_TYPE.SWITCH_NET, {})
 else
-log.info(util.c("closing link on ", tx_nic.phy_name(), ", switching to ", new_nic.phy_name()))
+log.info(util.c("正在关闭 ", tx_nic.phy_name(), " 上的链接，切换到 ", new_nic.phy_name()))
 tx_nic = new_nic
 conn_watchdog.cancel()
 public.unlink(rtu_state)
@@ -223,7 +223,7 @@ end
 end
 function public.manage_failover(act_nic)
 if (act_nic ~= tx_nic) and act_nic.is_network_up() and ((util.time_ms() - self.failover_init) > FAILOVER_GRACE_PERIOD_MS) then
-log.info(util.c("primary interface ", act_nic.phy_name(), " is up, requesting link switch"))
+log.info(util.c("主接口 ", act_nic.phy_name(), " 已恢复，请求切换链接"))
 tx_nic = act_nic
 _send(MGMT_TYPE.SWITCH_NET, {})
 self.failover_init = util.time_ms()
@@ -269,7 +269,7 @@ pkt = comms.modbus_container().decode(frame)
 elseif frame.protocol() == PROTOCOL.SCADA_MGMT then
 pkt = comms.mgmt_container().decode(frame)
 else
-log.debug("illegal packet type " .. frame.protocol(), true)
+log.debug("非法数据包类型 " .. frame.protocol(), true)
 end
 end
 else
@@ -286,7 +286,7 @@ if l_chan == config.RTU_Channel then
 if self.r_seq_num == nil then
 self.r_seq_num = packet.scada_frame.seq_num() + 1
 elseif self.r_seq_num ~= packet.scada_frame.seq_num() then
-log.warning("sequence out-of-order: next = " .. self.r_seq_num .. ", new = " .. packet.scada_frame.seq_num())
+log.warning("序列号乱序： 下一序号 = " .. self.r_seq_num .. "，新序号 = " .. packet.scada_frame.seq_num())
 return
 elseif rtu_state.linked and (src_addr ~= self.sv_addr) then
 log.debug("received packet from unknown computer " .. src_addr .. " while linked (expected " .. self.sv_addr ..
@@ -306,19 +306,19 @@ local unit_dbg_tag = " (unit " .. packet.unit_id .. ")"
 if unit.type == RTU_UNIT_TYPE.REDSTONE then
 return_code, reply = unit.modbus_io.handle_adu(packet)
 if not return_code then
-log.warning("requested MODBUS operation failed" .. unit_dbg_tag)
+log.warning("请求的 MODBUS 操作失败" .. unit_dbg_tag)
 end
 else
 return_code, reply = unit.modbus_io.check_request(packet)
 if return_code then
 if unit.pkt_queue.length() > 3 then
 reply = modbus.reply__srv_device_busy(packet)
-log.warning("device busy, discarding new request" .. unit_dbg_tag)
+log.warning("设备忙碌，丢弃新请求" .. unit_dbg_tag)
 else
 unit.pkt_queue.push_network(packet)
 end
 else
-log.warning("requested MODBUS operation failed" .. unit_dbg_tag)
+log.warning("请求的 MODBUS 操作失败" .. unit_dbg_tag)
 end
 end
 else
@@ -336,7 +336,7 @@ if packet.length == 1 and type(packet.data[1]) == "number" then
 local timestamp = packet.data[1]
 local trip_time = util.time() - timestamp
 if trip_time > 750 then
-log.warning("RTU KEEP_ALIVE trip time > 750ms (" .. trip_time .. "ms)")
+log.warning("RTU 保活往返时间 > 750ms (" .. trip_time .. "ms)")
 end
 _send_keep_alive_ack(timestamp)
 else
@@ -345,8 +345,8 @@ end
 elseif packet.type == MGMT_TYPE.CLOSE then
 conn_watchdog.cancel()
 public.unlink(rtu_state)
-println_ts("server connection closed by remote host")
-log.warning("server connection closed by remote host")
+println_ts("服务器连接已被远程主机关闭")
+log.warning("服务器连接已被远程主机关闭")
 elseif packet.type == MGMT_TYPE.RTU_ADVERT then
 public.send_advertisement(units)
 elseif packet.type == MGMT_TYPE.RTU_TONE_ALARM then
@@ -366,15 +366,15 @@ if est_ack == ESTABLISH_ACK.ALLOW then
 tx_nic = backplane.nics[packet.scada_frame.interface()]
 rtu_state.linked = true
 self.sv_addr = packet.scada_frame.src_addr()
-println_ts("supervisor connection established")
+println_ts("监控端连接已建立")
 log.info(util.c("supervisor connection established, linked to SV (CID#", src_addr, ") on ", tx_nic.phy_name()))
 else
 if est_ack ~= self.last_est_ack then
 if est_ack == ESTABLISH_ACK.BAD_VERSION then
-println_ts("supervisor comms version mismatch (try updating), retrying...")
+println_ts("监控端通讯版本不匹配（请尝试更新），正在重试...")
 log.warning("supervisor connection denied due to comms version mismatch, retrying")
 else
-println_ts("supervisor connection denied, retrying...")
+println_ts("监控端连接被拒绝，正在重试...")
 log.warning("supervisor connection denied, retrying")
 end
 end
@@ -390,10 +390,10 @@ else
 log.debug("discarding non-link SCADA_MGMT packet before linked")
 end
 else
-log.error("illegal packet type " .. protocol, true)
+log.error("非法数据包类型 " .. protocol, true)
 end
 else
-log.debug("received packet on unconfigured channel " .. l_chan, true)
+log.debug("在未配置的通道上收到数据包 " .. l_chan, true)
 end
 end
 return public

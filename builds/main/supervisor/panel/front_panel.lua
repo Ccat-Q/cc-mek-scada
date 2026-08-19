@@ -27,12 +27,12 @@ local s_hi_bright = style.theme.highlight_box_bright
 local label_fg = style.fp.label_fg
 local label_d_fg = style.fp.label_d_fg
 local term_w, term_h = term.getSize()
-TextBox{parent=panel,y=1,text="SCADA SUPERVISOR",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
+TextBox{parent=panel,y=1,text="SCADA 监控端",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
 local page_div = Div{parent=panel,y=3}
 local main_page = Div{parent=page_div,y=1}
 local system = Div{parent=main_page,width=18,height=17,x=2,y=2}
-local status = LED{parent=system,label="STATUS",colors=cpair(colors.green,colors.red)}
-local heartbeat = LED{parent=system,label="HEARTBEAT",colors=ind_grn}
+local status = LED{parent=system,label="状态",colors=cpair(colors.green,colors.red)}
+local heartbeat = LED{parent=system,label="心跳",colors=ind_grn}
 system.line_break()
 status.register(databus.ps, "status", status.update)
 heartbeat.register(databus.ps, "heartbeat", heartbeat.update)
@@ -46,8 +46,8 @@ local modem = LED{parent=system,label="MODEM",colors=ind_grn}
 modem.register(databus.ps, util.trinary(config.WirelessModem, "has_wl_modem", "has_wd_modem"), modem.update)
 end
 local warning_box = Rectangle{parent=main_page,x=20,y=2,width=28,height=11,border=border(1,s_hi_box.bkg,true),thin=true,even_inner=true,hidden=true}
-TextBox{parent=warning_box,text="One or more units have a heating rate that deviates from the configured Joules per mB of fuel. Check the Supervisor's Mekanism configuration against Mekanism's configuration.",fg_bg=cpair(colors.red,colors._INHERIT)}
-PushButton{parent=warning_box,x=18,y=9,min_width=9,text="DISMISS",callback=function()warning_box.hide(true)end,fg_bg=s_hi_box,active_fg_bg=s_hi_bright}
+TextBox{parent=warning_box,text="一台或多台机组的加热速率偏离了配置的每 mB 燃料焦耳值。请将监控端的 Mekanism 配置与 Mekanism 的配置进行核对。",fg_bg=cpair(colors.red,colors._INHERIT)}
+PushButton{parent=warning_box,x=18,y=9,min_width=9,text="关闭",callback=function()warning_box.hide(true)end,fg_bg=s_hi_box,active_fg_bg=s_hi_bright}
 warning_box.register(databus.ps, "energy_mismatch", function (x) if x then warning_box.show() else warning_box.hide(true) end end)
 local hw_labels = Rectangle{parent=main_page,x=2,y=term_h-7,width=14,height=5,border=border(1,s_hi_box.bkg,true),even_inner=true}
 local comp_id = util.sprintf("%03d", os.getComputerID())
@@ -60,9 +60,9 @@ for i = 1, supervisor.config.UnitCount do
 local ps_prefix = "plc_" .. i .. "_"
 local plc_entry = Div{parent=plc_list,height=3,fg_bg=s_hi_bright}
 TextBox{parent=plc_entry,y=1,text="",width=8,fg_bg=s_hi_box}
-TextBox{parent=plc_entry,y=2,text="UNIT "..i,alignment=ALIGN.CENTER,width=8,fg_bg=s_hi_box}
+TextBox{parent=plc_entry,y=2,text="机组 "..i,alignment=ALIGN.CENTER,width=8,fg_bg=s_hi_box}
 TextBox{parent=plc_entry,y=3,text="",width=8,fg_bg=s_hi_box}
-local conn = LED{parent=plc_entry,x=10,y=2,label="LINK",colors=cpair(colors.green_hc,colors.green_off)}
+local conn = LED{parent=plc_entry,x=10,y=2,label="链路",colors=cpair(colors.green_hc,colors.green_off)}
 conn.register(databus.ps, ps_prefix .. "conn", conn.update)
 local plc_addr = TextBox{parent=plc_entry,x=17,y=2,text=" --- ",width=5,fg_bg=label_d_fg}
 plc_addr.register(databus.ps, ps_prefix .. "addr", plc_addr.set_value)
@@ -81,9 +81,9 @@ local rtu_list = ListBox{parent=rtu_page,y=1,height=term_h-2,width=term_w,scroll
 local _ = Div{parent=rtu_list,height=1}
 local crd_page = Div{parent=page_div,y=1,hidden=true}
 local crd_box = Div{parent=crd_page,x=2,y=2,width=term_w-2,height=4,fg_bg=s_hi_bright}
-local crd_conn = LED{parent=crd_box,x=2,y=2,label="CONNECTION",colors=cpair(colors.green_hc,colors.green_off)}
+local crd_conn = LED{parent=crd_box,x=2,y=2,label="连接",colors=cpair(colors.green_hc,colors.green_off)}
 crd_conn.register(databus.ps, "crd_conn", crd_conn.update)
-TextBox{parent=crd_box,x=4,y=3,text="COMPUTER",width=8,fg_bg=label_d_fg}
+TextBox{parent=crd_box,x=4,y=3,text="计算机",width=8,fg_bg=label_d_fg}
 local crd_addr = TextBox{parent=crd_box,x=13,y=3,text="---",width=5,fg_bg=label_d_fg}
 crd_addr.register(databus.ps, "crd_addr", crd_addr.set_value)
 TextBox{parent=crd_box,x=22,y=2,text="FW:",width=3}
@@ -102,14 +102,14 @@ local chk_list = ListBox{parent=chk_page,y=1,height=term_h-2,width=term_w,scroll
 local _ = Div{parent=chk_list,height=1}
 local info_page = Div{parent=page_div,y=1,hidden=true}
 local info = Div{parent=info_page,height=6,x=2,y=2}
-TextBox{parent=info,text="SVR \x1a Supervisor Status"}
-TextBox{parent=info,text="PLC \x1a Reactor PLC Connections"}
-TextBox{parent=info,text="RTU \x1a RTU Gateway Connections"}
-TextBox{parent=info,text="CRD \x1a Coordinator Connection"}
-TextBox{parent=info,text="PKT \x1a Pocket Connections"}
-TextBox{parent=info,text="DEV \x1a RTU Device/Configuration Alerts"}
+TextBox{parent=info,text="SVR \x1a 监控端状态"}
+TextBox{parent=info,text="PLC \x1a 反应堆 PLC 连接"}
+TextBox{parent=info,text="RTU \x1a RTU 网关连接"}
+TextBox{parent=info,text="CRD \x1a 协调器连接"}
+TextBox{parent=info,text="PKT \x1a Pocket 连接"}
+TextBox{parent=info,text="DEV \x1a RTU 设备/配置警报"}
 local notes = Div{parent=info_page,width=term_w-2,height=8,x=2,y=9,fg_bg=style.fp.disabled_fg}
-TextBox{parent=notes,text="The DEV tab will show missing devices and devices that connected with incorrect information. Missing entries will indicate how the configuration should be, duplicate entries will indicate what is a duplicate, and out-of-range entries will indicate the invalid entry. An out-of-range example is a #2 turbine when you should only have 1 turbine for that unit."}
+TextBox{parent=notes,text="DEV 选项卡将显示缺失的设备以及以错误信息连接的设备。缺失条目将指示配置应如何，重复条目将指示重复项，超出范围的条目将指示无效项。超出范围的示例是：当该机组本应只有 1 台涡轮机时，却出现了 2 号涡轮机。"}
 local panes = { main_page, plc_page, rtu_page, crd_page, pkt_page, chk_page, info_page }
 local page_pane = MultiPane{parent=page_div,y=1,panes=panes}
 local tabs = {

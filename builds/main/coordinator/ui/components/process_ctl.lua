@@ -43,35 +43,35 @@ local facility = db.facility
 local units = db.units
 local ess_ps = util.trinary(facility.ess_type == types.ESS.ENERGY_CORE, facility.ecore_ps_tbl[1], facility.induction_ps_tbl[1])
 local main = Div{parent=root,width=128,height=24,x=x,y=y}
-local scram = HazardButton{parent=main,y=1,text="FAC SCRAM",accent=colors.yellow,dis_colors=dis_colors,callback=db.process.fac_scram,fg_bg=hzd_fg_bg}
-local ack_a = HazardButton{parent=main,x=16,y=1,text="ACK \x13",accent=colors.orange,dis_colors=dis_colors,callback=db.process.fac_ack_alarms,fg_bg=hzd_fg_bg}
+local scram = HazardButton{parent=main,y=1,text="全厂急停",accent=colors.yellow,dis_colors=dis_colors,callback=db.process.fac_scram,fg_bg=hzd_fg_bg}
+local ack_a = HazardButton{parent=main,x=16,y=1,text="确认 \x13",accent=colors.orange,dis_colors=dis_colors,callback=db.process.fac_ack_alarms,fg_bg=hzd_fg_bg}
 db.process.fac_ack.on_scram = scram.on_response
 db.process.fac_ack.on_ack_alarms = ack_a.on_response
-local all_ok  = IndicatorLight{parent=main,y=5,label="Unit Systems Online",colors=ind_grn}
-local rad_mon = TriIndicatorLight{parent=main,label="Radiation Monitor",c1=style.ind_bkg,c2=ind_yel.fgd,c3=ind_grn.fgd}
-local ind_ess = IndicatorLight{parent=main,label="Energy Storage System",colors=ind_grn}
-local sps     = IndicatorLight{parent=main,label="SPS Connected",colors=ind_grn}
+local all_ok  = IndicatorLight{parent=main,y=5,label="机组系统在线",colors=ind_grn}
+local rad_mon = TriIndicatorLight{parent=main,label="辐射监测",c1=style.ind_bkg,c2=ind_yel.fgd,c3=ind_grn.fgd}
+local ind_ess = IndicatorLight{parent=main,label="储能系统",colors=ind_grn}
+local sps     = IndicatorLight{parent=main,label="SPS 已连接",colors=ind_grn}
 all_ok.register(facility.ps, "all_sys_ok", all_ok.update)
 rad_mon.register(facility.ps, "rad_computed_status", rad_mon.update)
 ind_ess.register(ess_ps, "computed_status", function (status) ind_ess.update(status > 1) end)
 sps.register(facility.sps_ps_tbl[1], "computed_status", function (status) sps.update(status > 1) end)
 main.line_break()
-local auto_ready = IndicatorLight{parent=main,label="Configured Units Ready",colors=ind_grn}
-local auto_act   = IndicatorLight{parent=main,label="Process Active",colors=ind_grn}
-local auto_ramp  = IndicatorLight{parent=main,label="Process Ramping",colors=ind_wht,flash=true,period=period.BLINK_250_MS}
-local auto_sat   = IndicatorLight{parent=main,label="Min/Max Burn Rate",colors=ind_yel}
+local auto_ready = IndicatorLight{parent=main,label="已配置机组就绪",colors=ind_grn}
+local auto_act   = IndicatorLight{parent=main,label="工艺运行中",colors=ind_grn}
+local auto_ramp  = IndicatorLight{parent=main,label="工艺爬升中",colors=ind_wht,flash=true,period=period.BLINK_250_MS}
+local auto_sat   = IndicatorLight{parent=main,label="最小/最大燃烧速率",colors=ind_yel}
 auto_ready.register(facility.ps, "auto_ready", auto_ready.update)
 auto_act.register(facility.ps, "auto_active", auto_act.update)
 auto_ramp.register(facility.ps, "auto_ramping", auto_ramp.update)
 auto_sat.register(facility.ps, "auto_saturated", auto_sat.update)
 main.line_break()
-local auto_scram = IndicatorLight{parent=main,label="Automatic SCRAM",colors=ind_red,flash=true,period=period.BLINK_250_MS}
-local ess_fault  = IndicatorLight{parent=main,label="ESS Hardware Fault",colors=ind_yel,flash=true,period=period.BLINK_500_MS}
-local ess_fill   = IndicatorLight{parent=main,label="ESS Charge High",colors=ind_red,flash=true,period=period.BLINK_500_MS}
-local unit_crit  = IndicatorLight{parent=main,label="Unit Critical Alarm",colors=ind_red,flash=true,period=period.BLINK_250_MS}
-local fac_rad_h  = IndicatorLight{parent=main,label="Facility Radiation High",colors=ind_red,flash=true,period=period.BLINK_250_MS}
-local gen_fault  = IndicatorLight{parent=main,label="Gen. Control Fault",colors=ind_yel,flash=true,period=period.BLINK_500_MS}
-local cfg_warn   = IndicatorLight{parent=main,label="Configuration Warning",colors=ind_yel}
+local auto_scram = IndicatorLight{parent=main,label="自动急停",colors=ind_red,flash=true,period=period.BLINK_250_MS}
+local ess_fault  = IndicatorLight{parent=main,label="储能硬件故障",colors=ind_yel,flash=true,period=period.BLINK_500_MS}
+local ess_fill   = IndicatorLight{parent=main,label="储能充能过高",colors=ind_red,flash=true,period=period.BLINK_500_MS}
+local unit_crit  = IndicatorLight{parent=main,label="机组严重报警",colors=ind_red,flash=true,period=period.BLINK_250_MS}
+local fac_rad_h  = IndicatorLight{parent=main,label="全厂辐射偏高",colors=ind_red,flash=true,period=period.BLINK_250_MS}
+local gen_fault  = IndicatorLight{parent=main,label="发电机控制故障",colors=ind_yel,flash=true,period=period.BLINK_500_MS}
+local cfg_warn   = IndicatorLight{parent=main,label="配置警告",colors=ind_yel}
 auto_scram.register(facility.ps, "auto_scram", auto_scram.update)
 ess_fault.register(facility.ps, "as_ess_fault", ess_fault.update)
 ess_fill.register(facility.ps, "as_ess_fill", ess_fill.update)
@@ -79,16 +79,16 @@ unit_crit.register(facility.ps, "as_crit_alarm", unit_crit.update)
 fac_rad_h.register(facility.ps, "as_radiation", fac_rad_h.update)
 gen_fault.register(facility.ps, "as_gen_fault", gen_fault.update)
 cfg_warn.register(facility.ps, "config_warning", cfg_warn.update)
-TextBox{parent=main,y=23,text="Radiation",width=13,fg_bg=style.label}
+TextBox{parent=main,y=23,text="辐射",width=13,fg_bg=style.label}
 local radiation = RadIndicator{parent=main,label="",format="%9.3f",lu_colors=lu_cpair,width=13,fg_bg=s_field}
 radiation.register(facility.ps, "radiation", radiation.update)
-TextBox{parent=main,x=15,y=23,text="Linked RTUs",width=11,fg_bg=style.label}
+TextBox{parent=main,x=15,y=23,text="已连接 RTU",width=11,fg_bg=style.label}
 local rtu_count = DataIndicator{parent=main,x=15,y=24,label="",format="%11d",value=0,lu_colors=lu_cpair,width=11,fg_bg=s_field}
 rtu_count.register(facility.ps, "rtu_count", rtu_count.update)
 local proc = Div{parent=main,width=103,height=24,x=27,y=1}
 local targets = Div{parent=proc,width=31,height=24,y=1}
 local burn_tag = Div{parent=targets,y=1,width=8,height=4,fg_bg=blk_pur}
-TextBox{parent=burn_tag,x=2,y=2,text="Burn Target",width=7,height=2}
+TextBox{parent=burn_tag,x=2,y=2,text="燃烧目标",width=7,height=2}
 local burn_target = Div{parent=targets,x=9,y=1,width=23,height=3,fg_bg=s_hi_box}
 local b_target = NumericSpinbox{parent=burn_target,x=11,y=1,whole_num_precision=4,fractional_precision=1,min=0.1,arrow_fg_bg=arrow_fg_bg,arrow_disable=style.theme.disabled}
 TextBox{parent=burn_target,x=18,y=2,text="mB/t",fg_bg=style.theme.label_fg}
@@ -96,7 +96,7 @@ local burn_sum = DataIndicator{parent=targets,x=9,y=4,label="",format="%18.1f",v
 b_target.register(facility.ps, "process_burn_target", b_target.set_value)
 burn_sum.register(facility.ps, "burn_sum", burn_sum.update)
 local chg_tag = Div{parent=targets,y=6,width=8,height=4,fg_bg=blk_pur}
-local chg_tag_text = TextBox{parent=chg_tag,x=2,y=2,text="Charge Target",width=7,height=2}
+local chg_tag_text = TextBox{parent=chg_tag,x=2,y=2,text="充能目标",width=7,height=2}
 local chg_target = Div{parent=targets,x=9,y=6,width=23,height=3,fg_bg=s_hi_box}
 local c_target = NumericSpinbox{parent=chg_target,x=2,y=1,whole_num_precision=15,fractional_precision=0,min=0,arrow_fg_bg=arrow_fg_bg,arrow_disable=style.theme.disabled}
 TextBox{parent=chg_target,x=18,y=2,text="M"..db.energy_label,fg_bg=style.theme.label_fg}
@@ -104,9 +104,9 @@ local range_start, range_stop
 local function _update_start_val(value) range_start.set_value(math.min(range_start.get_value(), value - 1)) end
 local function _update_stop_val(value) range_stop.set_value(math.max(range_stop.get_value(), value + 1)) end
 local chg_range = Div{parent=targets,x=9,y=6,width=23,height=3,fg_bg=s_hi_box,hidden=true}
-TextBox{parent=chg_range,x=2,y=2,text="START",fg_bg=style.theme.label_fg}
+TextBox{parent=chg_range,x=2,y=2,text="开始",fg_bg=style.theme.label_fg}
 range_start = NumericSpinbox{parent=chg_range,x=8,y=1,whole_num_precision=3,fractional_precision=0,min=0,max=99,callback=_update_stop_val,arrow_fg_bg=arrow_fg_bg,arrow_disable=style.theme.disabled}
-TextBox{parent=chg_range,x=11,y=2,text="% \x1a STOP",fg_bg=style.theme.label_fg}
+TextBox{parent=chg_range,x=11,y=2,text="% \x1a 停止",fg_bg=style.theme.label_fg}
 range_stop = NumericSpinbox{parent=chg_range,x=20,y=1,whole_num_precision=3,fractional_precision=0,min=1,max=100,callback=_update_start_val,arrow_fg_bg=arrow_fg_bg,arrow_disable=style.theme.disabled}
 TextBox{parent=chg_range,x=23,y=2,text="%",fg_bg=style.theme.label_fg}
 local cur_charge = DataIndicator{parent=targets,x=11,y=9,label="",format="%17d",value=0,unit="M"..db.energy_label,commas=true,lu_colors=black,width=23,fg_bg=blk_brn}
@@ -134,7 +134,7 @@ chg_tag_text.set_value("Charge Target")
 end
 end)
 local gen_tag = Div{parent=targets,y=11,width=8,height=4,fg_bg=blk_pur}
-TextBox{parent=gen_tag,x=2,y=2,text="Gen. Target",width=7,height=2}
+TextBox{parent=gen_tag,x=2,y=2,text="发电目标",width=7,height=2}
 local gen_target = Div{parent=targets,x=9,y=11,width=23,height=3,fg_bg=s_hi_box}
 local g_target = NumericSpinbox{parent=gen_target,x=8,y=1,whole_num_precision=9,fractional_precision=0,min=0,arrow_fg_bg=arrow_fg_bg,arrow_disable=style.theme.disabled}
 TextBox{parent=gen_target,x=18,y=2,text="k"..db.energy_label.."/t",fg_bg=style.theme.label_fg}
@@ -160,7 +160,7 @@ cur_lu    = colors.black
 end
 local _y = ((i - 1) * 5) + 1
 local unit_tag = Div{parent=limit_div,y=_y,width=8,height=4,fg_bg=tag_fg_bg}
-TextBox{parent=unit_tag,x=2,y=2,text="Unit "..i.." Limit",width=7,height=2}
+TextBox{parent=unit_tag,x=2,y=2,text="机组"..i.."限值",width=7,height=2}
 local lim_ctl = Div{parent=limit_div,x=9,y=_y,width=14,height=3,fg_bg=s_hi_box}
 local lim = NumericSpinbox{parent=lim_ctl,x=2,y=1,whole_num_precision=4,fractional_precision=1,min=0.1,arrow_fg_bg=arrow_fg_bg,arrow_disable=style.theme.disabled,fg_bg=lim_fg_bg}
 TextBox{parent=lim_ctl,x=9,y=2,text="mB/t",width=4,fg_bg=label_fg}
@@ -186,18 +186,18 @@ ind_off = style.ind_hi_box_bg
 end
 local _y = ((i - 1) * 5) + 1
 local unit_tag = Div{parent=stat_div,y=_y,width=8,height=4,fg_bg=tag_fg_bg}
-TextBox{parent=unit_tag,x=2,y=2,text="Unit "..i.." Status",width=7,height=2}
+TextBox{parent=unit_tag,x=2,y=2,text="机组"..i.."状态",width=7,height=2}
 local lights   = Div{parent=stat_div,x=9,y=_y,width=14,height=4,fg_bg=ind_fg_bg}
-local ready    = IndicatorLight{parent=lights,x=2,y=2,label="Ready",colors=cpair(ind_grn.fgd,ind_off)}
-local degraded = IndicatorLight{parent=lights,x=2,y=3,label="Degraded",colors=cpair(ind_red.fgd,ind_off),flash=true,period=period.BLINK_250_MS}
+local ready    = IndicatorLight{parent=lights,x=2,y=2,label="就绪",colors=cpair(ind_grn.fgd,ind_off)}
+local degraded = IndicatorLight{parent=lights,x=2,y=3,label="降级",colors=cpair(ind_red.fgd,ind_off),flash=true,period=period.BLINK_250_MS}
 if i <= facility.num_units then
 local unit = units[i]
 ready.register(unit.unit_ps, "U_AutoReady", ready.update)
 degraded.register(unit.unit_ps, "U_AutoDegraded", degraded.update)
 end
 end
-local ctl_opts = { "Monitored Max Burn", "Combined Burn Rate", "Charge Level", "Generation Rate" }
-local alt_opts = { "Monitored Max Burn", "Combined Burn Rate", "Charge Range", "Generation Rate" }
+local ctl_opts = { "监测最大燃烧", "总燃烧速率", "充能水平", "发电速率" }
+local alt_opts = { "监测最大燃烧", "总燃烧速率", "充能范围", "发电速率" }
 local mode = RadioButton{parent=proc,x=34,y=1,options=ctl_opts,radio_colors=cpair(style.theme.accent_dark,style.theme.accent_light),select_color=colors.purple}
 local alt_mode = RadioButton{parent=proc,x=34,y=1,options=alt_opts,radio_colors=cpair(style.theme.accent_dark,style.theme.accent_light),select_color=colors.purple,callback=function(v)mode.set_value(v)end,hidden=true}
 mode.register(facility.ps, "process_mode", mode.set_value)
@@ -216,8 +216,8 @@ chg_tag_text.set_value("Charge Target")
 end
 end)
 local u_stat = Rectangle{parent=proc,border=border(1,colors.gray,true),thin=true,width=31,height=4,y=16,fg_bg=bw_fg_bg}
-local stat_line_1 = TextBox{parent=u_stat,y=1,text="UNKNOWN",width=31,alignment=ALIGN.CENTER,fg_bg=bw_fg_bg}
-local stat_line_2 = TextBox{parent=u_stat,y=2,text="awaiting data...",width=31,alignment=ALIGN.CENTER,fg_bg=cpair(colors.gray,colors.white)}
+local stat_line_1 = TextBox{parent=u_stat,y=1,text="未知",width=31,alignment=ALIGN.CENTER,fg_bg=bw_fg_bg}
+local stat_line_2 = TextBox{parent=u_stat,y=2,text="等待数据...",width=31,alignment=ALIGN.CENTER,fg_bg=cpair(colors.gray,colors.white)}
 stat_line_1.register(facility.ps, "status_line_1", stat_line_1.set_value)
 stat_line_2.register(facility.ps, "status_line_2", stat_line_2.set_value)
 local auto_controls = Div{parent=proc,y=20,width=31,height=5,fg_bg=s_hi_box}
@@ -234,9 +234,9 @@ local function _start_auto()
 _save_cfg()
 db.process.process_start()
 end
-local save  = HazardButton{parent=auto_controls,x=2,y=2,text="SAVE",accent=colors.purple,dis_colors=dis_colors,callback=_save_cfg,fg_bg=hzd_fg_bg}
-local start = HazardButton{parent=auto_controls,x=13,y=2,text="START",accent=colors.lightBlue,dis_colors=dis_colors,callback=_start_auto,fg_bg=hzd_fg_bg}
-local stop  = HazardButton{parent=auto_controls,x=23,y=2,text="STOP",accent=colors.red,dis_colors=dis_colors,callback=db.process.process_stop,fg_bg=hzd_fg_bg}
+local save  = HazardButton{parent=auto_controls,x=2,y=2,text="保存",accent=colors.purple,dis_colors=dis_colors,callback=_save_cfg,fg_bg=hzd_fg_bg}
+local start = HazardButton{parent=auto_controls,x=13,y=2,text="启动",accent=colors.lightBlue,dis_colors=dis_colors,callback=_start_auto,fg_bg=hzd_fg_bg}
+local stop  = HazardButton{parent=auto_controls,x=23,y=2,text="停止",accent=colors.red,dis_colors=dis_colors,callback=db.process.process_stop,fg_bg=hzd_fg_bg}
 db.process.fac_ack.on_start = start.on_response
 db.process.fac_ack.on_stop = stop.on_response
 function facility.save_cfg_ack(ack)
@@ -274,8 +274,8 @@ if not facility.combined_waste then
 local waste_status = Div{parent=proc,width=24,height=4,x=57,y=1,}
 for i = 1, facility.num_units do
 local unit = units[i]
-TextBox{parent=waste_status,y=i,text="U"..i.." Waste",width=8}
-local a_waste = IndicatorLight{parent=waste_status,x=10,y=i,label="Auto",colors=ind_wht}
+TextBox{parent=waste_status,y=i,text="U"..i.."废料",width=8}
+local a_waste = IndicatorLight{parent=waste_status,x=10,y=i,label="自动",colors=ind_wht}
 local waste_m = StateIndicator{parent=waste_status,x=17,y=i,states=style.get_waste().states_abbrv,value=1,min_width=6}
 a_waste.register(unit.unit_ps, "U_AutoWaste", a_waste.update)
 waste_m.register(unit.unit_ps, "U_WasteProduct", waste_m.update)
@@ -284,20 +284,20 @@ end
 local waste_sel = Div{parent=proc,width=21,height=24,x=81,y=1}
 local cutout_fg_bg = cpair(style.theme.bg, colors.brown)
 TextBox{parent=waste_sel,text=" ",width=21,y=1,fg_bg=cutout_fg_bg}
-TextBox{parent=waste_sel,text="WASTE PRODUCTION",alignment=ALIGN.CENTER,width=21,y=2,fg_bg=cutout_fg_bg}
+TextBox{parent=waste_sel,text="废料生产",alignment=ALIGN.CENTER,width=21,y=2,fg_bg=cutout_fg_bg}
 local rect   = Rectangle{parent=waste_sel,border=border(1,colors.brown,true),width=21,height=22,y=3}
 local status = StateIndicator{parent=rect,x=2,y=1,states=style.get_waste().states,value=1,min_width=17}
 status.register(facility.ps, "current_waste_product", status.update)
 local waste_prod = RadioButton{parent=rect,x=2,y=3,options=style.get_waste().options,callback=process.set_process_waste,radio_colors=cpair(style.theme.accent_dark,style.theme.accent_light),select_color=colors.brown}
 waste_prod.register(facility.ps, "process_waste_product", waste_prod.set_value)
-local fb_active = IndicatorLight{parent=rect,x=2,y=7,label="Fallback Active",colors=ind_wht}
-local sps_disabled  = IndicatorLight{parent=rect,x=2,y=8,label="SPS Disabled LC",colors=ind_yel}
+local fb_active = IndicatorLight{parent=rect,x=2,y=7,label="备用激活",colors=ind_wht}
+local sps_disabled  = IndicatorLight{parent=rect,x=2,y=8,label="SPS 低充能禁用",colors=ind_yel}
 fb_active.register(facility.ps, "pu_fallback_active", fb_active.update)
 sps_disabled.register(facility.ps, "sps_disabled_low_power", sps_disabled.update)
-local pu_fallback = Checkbox{parent=rect,x=2,y=10,label="Pu Fallback",callback=process.set_pu_fallback,box_fg_bg=cpair(colors.brown,style.theme.checkbox_bg)}
-TextBox{parent=rect,x=2,y=12,height=3,text="Switch to Pu when SNAs cannot keep up with waste.",fg_bg=style.label}
-local lc_sps = Checkbox{parent=rect,x=2,y=16,label="Low Charge SPS",callback=process.set_sps_low_power,box_fg_bg=cpair(colors.brown,style.theme.checkbox_bg)}
-TextBox{parent=rect,x=2,y=18,height=3,text="Use SPS at low charge, otherwise switches to Po.",fg_bg=style.label}
+local pu_fallback = Checkbox{parent=rect,x=2,y=10,label="钚备用",callback=process.set_pu_fallback,box_fg_bg=cpair(colors.brown,style.theme.checkbox_bg)}
+TextBox{parent=rect,x=2,y=12,height=3,text="当 SNA 无法跟上废料处理时切换到钚。",fg_bg=style.label}
+local lc_sps = Checkbox{parent=rect,x=2,y=16,label="低充能 SPS",callback=process.set_sps_low_power,box_fg_bg=cpair(colors.brown,style.theme.checkbox_bg)}
+TextBox{parent=rect,x=2,y=18,height=3,text="低充能时使用 SPS，否则切换到钋。",fg_bg=style.label}
 pu_fallback.register(facility.ps, "process_pu_fallback", pu_fallback.set_value)
 lc_sps.register(facility.ps, "process_sps_low_power", lc_sps.set_value)
 end

@@ -26,17 +26,17 @@ local function init(parent, fail_code, msg, details)
     local entry = Div{parent=root,x=2,y=1,height=3,fg_bg=style.theme.highlight_box_bright}
 
     local fg_bg = cpair(colors.black, colors.yellow)
-    local tag = "MISSING"
+    local tag = "缺失"
 
     if fail_code == types.RTU_LINK_FAIL.OUT_OF_RANGE then
         fg_bg = cpair(colors.black, colors.orange)
-        tag = "BAD INDEX"
+        tag = "错误索引"
     elseif fail_code == types.RTU_LINK_FAIL.DUPLICATE then
         fg_bg = cpair(colors.black, colors.red)
-        tag = "DUPLICATE"
+        tag = "重复"
     elseif fail_code == types.RTU_LINK_FAIL.MISMATCH then
         fg_bg = cpair(colors.black, colors.red)
-        tag = "MISMATCH"
+        tag = "不匹配"
     end
 
     TextBox{parent=entry,y=1,text="",width=11,fg_bg=fg_bg}

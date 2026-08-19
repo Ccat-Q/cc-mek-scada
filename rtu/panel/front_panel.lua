@@ -30,7 +30,7 @@ local border = core.border
 
 local ind_grn = style.ind_grn
 
-local UNIT_TYPE_LABELS = { "UNKNOWN", "REDSTONE", "BOILER", "TURBINE", "DYNAMIC TANK", "IND MATRIX", "SPS", "SNA", "ENV DETECTOR", "ENERGY CORE" }
+local UNIT_TYPE_LABELS = { "未知", "红石", "锅炉", "涡轮机", "动态储罐", "感应矩阵", "SPS", "SNA", "环境探测器", "能源核心" }
 
 -- create new front panel view
 ---@param panel DisplayBox main displaybox
@@ -43,7 +43,7 @@ local function init(panel, config, units)
 
     local term_w, term_h = term.getSize()
 
-    TextBox{parent=panel,y=1,text="RTU GATEWAY",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
+    TextBox{parent=panel,y=1,text="RTU 网关",alignment=ALIGN.CENTER,fg_bg=style.theme.header}
 
     --
     -- system indicators
@@ -51,16 +51,16 @@ local function init(panel, config, units)
 
     local system = Div{parent=panel,width=14,height=term_h-5,x=2,y=3}
 
-    local status = LED{parent=system,label="STATUS",colors=cpair(colors.green,colors.red)}
-    local heartbeat = LED{parent=system,label="HEARTBEAT",colors=ind_grn}
+    local status = LED{parent=system,label="状态",colors=cpair(colors.green,colors.red)}
+    local heartbeat = LED{parent=system,label="心跳",colors=ind_grn}
     system.line_break()
 
     status.register(databus.ps, "status", status.update)
     heartbeat.register(databus.ps, "heartbeat", heartbeat.update)
 
     if config.WirelessModem and config.WiredModem then
-        local wd_modem = LEDPair{parent=system,label="WD MODEM",off=colors.green_off,c1=colors.yellow,c2=colors.green}
-        local wl_modem = LEDPair{parent=system,label="WL MODEM",off=colors.green_off,c1=colors.yellow,c2=colors.green}
+        local wd_modem = LEDPair{parent=system,label="有线调制解调器",off=colors.green_off,c1=colors.yellow,c2=colors.green}
+        local wl_modem = LEDPair{parent=system,label="无线调制解调器",off=colors.green_off,c1=colors.yellow,c2=colors.green}
 
         local function wd_modem_update()
             if databus.ps.get("has_wd_modem") then

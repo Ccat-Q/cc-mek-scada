@@ -45,7 +45,7 @@ local function handle_unit_mount(smem, println_ts, iface, type, device, unit)
 
         local function fail(msg)
             invalid = true
-            log.error(msg .. " in config")
+            log.error(msg .. " 位于配置中")
         end
 
         -- found, re-link
@@ -55,55 +55,55 @@ local function handle_unit_mount(smem, println_ts, iface, type, device, unit)
             resend_advert = true
             if type == "boilerValve" then
                 -- boiler multiblock
-                if unit.reactor < 1 or unit.reactor > 4 then fail(util.c("boiler '", unit.name, "' cannot init, not assigned to a valid unit")) end
-                if (unit.index == false) or unit.index < 1 or unit.index > 2 then fail(util.c("boiler '", unit.name, "' cannot init, invalid index provided")) end
+                if unit.reactor < 1 or unit.reactor > 4 then fail(util.c("锅炉 '", unit.name, "' 无法初始化，未分配到有效机组")) end
+                if (unit.index == false) or unit.index < 1 or unit.index > 2 then fail(util.c("锅炉 '", unit.name, "' 无法初始化，提供的索引无效")) end
 
                 unit.type = RTU_UNIT_TYPE.BOILER_VALVE
             elseif type == "turbineValve" then
                 -- turbine multiblock
-                if unit.reactor < 1 or unit.reactor > 4 then fail(util.c("turbine '", unit.name, "' cannot init, not assigned to a valid unit")) end
-                if (unit.index == false) or unit.index < 1 or unit.index > 3 then fail(util.c("turbine '", unit.name, "' cannot init, invalid index provided")) end
+                if unit.reactor < 1 or unit.reactor > 4 then fail(util.c("涡轮机 '", unit.name, "' 无法初始化，未分配到有效机组")) end
+                if (unit.index == false) or unit.index < 1 or unit.index > 3 then fail(util.c("涡轮机 '", unit.name, "' 无法初始化，提供的索引无效")) end
 
                 unit.type = RTU_UNIT_TYPE.TURBINE_VALVE
             elseif type == "dynamicValve" then
                 -- dynamic tank multiblock
-                if unit.reactor < 0 or unit.reactor > 4 then fail(util.c("dynamic tank '", unit.name, "' cannot init, no valid assignment provided")) end
+                if unit.reactor < 0 or unit.reactor > 4 then fail(util.c("动态储罐 '", unit.name, "' 无法初始化，未提供有效分配")) end
 
                 if (unit.reactor == 0 and ((unit.index == false) or unit.index < 1 or unit.index > 4)) or
                    (unit.reactor > 0 and unit.index ~= 1) then
-                    fail(util.c("dynamic tank '", unit.name, "' cannot init, invalid index provided"))
+                    fail(util.c("动态储罐 '", unit.name, "' 无法初始化，提供的索引无效"))
                 end
 
                 unit.type = RTU_UNIT_TYPE.DYNAMIC_VALVE
             elseif type == "inductionPort" or type == "reinforcedInductionPort" then
                 -- induction matrix multiblock
-                if unit.reactor ~= 0 then fail(util.c("induction matrix '", unit.name, "' cannot init, not assigned to facility")) end
+                if unit.reactor ~= 0 then fail(util.c("感应矩阵 '", unit.name, "' 无法初始化，未分配到设施")) end
 
                 unit.type = RTU_UNIT_TYPE.IMATRIX
             elseif type == "spsPort" then
                 -- SPS multiblock
-                if unit.reactor ~= 0 then fail(util.c("SPS '", unit.name, "' cannot init, not assigned to facility")) end
+                if unit.reactor ~= 0 then fail(util.c("SPS '", unit.name, "' 无法初始化，未分配到设施")) end
 
                 unit.type = RTU_UNIT_TYPE.SPS
             elseif type == "solarNeutronActivator" or type == "largeSolarNeutronActivator" then
                 -- SNA
-                if unit.reactor < 1 or unit.reactor > 4 then fail(util.c("SNA '", unit.name, "' cannot init, not assigned to a valid unit")) end
+                if unit.reactor < 1 or unit.reactor > 4 then fail(util.c("SNA '", unit.name, "' 无法初始化，未分配到有效机组")) end
 
                 unit.type = RTU_UNIT_TYPE.SNA
             elseif type == "environmentDetector" or type == "environment_detector"  then
                 -- advanced peripherals environment detector
-                if unit.reactor < 0 or unit.reactor > 4 then fail(util.c("environment detector '", unit.name, "' cannot init, no valid assignment provided")) end
-                if (unit.index == false) or unit.index < 1 then fail(util.c("environment detector '", unit.name, "' cannot init, invalid index provided")) end
+                if unit.reactor < 0 or unit.reactor > 4 then fail(util.c("环境探测器 '", unit.name, "' 无法初始化，未提供有效分配")) end
+                if (unit.index == false) or unit.index < 1 then fail(util.c("环境探测器 '", unit.name, "' 无法初始化，提供的索引无效")) end
 
                 unit.type = RTU_UNIT_TYPE.ENV_DETECTOR
             elseif type == "draconic_rf_storage" then
                 -- draconic evolution energy core
-                if unit.reactor ~= 0 then fail(util.c("energy core '", unit.name, "' cannot init, not assigned to facility")) end
+                if unit.reactor ~= 0 then fail(util.c("能量核心 '", unit.name, "' 无法初始化，未分配到设施")) end
 
                 unit.type = RTU_UNIT_TYPE.ENERGY_CORE
             else
                 resend_advert = false
-                log.error(util.c("virtual device '", unit.name, "' cannot init to an unknown type (", type, ")"))
+                log.error(util.c("虚拟设备 '", unit.name, "' 无法初始化为未知类型 (", type, ")"))
             end
 
             databus.tx_unit_hw_type(unit.uid, unit.type)
@@ -144,13 +144,13 @@ local function handle_unit_mount(smem, println_ts, iface, type, device, unit)
             unit.rtu.remount_phy(device)
         else
             unknown = true
-            log.error(util.c("failed to identify reconnected RTU unit type (", unit.name, ")"), true)
+            log.error(util.c("无法识别重连的 RTU 单元类型 (", unit.name, ")"), true)
         end
 
         if unit.is_multiblock then
             unit.hw_state = RTU_HW_STATE.UNFORMED
             if unit.formed == false then
-                log.info(util.c("assuming ", unit.name, " is not formed due to PPM faults while initializing"))
+                log.info(util.c("假设 ", unit.name, " 在初始化时因 PPM 故障而未成型"))
             end
         elseif faulted then
             unit.hw_state = RTU_HW_STATE.FAULTED
@@ -166,7 +166,7 @@ local function handle_unit_mount(smem, println_ts, iface, type, device, unit)
             unit.modbus_io = modbus.new(unit.rtu, true)
 
             local type_name = types.rtu_type_to_string(unit.type)
-            local message = util.c("reconnected the ", type_name, " on interface ", unit.name)
+            local message = util.c("已在接口 ", unit.name, " 上重连 ", type_name)
             println_ts(message)
             log.info(message)
 
@@ -311,8 +311,8 @@ function threads.thread__main(smem)
                                 local unit = units[i]
                                 local type_name = types.rtu_type_to_string(unit.type)
 
-                                println_ts(util.c("lost the ", type_name, " on interface ", unit.name))
-                                log.warning(util.c("lost the ", type_name, " unit peripheral on interface ", unit.name))
+                                println_ts(util.c("已在接口 ", unit.name, " 上丢失 ", type_name))
+                                log.warning(util.c("已在接口 ", unit.name, " 上丢失 ", type_name, " 单元外设"))
 
                                 unit.hw_state = RTU_HW_STATE.OFFLINE
                                 databus.tx_unit_hw_status(unit.uid, unit.hw_state)
@@ -510,18 +510,18 @@ function threads.thread__unit_comms(smem, unit)
 
                 if (is_formed == true) and not unit.formed then
                     unit.hw_state = RTU_HW_STATE.OK
-                    log.info(util.c(detail_name, " is now formed"))
+                    log.info(util.c(detail_name, " 现已成型"))
                     rtu_comms.send_remounted(unit.uid)
                 elseif (is_formed == false) and unit.formed then
-                    log.warning(util.c(detail_name, " is no longer formed"))
+                    log.warning(util.c(detail_name, " 不再成型"))
                 elseif (is_formed == nil) and (unit.hw_state ~= RTU_HW_STATE.OFFLINE) then
-                    log.error(util.c(detail_name, " failed to check if formed, attempting remount..."))
+                    log.error(util.c(detail_name, " 无法检查是否成型，尝试重新挂载..."))
 
                     local type, dev = ppm.remount(unit.name)
                     if type and dev then
                         handle_unit_mount(smem, println_ts, unit.name, type, dev, unit)
                     else
-                        log.error(util.c(detail_name, " failed to remount"))
+                        log.error(util.c(detail_name, " 重新挂载失败"))
                     end
                 end
 

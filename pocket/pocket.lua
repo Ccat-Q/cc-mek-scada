@@ -835,19 +835,19 @@ function pocket.comms(version, nic, sv_watchdog, api_watchdog, nav)
                                 if self.api.last_est_ack ~= est_ack then
                                     if est_ack == ESTABLISH_ACK.DENY then
                                         log.info("coordinator connection denied")
-                                        ioctl.report_crd_link_error("denied")
+                                        ioctl.report_crd_link_error("连接被拒绝")
                                     elseif est_ack == ESTABLISH_ACK.COLLISION then
                                         log.info("coordinator connection denied due to collision")
-                                        ioctl.report_crd_link_error("collision")
+                                        ioctl.report_crd_link_error("冲突")
                                     elseif est_ack == ESTABLISH_ACK.BAD_VERSION then
                                         log.info("coordinator comms version mismatch")
-                                        ioctl.report_crd_link_error("comms version mismatch")
+                                        ioctl.report_crd_link_error("通信版本不匹配")
                                     elseif est_ack == ESTABLISH_ACK.BAD_API_VERSION then
                                         log.info("coordinator api version mismatch")
-                                        ioctl.report_crd_link_error("API version mismatch")
+                                        ioctl.report_crd_link_error("API 版本不匹配")
                                     else
                                         log.debug("coordinator SCADA_MGMT establish packet reply unsupported")
-                                        ioctl.report_crd_link_error("unknown reply")
+                                        ioctl.report_crd_link_error("未知回复")
                                     end
                                 end
 
@@ -918,13 +918,13 @@ function pocket.comms(version, nic, sv_watchdog, api_watchdog, nav)
                             end
                         elseif packet.type == MGMT_TYPE.DIAG_TONE_SET then
                             if packet.length == 1 and packet.data[1] == false then
-                                ps.publish("alarm_ready_warn", "testing denied")
+                                ps.publish("alarm_ready_warn", "测试被拒绝")
                                 log.debug("supervisor SCADA diag tone set failed")
                             elseif packet.length == 2 and type(packet.data[2]) == "table" then
                                 local ready = packet.data[1]
                                 local states = packet.data[2]
 
-                                ps.publish("alarm_ready_warn", util.trinary(ready, "", "system not idle"))
+                                ps.publish("alarm_ready_warn", util.trinary(ready, "", "系统未待机"))
 
                                 for i = 1, #states do
                                     if diag.tone_test.tone_buttons[i] ~= nil then
@@ -937,13 +937,13 @@ function pocket.comms(version, nic, sv_watchdog, api_watchdog, nav)
                             end
                         elseif packet.type == MGMT_TYPE.DIAG_ALARM_SET then
                             if packet.length == 1 and packet.data[1] == false then
-                                ps.publish("alarm_ready_warn", "testing denied")
+                                ps.publish("alarm_ready_warn", "测试被拒绝")
                                 log.debug("supervisor SCADA diag alarm set failed")
                             elseif packet.length == 2 and type(packet.data[2]) == "table" then
                                 local ready = packet.data[1]
                                 local states = packet.data[2]
 
-                                ps.publish("alarm_ready_warn", util.trinary(ready, "", "system not idle"))
+                                ps.publish("alarm_ready_warn", util.trinary(ready, "", "系统未待机"))
 
                                 for i = 1, #states do
                                     if diag.tone_test.alarm_buttons[i] ~= nil then
@@ -978,16 +978,16 @@ function pocket.comms(version, nic, sv_watchdog, api_watchdog, nav)
                                 if self.sv.last_est_ack ~= est_ack then
                                     if est_ack == ESTABLISH_ACK.DENY then
                                         log.info("supervisor connection denied")
-                                        ioctl.report_svr_link_error("denied")
+                                        ioctl.report_svr_link_error("连接被拒绝")
                                     elseif est_ack == ESTABLISH_ACK.COLLISION then
                                         log.info("supervisor connection denied due to collision")
-                                        ioctl.report_svr_link_error("collision")
+                                        ioctl.report_svr_link_error("冲突")
                                     elseif est_ack == ESTABLISH_ACK.BAD_VERSION then
                                         log.info("supervisor comms version mismatch")
-                                        ioctl.report_svr_link_error("comms version mismatch")
+                                        ioctl.report_svr_link_error("通信版本不匹配")
                                     else
                                         log.debug("supervisor SCADA_MGMT establish packet reply unsupported")
-                                        ioctl.report_svr_link_error("unknown reply")
+                                        ioctl.report_svr_link_error("未知回复")
                                     end
                                 end
 

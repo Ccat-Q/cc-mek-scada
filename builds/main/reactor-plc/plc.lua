@@ -141,9 +141,9 @@ rs.setOutput(config.EmerCoolSide, rsio.digital_write(level))
 end
 if state ~= self.emer_cool_active then
 if state then
-log.info("RPS: emergency coolant valve OPENED")
+log.info("RPS: 紧急冷却阀已打开")
 else
-log.info("RPS: emergency coolant valve CLOSED")
+log.info("RPS: 紧急冷却阀已关闭")
 end
 self.emer_cool_active = state
 end
@@ -223,12 +223,12 @@ self.state[CHK.FAULT] = true
 self.state[CHK.SYS_FAIL] = true
 end
 function public.scram()
-log.info("RPS: reactor SCRAM")
+log.info("RPS: 反应堆 SCRAM")
 plc_state.auto_ctl = false
 pcall(databus.tx_auto_state, false)
 reactor.scram()
 if reactor.__p_is_faulted() and not string.find(reactor.__p_last_fault(), PCALL_SCRAM_MSG) then
-log.error("RPS: failed reactor SCRAM")
+log.error("RPS: 反应堆 SCRAM 失败")
 return false
 else
 self.reactor_active = false
@@ -237,16 +237,16 @@ end
 end
 function public.activate()
 if not self.tripped then
-log.info("RPS: reactor start")
+log.info("RPS: 反应堆启动")
 reactor.activate()
 if reactor.__p_is_faulted() and not string.find(reactor.__p_last_fault(), PCALL_START_MSG) then
-log.error("RPS: failed reactor start")
+log.error("RPS: 反应堆启动失败")
 else
 self.reactor_active = true
 return true
 end
 else
-log.debug(util.c("RPS: failed start, RPS tripped: ", self.trip_cause))
+log.debug(util.c("RPS: 启动失败，RPS 已跳闸：", self.trip_cause))
 end
 return false
 end
@@ -255,7 +255,7 @@ if self.tripped and self.trip_cause == "automatic" then
 self.state[CHK.AUTOMATIC] = true
 self.trip_cause = RPS_TRIP_CAUSE.OK
 self.tripped = false
-log.debug("RPS: cleared automatic SCRAM for re-activation")
+log.debug("RPS: 已清除自动 SCRAM 以便重新激活")
 end
 return public.activate()
 end
@@ -284,37 +284,37 @@ end
 if self.tripped then
 status = self.trip_cause
 elseif self.state[CHK.SYS_FAIL] then
-log.warning("RPS: system failure, reactor not formed")
+log.warning("RPS: 系统故障，反应堆未成型")
 status = RPS_TRIP_CAUSE.SYS_FAIL
 elseif self.state[CHK.FORCE_DISABLED] then
-log.warning("RPS: reactor was force disabled")
+log.warning("RPS: 反应堆被强制禁用")
 status = RPS_TRIP_CAUSE.FORCE_DISABLED
 elseif self.state[CHK.HIGH_DMG] then
-log.warning("RPS: high damage")
+log.warning("RPS: 高损伤")
 status = RPS_TRIP_CAUSE.HIGH_DMG
 elseif self.state[CHK.HIGH_TEMP] then
-log.warning("RPS: high temperature")
+log.warning("RPS: 高温")
 status = RPS_TRIP_CAUSE.HIGH_TEMP
 elseif self.state[CHK.LOW_COOLANT] then
-log.warning("RPS: low coolant")
+log.warning("RPS: 冷却剂不足")
 status = RPS_TRIP_CAUSE.LOW_COOLANT
 elseif self.state[CHK.EX_WASTE] then
-log.warning("RPS: full waste")
+log.warning("RPS: 废料已满")
 status = RPS_TRIP_CAUSE.EX_WASTE
 elseif self.state[CHK.EX_HCOOLANT] then
-log.warning("RPS: heated coolant backup")
+log.warning("RPS: 加热冷却剂积压")
 status = RPS_TRIP_CAUSE.EX_HCOOLANT
 elseif self.state[CHK.FAULT] then
-log.warning("RPS: reactor access fault")
+log.warning("RPS: 反应堆访问故障")
 status = RPS_TRIP_CAUSE.FAULT
 elseif self.state[CHK.TIMEOUT] then
-log.warning("RPS: supervisor connection timeout")
+log.warning("RPS: 监控端连接超时")
 status = RPS_TRIP_CAUSE.TIMEOUT
 elseif self.state[CHK.MANUAL] then
-log.warning("RPS: manual SCRAM requested")
+log.warning("RPS: 已请求手动 SCRAM")
 status = RPS_TRIP_CAUSE.MANUAL
 elseif self.state[CHK.AUTOMATIC] then
-log.warning("RPS: automatic SCRAM requested")
+log.warning("RPS: 已请求自动 SCRAM")
 status = RPS_TRIP_CAUSE.AUTOMATIC
 else
 self.tripped = false
@@ -326,10 +326,10 @@ self.tripped = true
 self.trip_cause = status
 if self.formed then
 if self.force_disabled then
-log.warning("RPS: skipping SCRAM due to reactor being force disabled")
+log.warning("RPS: 反应堆被强制禁用，跳过 SCRAM")
 else public.scram() end
 else
-log.warning("RPS: skipping SCRAM due to not being formed")
+log.warning("RPS: 反应堆未成型，跳过 SCRAM")
 end
 end
 _set_emer_cool(self.state[CHK.LOW_COOLANT])
@@ -347,14 +347,14 @@ function public.reset(quiet)
 self.tripped = false
 self.trip_cause = RPS_TRIP_CAUSE.OK
 for i = 1, #self.state do self.state[i] = false end
-if not quiet then log.info("RPS: reset") end
+if not quiet then log.info("RPS: 重置") end
 end
 function public.reset_reattach()
 self.tripped = false
 self.trip_cause = RPS_TRIP_CAUSE.OK
 self.state[CHK.FAULT] = false
 self.state[CHK.SYS_FAIL] = false
-log.info("RPS: partial reset on connected or formed")
+log.info("RPS: 连接或成型时部分重置")
 end
 function public.auto_reset()
 self.state[CHK.AUTOMATIC] = false
@@ -362,7 +362,7 @@ self.state[CHK.TIMEOUT] = false
 if self.trip_cause == RPS_TRIP_CAUSE.AUTOMATIC or self.trip_cause == RPS_TRIP_CAUSE.TIMEOUT then
 self.trip_cause = RPS_TRIP_CAUSE.OK
 self.tripped = false
-log.info("RPS: auto reset")
+log.info("RPS: 自动重置")
 end
 end
 databus.link_rps(public.trip_manual, public.reset)

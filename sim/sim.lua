@@ -84,7 +84,7 @@ function sim.load_config()
     end
 
     if config.UnitCount < 1 or config.UnitCount > 4 then
-        log.error("SIM: invalid UnitCount " .. config.UnitCount .. " (must be 1-4)")
+        log.error("SIM: 无效的 UnitCount " .. config.UnitCount .. "（必须为 1-4）")
         return nil
     end
 
@@ -128,13 +128,13 @@ function sim.run(config)
     end
 
     if not modem then
-        util.println_ts("SIM> no modem found! attach a wired/wireless modem and restart.")
+        util.println_ts("SIM> 未找到调制解调器！请连接有线/无线调制解调器后重新启动。")
         return
     end
 
     -- initialize HMAC if an auth key is configured (must be before NIC creation)
     if config.AuthKey and #config.AuthKey > 0 then
-        log.info(log_tag .. "initializing message authentication")
+        log.info(log_tag .. "正在初始化消息认证")
         network.init_mac(config.AuthKey)
     end
 
@@ -150,7 +150,7 @@ function sim.run(config)
     if config.SimulatePLC then nic.open(config.PLC_Channel) end
     if config.SimulateRTU then nic.open(config.RTU_Channel) end
 
-    log.info(util.c(log_tag, "modem [", modem_iface, "] opened, SVR=", config.SVR_Channel,
+    log.info(util.c(log_tag, "调制解调器 [", modem_iface, "] 已打开，SVR=", config.SVR_Channel,
         " PLC=", config.PLC_Channel, " RTU=", config.RTU_Channel))
 
     --#endregion
@@ -180,11 +180,11 @@ function sim.run(config)
         local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id].reactor
         if reactor then
             if reactor.set_burn_rate(rate) then
-                log.info(util.c(log_tag, "burn rate set to ", rate, " mB/t"))
-                databus.tx_log(util.c("[CTRL] burn rate set to ", rate, " mB/t"))
+                log.info(util.c(log_tag, "燃烧速率已设为 ", rate, " mB/t"))
+                databus.tx_log(util.c("[CTRL] 燃烧速率已设为 ", rate, " mB/t"))
             else
-                log.warning(util.c(log_tag, "invalid burn rate ", rate))
-                databus.tx_log(util.c("[CTRL] invalid burn rate ", rate))
+                log.warning(util.c(log_tag, "无效的燃烧速率 ", rate))
+                databus.tx_log(util.c("[CTRL] 无效的燃烧速率 ", rate))
             end
         end
     end
@@ -194,8 +194,8 @@ function sim.run(config)
         local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id].reactor
         if reactor then
             reactor.scram()
-            log.info(log_tag .. "reactor SCRAMMED from front panel")
-            databus.tx_log("[CTRL] reactor SCRAMMED")
+            log.info(log_tag .. "反应堆已从前面板急停")
+            databus.tx_log("[CTRL] 反应堆已急停")
         end
     end
 
@@ -204,11 +204,11 @@ function sim.run(config)
         local reactor = facility.units[plc.reactor_id] and facility.units[plc.reactor_id].reactor
         if reactor then
             if reactor.activate() then
-                log.info(log_tag .. "reactor activated from front panel")
-                databus.tx_log("[CTRL] reactor activated")
+                log.info(log_tag .. "反应堆已从前面板激活")
+                databus.tx_log("[CTRL] 反应堆已激活")
             else
-                log.warning(log_tag .. "cannot activate (reactor tripped)")
-                databus.tx_log("[CTRL] activate failed (tripped)")
+                log.warning(log_tag .. "无法激活（反应堆已跳闸）")
+                databus.tx_log("[CTRL] 激活失败（已跳闸）")
             end
         end
     end
@@ -219,7 +219,7 @@ function sim.run(config)
         if reactor then
             local new_rate = math.max(0, reactor.status.burn_rate + delta)
             if reactor.set_burn_rate(new_rate) then
-                log.info(util.c(log_tag, "burn rate nudged to ", new_rate, " mB/t"))
+                log.info(util.c(log_tag, "燃烧速率已微调至 ", new_rate, " mB/t"))
             end
         end
     end
@@ -228,7 +228,7 @@ function sim.run(config)
     function control.nudge_heat(delta)
         if facility.heat_out_k then
             facility.heat_out_k = math.max(0.01, facility.heat_out_k + delta)
-            log.info(util.c(log_tag, "heat responsiveness -> ", string.format("%.3f", facility.heat_out_k)))
+            log.info(util.c(log_tag, "热量响应系数 -> ", string.format("%.3f", facility.heat_out_k)))
         end
     end
 
@@ -236,7 +236,7 @@ function sim.run(config)
     function control.nudge_fuel(delta)
         if facility.fuel_mult then
             facility.fuel_mult = math.max(0.1, facility.fuel_mult + delta)
-            log.info(util.c(log_tag, "fuel multiplier -> ", string.format("%.2f", facility.fuel_mult)))
+            log.info(util.c(log_tag, "燃料倍率 -> ", string.format("%.2f", facility.fuel_mult)))
         end
     end
 
@@ -775,7 +775,7 @@ function sim.run(config)
                             plc.linked = true
                             plc.sv_addr = packet.scada_frame.src_addr()
                             plc.r_seq_num = packet.scada_frame.seq_num() + 1
-                            log.info(log_tag .. "PLC session established with supervisor @" .. plc.sv_addr)
+                            log.info(log_tag .. "PLC 会话已与监控端建立 @" .. plc.sv_addr)
                             databus.tx_link("plc", types.PANEL_LINK_STATE.LINKED)
 
                             -- send initial status/struct/rps to get supervisor out of retry
@@ -784,7 +784,7 @@ function sim.run(config)
                             plc_send_rps_status()
                         end
                     else
-                        log.warning(util.c(log_tag, "PLC establish denied (ack=", est_ack, "), retrying..."))
+                        log.warning(util.c(log_tag, "PLC 建立连接被拒绝（ack=", est_ack, "），正在重试..."))
                         plc.linked = false
                         plc.sv_addr = comms.BROADCAST
                     end
@@ -796,7 +796,7 @@ function sim.run(config)
             elseif packet.type == MGMT_TYPE.CLOSE then
                 plc.linked = false
                 plc.sv_addr = comms.BROADCAST
-                log.info(log_tag .. "PLC session closed by supervisor")
+                log.info(log_tag .. "PLC 会话已被监控端关闭")
                 databus.tx_link("plc", types.PANEL_LINK_STATE.DISCONNECTED)
             end
         end
@@ -841,11 +841,11 @@ function sim.run(config)
                             rtu.linked = true
                             rtu.sv_addr = packet.scada_frame.src_addr()
                             rtu.r_seq_num = packet.scada_frame.seq_num() + 1
-                            log.info(log_tag .. "RTU session established with supervisor @" .. rtu.sv_addr)
+                            log.info(log_tag .. "RTU 会话已与监控端建立 @" .. rtu.sv_addr)
                             databus.tx_link("rtu", types.PANEL_LINK_STATE.LINKED)
                         end
                     else
-                        log.warning(util.c(log_tag, "RTU establish denied (ack=", est_ack, "), retrying..."))
+                        log.warning(util.c(log_tag, "RTU 建立连接被拒绝（ack=", est_ack, "），正在重试..."))
                         rtu.linked = false
                         rtu.sv_addr = comms.BROADCAST
                     end
@@ -857,7 +857,7 @@ function sim.run(config)
             elseif packet.type == MGMT_TYPE.CLOSE then
                 rtu.linked = false
                 rtu.sv_addr = comms.BROADCAST
-                log.info(log_tag .. "RTU session closed by supervisor")
+                log.info(log_tag .. "RTU 会话已被监控端关闭")
                 databus.tx_link("rtu", types.PANEL_LINK_STATE.DISCONNECTED)
             elseif packet.type == MGMT_TYPE.RTU_ADVERT then
                 -- supervisor requests capabilities again
@@ -884,14 +884,14 @@ function sim.run(config)
 
         if plc.enabled and not plc.linked and nic.is_network_up() and (now - last_est.plc) >= ESTABLISH_RETRY_S then
             last_est.plc = now
-            log.info(log_tag .. "PLC ESTABLISH -> " .. plc.reactor_id)
+            log.info(log_tag .. "PLC 建链 -> " .. plc.reactor_id)
             plc_send_mgmt(MGMT_TYPE.ESTABLISH, { comms.version, config.PLCFirmware, DEVICE_TYPE.PLC, plc.reactor_id })
             plc.seq_num = plc.seq_num - 1   -- do not advance seq on establish retries
         end
 
         if rtu.enabled and not rtu.linked and nic.is_network_up() and (now - last_est.rtu) >= ESTABLISH_RETRY_S then
             last_est.rtu = now
-            log.info(log_tag .. "RTU ESTABLISH (advert)")
+            log.info(log_tag .. "RTU 建链（通告）")
             rtu_send_mgmt(MGMT_TYPE.ESTABLISH, { comms.version, config.RTUFirmware, DEVICE_TYPE.RTU, build_advertisement() })
             rtu.seq_num = rtu.seq_num - 1   -- do not advance seq on establish retries
         end
@@ -920,7 +920,7 @@ function sim.run(config)
     local loop_clock = util.new_clock(0.5)
 
     loop_clock.start()
-    log.info(log_tag .. "main loop started, waiting for timers")
+    log.info(log_tag .. "主循环已启动，等待定时器")
 
     local ticks = 0
     while true do
@@ -969,7 +969,7 @@ function sim.run(config)
                             plc.r_seq_num = frame.seq_num() + 1
                             handle_plc_packet(pkt)
                         elseif plc.r_seq_num ~= frame.seq_num() then
-                            log.warning(util.c(log_tag, "PLC seq out-of-order: next=", plc.r_seq_num, ", got=", frame.seq_num()))
+                            log.warning(util.c(log_tag, "PLC 序号乱序：期望=", plc.r_seq_num, "，收到=", frame.seq_num()))
                             -- sequence desync: close and re-establish
                             plc.linked = false
                             plc.r_seq_num = nil
@@ -998,7 +998,7 @@ function sim.run(config)
                             rtu.r_seq_num = frame.seq_num() + 1
                             handle_rtu_packet(pkt)
                         elseif rtu.r_seq_num ~= frame.seq_num() then
-                            log.warning(util.c(log_tag, "RTU seq out-of-order: next=", rtu.r_seq_num, ", got=", frame.seq_num()))
+                            log.warning(util.c(log_tag, "RTU 序号乱序：期望=", rtu.r_seq_num, "，收到=", frame.seq_num()))
                             rtu.linked = false
                             rtu.r_seq_num = nil
                             rtu.sv_addr = comms.BROADCAST
@@ -1012,7 +1012,7 @@ function sim.run(config)
         elseif event == "peripheral" then
             -- modem hot-plug: reconnect
             if param1 == modem_iface then
-                log.info(log_tag .. "modem reattached")
+                log.info(log_tag .. "调制解调器已重新连接")
                 local _, dev = ppm.remount(param1)
                 modem = dev
                 nic.connect(modem)
@@ -1022,7 +1022,7 @@ function sim.run(config)
             end
         elseif event == "peripheral_detach" then
             if param1 == modem_iface then
-                log.warning(log_tag .. "modem detached")
+                log.warning(log_tag .. "调制解调器已断开")
                 nic.disconnect()
                 ppm.handle_unmount(param1)
             end

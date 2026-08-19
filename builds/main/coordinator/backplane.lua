@@ -42,7 +42,7 @@ for i = 1, #config.UnitDisplays do
 mon_cfv.assert_type_str(config.UnitDisplays[i])
 end
 if not mon_cfv.valid() then
-return false, "Monitor configuration invalid."
+return false, "监视器配置无效。"
 end
 local disp, iface = ppm.get_periph(config.MainDisplay), config.MainDisplay
 displays.main = disp
@@ -50,13 +50,13 @@ displays.main_iface = iface
 log.info("BKPLN: DISPLAY LINK_" .. util.trinary(disp, "UP", "DOWN") .. " MAIN/" .. iface)
 ioctl.fp_monitor_state("main", util.trinary(disp, 2, 1))
 if not disp then
-return false, "Main monitor is not connected."
+return false, "主监视器未连接。"
 end
 disp.setTextScale(0.5)
 w, _ = ppm.monitor_block_size(disp.getSize())
 if w ~= 8 then
 log.info("BKPLN: DISPLAY MAIN/" .. iface .. " BAD RESOLUTION")
-return false, util.c("Main monitor width is incorrect (was ", w, ", must be 8).")
+return false, util.c("主监视器宽度不正确（当前 ", w, "，必须为 8）。")
 end
 disp, iface = ppm.get_periph(config.FlowDisplay), config.FlowDisplay
 displays.flow = disp
@@ -64,13 +64,13 @@ displays.flow_iface = iface
 log.info("BKPLN: DISPLAY LINK_" .. util.trinary(disp, "UP", "DOWN") .. " FLOW/" .. iface)
 ioctl.fp_monitor_state("flow", util.trinary(disp, 2, 1))
 if not disp then
-return false, "Flow monitor is not connected."
+return false, "流程监视器未连接。"
 end
 disp.setTextScale(0.5)
 w, _ = ppm.monitor_block_size(disp.getSize())
 if w ~= 8 then
 log.info("BKPLN: DISPLAY FLOW/" .. iface .. " BAD RESOLUTION")
-return false, util.c("Flow monitor width is incorrect (was ", w, ", must be 8).")
+return false, util.c("流程监视器宽度不正确（当前 ", w, "，必须为 8）。")
 end
 for i = 1, config.UnitCount do
 disp, iface = ppm.get_periph(config.UnitDisplays[i]), config.UnitDisplays[i]
@@ -79,13 +79,13 @@ displays.unit_ifaces[i] = iface
 log.info("BKPLN: DISPLAY LINK_" .. util.trinary(disp, "UP", "DOWN") .. " UNIT_" .. i .. "/" .. iface)
 ioctl.fp_monitor_state(i, util.trinary(disp, 2, 1))
 if not disp then
-return false, "Unit " .. i .. " monitor is not connected."
+return false, "机组 " .. i .. " 的监视器未连接。"
 end
 disp.setTextScale(0.5)
 w, h = ppm.monitor_block_size(disp.getSize())
 if w ~= 4 or h ~= 4 then
 log.info("BKPLN: DISPLAY UNIT_" .. i .. "/" .. iface .. " BAD RESOLUTION")
-return false, util.c("Unit ", i, " monitor size is incorrect (was ", w, " by ", h,", must be 4 by 4).")
+return false, util.c("机组 ", i, " 的监视器尺寸不正确（当前为 ", w, " × ", h, "，必须为 4 × 4）。")
 end
 end
 log.info("BKPLN: DISPLAY INIT OK")
@@ -99,7 +99,7 @@ if type(_bp.lan_iface) == "string" then
 local modem  = ppm.get_modem(_bp.lan_iface)
 local wd_nic = network.nic(modem, config.SVR_Channel)
 log.info("BKPLN: WIRED PHY_" .. util.trinary(modem, "UP ", "DOWN ") .. _bp.lan_iface)
-log_comms("wired comms modem " .. util.trinary(modem, "connected", "not found"))
+log_comms("有线通信调制解调器 " .. util.trinary(modem, "已连接", "未找到"))
 _bp.wd_nic  = wd_nic
 _bp.act_nic = wd_nic
 _bp.nic_map[_bp.lan_iface] = wd_nic
@@ -111,10 +111,10 @@ if config.WirelessModem then
 local modem, iface = ppm.get_wireless_modem()
 local wl_nic       = network.nic(modem, config.SVR_Channel)
 log.info("BKPLN: WIRELESS PHY_" .. util.trinary(modem, "UP ", "DOWN") .. (iface or ""))
-log_comms("wireless comms modem " .. util.trinary(modem, "connected", "not found"))
+log_comms("无线通信调制解调器 " .. util.trinary(modem, "已连接", "未找到"))
 if (modem and _bp.wlan_pref) or not (_bp.act_nic and _bp.act_nic.is_connected()) then
 _bp.act_nic = wl_nic
-log.info("BKPLN: switched active to preferred wireless")
+log.info("BKPLN: 已将活动接口切换为优先无线")
 end
 _bp.wl_nic = wl_nic
 if iface then _bp.nic_map[iface] = wl_nic end
@@ -123,25 +123,25 @@ wl_nic.open(config.CRD_Channel)
 ioctl.fp_has_wl_modem(modem ~= nil)
 end
 if not ((_bp.wd_nic and _bp.wd_nic.is_connected()) or (_bp.wl_nic and _bp.wl_nic.is_connected())) then
-log_comms("no comms modem found")
-println("startup> no comms modem found")
-log.warning("BKPLN: no comms modem on startup")
+log_comms("未找到通信调制解调器")
+println("startup> 未找到通信调制解调器")
+log.warning("BKPLN: 启动时未找到通信调制解调器")
 return false
 end
 local speaker = ppm.get_device("speaker")
 _bp.speaker = speaker
 if not _bp.speaker then
-log_boot("annunciator alarm speaker not found")
-println("startup> speaker not found")
-log.fatal("BKPLN: no annunciator alarm speaker found")
+log_boot("未找到报警扬声器")
+println("startup> 未找到扬声器")
+log.fatal("BKPLN: 未找到报警扬声器")
 return false
 else
 log.info("BKPLN: SPEAKER LINK_UP " .. ppm.get_iface(_bp.speaker))
-log_boot("annunciator alarm speaker connected")
+log_boot("报警扬声器已连接")
 local sounder_start = util.time_ms()
 sounder.init(_bp.speaker, config.SpeakerVolume)
-log_boot("tone generation took " .. (util.time_ms() - sounder_start) .. "ms")
-log_sys("annunciator alarm configured")
+log_boot("音调生成耗时 " .. (util.time_ms() - sounder_start) .. "ms")
+log_sys("报警器已配置")
 ioctl.fp_has_speaker(true)
 end
 return true
@@ -165,32 +165,32 @@ if wd_nic and (_bp.lan_iface == iface) then
 wd_nic.connect(device)
 _bp.nic_map[iface] = wd_nic
 log.info("BKPLN: WIRED PHY_UP " .. iface)
-log_sys("wired comms modem reconnected")
+log_sys("有线通信调制解调器已重新连接")
 ioctl.fp_has_wd_modem(true)
 if (_bp.act_nic ~= wd_nic) and not _bp.wlan_pref then
 _bp.act_nic = wd_nic
 comms.switch_nic(_bp.act_nic)
-log.info("BKPLN: switched comms to wired modem (preferred)")
+log.info("BKPLN: 已将通信切换到有线调制解调器（优先）")
 end
 elseif wl_nic and (not wl_nic.is_connected()) and m_is_wl then
 wl_nic.connect(device)
 _bp.nic_map[iface] = wl_nic
 log.info("BKPLN: WIRELESS PHY_UP " .. iface)
-log_sys("wireless comms modem reconnected")
+log_sys("无线通信调制解调器已重新连接")
 ioctl.fp_has_wl_modem(true)
 if (_bp.act_nic ~= wl_nic) and _bp.wlan_pref then
 _bp.act_nic = wl_nic
 comms.switch_nic(_bp.act_nic)
-log.info("BKPLN: switched comms to wireless modem (preferred)")
+log.info("BKPLN: 已将通信切换到无线调制解调器（优先）")
 end
 elseif wl_nic and m_is_wl then
 device.closeAll()
-log_sys("standby wireless modem connected")
-log.info("BKPLN: standby wireless modem connected")
+log_sys("备用无线调制解调器已连接")
+log.info("BKPLN: 备用无线调制解调器已连接")
 else
 device.closeAll()
-log_sys("unassigned modem connected")
-log.warning("BKPLN: unassigned modem connected")
+log_sys("未分配的调制解调器已连接")
+log.warning("BKPLN: 未分配的调制解调器已连接")
 end
 elseif type == "monitor" then
 local is_used = false
@@ -217,15 +217,15 @@ end
 end
 end
 if is_used then
-log_sys(util.c("configured monitor ", iface, " reconnected"))
+log_sys(util.c("已配置的监视器 ", iface, " 已重新连接"))
 _bp.smem.q.mq_render.push_data(MQ__RENDER_DATA.MON_CONNECT, iface)
 else
-log_sys(util.c("unused monitor ", iface, " connected"))
+log_sys(util.c("未使用的监视器 ", iface, " 已连接"))
 end
 elseif type == "speaker" then
 log.info("BKPLN: SPEAKER LINK_UP " .. iface)
 sounder.reconnect(device)
-log_sys("alarm sounder speaker reconnected")
+log_sys("报警扬声器已重新连接")
 ioctl.fp_has_speaker(true)
 end
 end
@@ -247,13 +247,13 @@ log.info("BKPLN: WIRELESS PHY_DOWN " .. iface)
 ioctl.fp_has_wl_modem(false)
 end
 if _bp.act_nic.is_modem(device) then
-log_sys("active comms modem disconnected")
-log.warning("BKPLN: active comms modem disconnected")
+log_sys("活动通信调制解调器已断开")
+log.warning("BKPLN: 活动通信调制解调器已断开")
 if _bp.act_nic == wl_nic then
 local modem, m_iface = ppm.get_wireless_modem()
 if wl_nic and modem then
-log_sys("found another wireless modem, using it for comms")
-log.info("BKPLN: found another wireless modem, using it for comms")
+log_sys("找到另一个无线调制解调器，正在使用它进行通信")
+log.info("BKPLN: 找到另一个无线调制解调器，正在使用它进行通信")
 wl_nic.connect(modem)
 log.info("BKPLN: WIRELESS PHY_UP " .. m_iface)
 ioctl.fp_has_wl_modem(true)
@@ -261,30 +261,30 @@ elseif wd_nic and wd_nic.is_connected() then
 _bp.act_nic = wd_nic
 _bp.smem.q.mq_render.push_command(MQ__RENDER_CMD.CLOSE_MAIN_UI)
 comms.switch_nic(_bp.act_nic)
-log.info("BKPLN: switched comms to wired modem")
+log.info("BKPLN: 已将通信切换到有线调制解调器")
 else
 _bp.smem.q.mq_render.push_command(MQ__RENDER_CMD.CLOSE_MAIN_UI)
 comms.close()
-log_sys("awaiting comms modem reconnect...")
+log_sys("等待通信调制解调器重新连接...")
 end
 elseif wl_nic and wl_nic.is_connected() then
 _bp.act_nic = wl_nic
 _bp.smem.q.mq_render.push_command(MQ__RENDER_CMD.CLOSE_MAIN_UI)
 comms.switch_nic(_bp.act_nic)
-log.info("BKPLN: switched comms to wireless modem")
+log.info("BKPLN: 已将通信切换到无线调制解调器")
 else
 _bp.smem.q.mq_render.push_command(MQ__RENDER_CMD.CLOSE_MAIN_UI)
 comms.close()
 end
 elseif wd_nic and wd_nic.is_modem(device) then
-log_sys("standby wired modem disconnected")
-log.info("BKPLN: standby wired modem disconnected")
+log_sys("备用有线调制解调器已断开")
+log.info("BKPLN: 备用有线调制解调器已断开")
 elseif wl_nic and wl_nic.is_modem(device) then
-log_sys("standby wireless modem disconnected")
-log.info("BKPLN: standby wireless modem disconnected")
+log_sys("备用无线调制解调器已断开")
+log.info("BKPLN: 备用无线调制解调器已断开")
 else
-log_sys("unassigned modem disconnected")
-log.warning("BKPLN: unassigned modem disconnected")
+log_sys("未分配的调制解调器已断开")
+log.warning("BKPLN: 未分配的调制解调器已断开")
 end
 elseif type == "monitor" then
 local is_used = false
@@ -308,14 +308,14 @@ end
 end
 end
 if is_used then
-log_sys("lost a configured monitor")
+log_sys("丢失了一台已配置的监视器")
 _bp.smem.q.mq_render.push_data(MQ__RENDER_DATA.MON_DISCONNECT, iface)
 else
-log_sys("lost an unused monitor")
+log_sys("丢失了一台未使用的监视器")
 end
 elseif type == "speaker" then
 log.info("BKPLN: SPEAKER LINK_DOWN " .. iface)
-log_sys("alarm sounder speaker disconnected")
+log_sys("报警扬声器已断开")
 ioctl.fp_has_speaker(false)
 end
 end

@@ -40,42 +40,42 @@ local function create_pages(root)
 
     local about = Div{parent=frame,y=2}
 
-    TextBox{parent=about,y=1,text="System Information",alignment=ALIGN.CENTER}
+    TextBox{parent=about,y=1,text="系统信息",alignment=ALIGN.CENTER}
 
     local btn_fg_bg = cpair(colors.lightBlue, colors.black)
     local btn_active = cpair(colors.white, colors.black)
     local label = cpair(colors.lightGray, colors.black)
 
-    PushButton{parent=about,x=2,y=3,text="Network             >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=nt_page.nav_to}
-    PushButton{parent=about,x=2,y=4,text="Firmware            >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fw_page.nav_to}
-    PushButton{parent=about,x=2,y=5,text="Host Details        >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=hw_page.nav_to}
+    PushButton{parent=about,x=2,y=3,text="网络                  >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=nt_page.nav_to}
+    PushButton{parent=about,x=2,y=4,text="固件                  >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=fw_page.nav_to}
+    PushButton{parent=about,x=2,y=5,text="主机详情                >",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=hw_page.nav_to}
 
     --#region Network Details
 
     local config = pocket.config
 
     local nt_div = Div{parent=frame,y=2}
-    TextBox{parent=nt_div,y=1,text="Network Details",alignment=ALIGN.CENTER}
+    TextBox{parent=nt_div,y=1,text="网络详情",alignment=ALIGN.CENTER}
 
     PushButton{parent=nt_div,x=2,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=about_page.nav_to}
 
-    TextBox{parent=nt_div,x=2,y=3,text="Pocket Address",fg_bg=label}
+    TextBox{parent=nt_div,x=2,y=3,text="Pocket 地址",fg_bg=label}
     TextBox{parent=nt_div,x=2,text=util.c(os.getComputerID(),":",config.PKT_Channel)}
 
     nt_div.line_break()
-    TextBox{parent=nt_div,x=2,text="Supervisor Address",fg_bg=label}
+    TextBox{parent=nt_div,x=2,text="监管端地址",fg_bg=label}
     local sv = TextBox{parent=nt_div,x=2,text=""}
 
     nt_div.line_break()
-    TextBox{parent=nt_div,x=2,text="Coordinator Address",fg_bg=label}
+    TextBox{parent=nt_div,x=2,text="协调器地址",fg_bg=label}
     local coord = TextBox{parent=nt_div,x=2,text=""}
 
     sv.register(db.ps, "sv_addr", sv.set_value)
     coord.register(db.ps, "api_addr", coord.set_value)
 
     nt_div.line_break()
-    TextBox{parent=nt_div,x=2,text="Message Authentication",fg_bg=label}
-    local auth = util.trinary(type(config.AuthKey) == "string" and string.len(config.AuthKey) > 0, "HMAC-MD5", "None")
+    TextBox{parent=nt_div,x=2,text="消息认证",fg_bg=label}
+    local auth = util.trinary(type(config.AuthKey) == "string" and string.len(config.AuthKey) > 0, "HMAC-MD5", "无")
     TextBox{parent=nt_div,x=2,text=auth}
 
     --#endregion
@@ -83,7 +83,7 @@ local function create_pages(root)
     --#region Firmware Versions
 
     local fw_div = Div{parent=frame,y=2}
-    TextBox{parent=fw_div,y=1,text="Firmware Versions",alignment=ALIGN.CENTER}
+    TextBox{parent=fw_div,y=1,text="固件版本",alignment=ALIGN.CENTER}
 
     PushButton{parent=fw_div,x=2,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=about_page.nav_to}
 
@@ -91,27 +91,27 @@ local function create_pages(root)
 
     local fw_list = Div{parent=fw_list_box,y=2,height=18}
 
-    TextBox{parent=fw_list,x=2,text="Pocket Version",fg_bg=label}
+    TextBox{parent=fw_list,x=2,text="Pocket 版本",fg_bg=label}
     TextBox{parent=fw_list,x=2,text=db.version}
 
     fw_list.line_break()
-    TextBox{parent=fw_list,x=2,text="Comms Version",fg_bg=label}
+    TextBox{parent=fw_list,x=2,text="通信版本",fg_bg=label}
     TextBox{parent=fw_list,x=2,text=comms.version}
 
     fw_list.line_break()
-    TextBox{parent=fw_list,x=2,text="API Version",fg_bg=label}
+    TextBox{parent=fw_list,x=2,text="API 版本",fg_bg=label}
     TextBox{parent=fw_list,x=2,text=comms.api_version}
 
     fw_list.line_break()
-    TextBox{parent=fw_list,x=2,text="Common Lib Version",fg_bg=label}
+    TextBox{parent=fw_list,x=2,text="公共库版本",fg_bg=label}
     TextBox{parent=fw_list,x=2,text=util.version}
 
     fw_list.line_break()
-    TextBox{parent=fw_list,x=2,text="Graphics Version",fg_bg=label}
+    TextBox{parent=fw_list,x=2,text="图形库版本",fg_bg=label}
     TextBox{parent=fw_list,x=2,text=core.version}
 
     fw_list.line_break()
-    TextBox{parent=fw_list,x=2,text="Lockbox Version",fg_bg=label}
+    TextBox{parent=fw_list,x=2,text="Lockbox 版本",fg_bg=label}
     TextBox{parent=fw_list,x=2,text=lockbox.version}
 
     --#endregion
@@ -119,16 +119,16 @@ local function create_pages(root)
     --#region Host Versions
 
     local hw_div = Div{parent=frame,y=2}
-    TextBox{parent=hw_div,y=1,text="Host Versions",alignment=ALIGN.CENTER}
+    TextBox{parent=hw_div,y=1,text="主机版本",alignment=ALIGN.CENTER}
 
     PushButton{parent=hw_div,x=2,y=1,text="<",fg_bg=btn_fg_bg,active_fg_bg=btn_active,callback=about_page.nav_to}
 
     hw_div.line_break()
-    TextBox{parent=hw_div,x=2,text="Lua Version",fg_bg=label}
+    TextBox{parent=hw_div,x=2,text="Lua 版本",fg_bg=label}
     TextBox{parent=hw_div,x=2,text=_VERSION}
 
     hw_div.line_break()
-    TextBox{parent=hw_div,x=2,text="Environment",fg_bg=label}
+    TextBox{parent=hw_div,x=2,text="环境",fg_bg=label}
     TextBox{parent=hw_div,x=2,text=_HOST,height=6}
 
     --#endregion

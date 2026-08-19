@@ -33,7 +33,7 @@ _crypt.hmac.setBlockSize(64)
 _crypt.hmac.setDigest(md5)
 _crypt.hmac.setKey(_crypt.key)
 local init_time = util.time_ms() - start
-log.info("NET: network.init_mac() completed in " .. init_time .. "ms")
+log.info("NET: network.init_mac() 用时 " .. init_time .. "ms 完成")
 return init_time
 end
 function network.deinit_mac()
@@ -123,7 +123,7 @@ tx_frame.make(frame, compute_hmac)
 end
 modem.transmit(dest_channel, local_channel, tx_frame.raw_frame())
 else
-log.debug("NET: " .. self.name ..".transmit() tx dropped, phy is down")
+log.debug("NET: " .. self.name ..".transmit() 发送被丢弃，物理链路已断开")
 end
 end
 function public.receive(side, sender, reply_to, message, distance)
@@ -164,7 +164,7 @@ end
 function public.periodic()
 local now = util.time_ms()
 if now >= (self.last_lld_rx + LINK_TIMEOUT_MS) then
-if self.link_up then log.debug("NET: " .. self.name ..".periodic(): link timeout") end
+if self.link_up then log.debug("NET: " .. self.name ..".periodic(): 链路超时") end
 self.link_up = false
 end
 if lld_tx_chan and self.phy_up then

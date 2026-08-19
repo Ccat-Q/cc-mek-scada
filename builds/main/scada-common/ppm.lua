@@ -50,9 +50,9 @@ _ppm.last_fault = result
 if not _ppm.mute and (self.fault_counts[key] % REPORT_FREQUENCY == 0) then
 local count_str = ""
 if self.fault_counts[key] > 0 then
-count_str = " [" .. self.fault_counts[key] .. " total faults]"
+count_str = " [累计 " .. self.fault_counts[key] .. " 次故障]"
 end
-log.error(util.c("PPM: [@", iface, "] protected ", key, "() -> ", result, count_str))
+log.error(util.c("PPM: [@", iface, "] 调用 ", key, "() 失败 -> ", result, count_str))
 end
 self.fault_counts[key] = self.fault_counts[key] + 1
 if result == "Terminated" then _ppm.terminate = true end
@@ -95,7 +95,7 @@ local funcs = peripheral.wrap(iface)
 if (type(funcs) == "table") and (type(funcs[key]) == "function") then
 self.fault_counts[key] = 0
 self.device[key] = protect_peri_function(key, funcs[key])
-log.info(util.c("PPM: [@", iface, "] initialized previously undefined field ", key, "()"))
+log.info(util.c("PPM: [@", iface, "] 初始化了此前未定义的字段 ", key, "()"))
 return self.device[key]
 end
 return (function ()
@@ -107,9 +107,9 @@ _ppm.last_fault = UNDEFINED_FIELD
 if not _ppm.mute and (self.fault_counts[key] % REPORT_FREQUENCY == 0) then
 local count_str = ""
 if self.fault_counts[key] > 0 then
-count_str = " [" .. self.fault_counts[key] .. " total calls]"
+count_str = " [累计 " .. self.fault_counts[key] .. " 次调用]"
 end
-log.error(util.c("PPM: [@", iface, "] caught undefined function ", key, "()", count_str))
+log.error(util.c("PPM: [@", iface, "] 捕获到未定义的函数 ", key, "()", count_str))
 end
 self.fault_counts[key] = self.fault_counts[key] + 1
 return ACCESS_FAULT, UNDEFINED_FIELD
@@ -133,10 +133,10 @@ local ifaces = peripheral.getNames()
 _ppm.mounts = {}
 for i = 1, #ifaces do
 _ppm.mounts[ifaces[i]] = peri_init(ifaces[i])
-log.info(util.c("PPM: found a ", _ppm.mounts[ifaces[i]].type, " (", ifaces[i], ")"))
+log.info(util.c("PPM: 发现一个 ", _ppm.mounts[ifaces[i]].type, " (", ifaces[i], ")"))
 end
 if #ifaces == 0 then
-log.warning("PPM: mount_all() -> no devices found")
+log.warning("PPM: mount_all() -> 未发现任何设备")
 end
 end
 function ppm.mount(iface)
@@ -148,7 +148,7 @@ if iface == ifaces[i] then
 _ppm.mounts[iface] = peri_init(iface)
 pm_type = _ppm.mounts[iface].type
 pm_dev = _ppm.mounts[iface].dev
-log.info(util.c("PPM: mount(", iface, ") -> found a ", pm_type))
+log.info(util.c("PPM: mount(", iface, ") -> 发现一个 ", pm_type))
 break
 end
 end
@@ -160,12 +160,12 @@ local pm_dev = nil
 local pm_type = nil
 for i = 1, #ifaces do
 if iface == ifaces[i] then
-log.info(util.c("PPM: remount(", iface, ") -> is a ", pm_type))
+log.info(util.c("PPM: remount(", iface, ") -> 是一个 ", pm_type))
 ppm.unmount(_ppm.mounts[iface].dev)
 _ppm.mounts[iface] = peri_init(iface)
 pm_type = _ppm.mounts[iface].type
 pm_dev = _ppm.mounts[iface].dev
-log.info(util.c("PPM: remount(", iface, ") -> remounted a ", pm_type))
+log.info(util.c("PPM: remount(", iface, ") -> 已重新挂载 ", pm_type))
 break
 end
 end
@@ -175,14 +175,14 @@ function ppm.mount_virtual()
 local iface = "ppm_vdev_" .. _ppm.next_vid
 _ppm.mounts[iface] = peri_init("__virtual__")
 _ppm.next_vid = _ppm.next_vid + 1
-log.info(util.c("PPM: mount_virtual() -> allocated new virtual device ", iface))
+log.info(util.c("PPM: mount_virtual() -> 已分配新的虚拟设备 ", iface))
 return _ppm.mounts[iface].type, _ppm.mounts[iface].dev
 end
 function ppm.unmount(device)
 if device then
 for iface, data in pairs(_ppm.mounts) do
 if data.dev == device then
-log.warning(util.c("PPM: manually unmounted ", data.type, " mounted to ", iface))
+log.warning(util.c("PPM: 手动卸载了 ", data.type, "（挂载于 ", iface, "）"))
 _ppm.mounts[iface] = nil
 break
 end
@@ -196,19 +196,19 @@ local lost_dev = _ppm.mounts[iface]
 if lost_dev then
 pm_type = lost_dev.type
 pm_dev = lost_dev.dev
-log.warning(util.c("PPM: lost device ", pm_type, " mounted to ", iface))
+log.warning(util.c("PPM: 丢失设备 ", pm_type, "（挂载于 ", iface, "）"))
 else
-log.error(util.c("PPM: lost device unknown to the PPM mounted to ", iface))
+log.error(util.c("PPM: 丢失了 PPM 未知的设备，挂载于 ", iface))
 end
 _ppm.mounts[iface] = nil
 return pm_type, pm_dev
 end
 function ppm.log_mounts()
 for iface, mount in pairs(_ppm.mounts) do
-log.info(util.c("PPM: had found a ", mount.type, " (", iface, ")"))
+log.info(util.c("PPM: 曾发现一个 ", mount.type, " (", iface, ")"))
 end
 if util.table_len(_ppm.mounts) == 0 then
-log.warning("PPM: no devices had been found")
+log.warning("PPM: 未发现任何设备")
 end
 end
 function ppm.list_avail() return peripheral.getNames() end

@@ -38,8 +38,8 @@ local function _api_handle_outq(session)
 
         -- max 100ms spent processing queue
         if util.time() - handle_start > 100 then
-            log.warning("API: out queue handler exceeded 100ms queue process limit")
-            log.warning(util.c("API: offending session: ", session))
+            log.warning("API: 输出队列处理器超过100ms队列处理限制")
+            log.warning(util.c("API: 违规会话：", session))
             break
         end
     end
@@ -59,7 +59,7 @@ local function _shutdown(session)
         end
     end
 
-    log.debug(util.c("API: closed session ", session))
+    log.debug(util.c("API: 已关闭会话 ", session))
 end
 
 -- PUBLIC FUNCTIONS --
@@ -113,7 +113,7 @@ function apisessions.establish_session(source_addr, i_seq_num, version)
     setmetatable(pkt_s, mt)
 
     ioctl.fp_pkt_connected(id, version, source_addr)
-    log.debug(util.c("API: established new session: ", pkt_s))
+    log.debug(util.c("API: 已建立新会话：", pkt_s))
 
     self.next_id = id + 1
 
@@ -130,7 +130,7 @@ function apisessions.check_all_watchdogs(timer_event)
         if session.open then
             local triggered = session.instance.check_wd(timer_event)
             if triggered then
-                log.debug(util.c("API: watchdog closing session ", session, "..."))
+                log.debug(util.c("API: 看门狗正在关闭会话 ", session, "..."))
                 _shutdown(session)
                 return true
             end
@@ -159,7 +159,7 @@ function apisessions.free_all_closed()
 
     ---@param session pkt_session_struct
     local on_delete = function (session)
-        log.debug(util.c("API: free'ing closed session ", session))
+        log.debug(util.c("API: 正在释放已关闭会话 ", session))
     end
 
     util.filter_table(self.sessions, f, on_delete)

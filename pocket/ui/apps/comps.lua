@@ -46,7 +46,7 @@ local function new_view(root)
     local load_div = Div{parent=frame,y=1}
     local main = Div{parent=frame,y=1}
 
-    TextBox{parent=load_div,y=12,text="Loading...",alignment=ALIGN.CENTER}
+    TextBox{parent=load_div,y=12,text="加载中...",alignment=ALIGN.CENTER}
     WaitingAnim{parent=load_div,x=math.floor(main.get_width()/2)-1,y=8,fg_bg=cpair(colors.orange,colors._INHERIT)}
 
     local load_pane = MultiPane{parent=main,y=1,panes={load_div,main}}
@@ -82,8 +82,8 @@ local function new_view(root)
         ---@param pfx string
         ---@param rect Rectangle
         local function create_common_indicators(pfx, rect)
-            local first = TextBox{parent=rect,text="Computer",fg_bg=box_label}
-            TextBox{parent=rect,text="Firmware",fg_bg=box_label}
+            local first = TextBox{parent=rect,text="电脑",fg_bg=box_label}
+            TextBox{parent=rect,text="固件",fg_bg=box_label}
             TextBox{parent=rect,text="RTT (ms)",fg_bg=box_label}
 
             local y = first.get_y()
@@ -116,19 +116,19 @@ local function new_view(root)
         local main_page = app.new_page(nil, 1)
         main_page.tasks = { update }
 
-        TextBox{parent=m_div,y=1,text="Connected Computers",alignment=ALIGN.CENTER}
+        TextBox{parent=m_div,y=1,text="已连接电脑",alignment=ALIGN.CENTER}
 
-        local conns = DataIndicator{parent=m_div,y=3,lu_colors=lu_col,label="Total Online",unit="",format="%8d",value=0,commas=true,width=21}
+        local conns = DataIndicator{parent=m_div,y=3,lu_colors=lu_col,label="在线总数",unit="",format="%8d",value=0,commas=true,width=21}
         conns.register(ps, "comp_online", conns.update)
 
         local svr_div = Div{parent=m_div,y=4,height=6}
         local svr_rect = Rectangle{parent=svr_div,height=6,width=22,border=border(1,colors.white,true),thin=true,fg_bg=cpair(colors.white,colors.gray)}
 
-        TextBox{parent=svr_rect,text="Supervisor"}
-        TextBox{parent=svr_rect,text="Status",fg_bg=box_label}
-        TextBox{parent=svr_rect,x=10,y=2,text="Online",fg_bg=cpair(colors.green,colors._INHERIT)}
-        TextBox{parent=svr_rect,text="Computer",fg_bg=box_label}
-        TextBox{parent=svr_rect,text="Firmware",fg_bg=box_label}
+        TextBox{parent=svr_rect,text="监管端"}
+        TextBox{parent=svr_rect,text="状态",fg_bg=box_label}
+        TextBox{parent=svr_rect,x=10,y=2,text="在线",fg_bg=cpair(colors.green,colors._INHERIT)}
+        TextBox{parent=svr_rect,text="电脑",fg_bg=box_label}
+        TextBox{parent=svr_rect,text="固件",fg_bg=box_label}
         local svr_addr = TextBox{parent=svr_rect,x=10,y=3,text="?"}
         local svr_fw = TextBox{parent=svr_rect,x=10,y=4,text="?"}
 
@@ -138,19 +138,19 @@ local function new_view(root)
         local crd_div = Div{parent=m_div,y=11,height=7}
         local crd_rect = Rectangle{parent=crd_div,height=7,width=21,border=border(1,colors.white,true),thin=true,fg_bg=cpair(colors.white,colors.gray)}
 
-        TextBox{parent=crd_rect,text="Coordinator"}
-        TextBox{parent=crd_rect,text="Status",fg_bg=box_label}
-        local crd_online = TextBox{parent=crd_rect,x=10,y=2,width=8,text="Off-line",fg_bg=cpair(colors.red,colors._INHERIT)}
+        TextBox{parent=crd_rect,text="协调器"}
+        TextBox{parent=crd_rect,text="状态",fg_bg=box_label}
+        local crd_online = TextBox{parent=crd_rect,x=10,y=2,width=8,text="离线",fg_bg=cpair(colors.red,colors._INHERIT)}
 
         create_common_indicators("comp_crd", crd_rect)
 
         crd_online.register(ps, "comp_crd_online", function (online)
             if online then
                 crd_online.recolor(colors.green)
-                crd_online.set_value("Online")
+                crd_online.set_value("在线")
             else
                 crd_online.recolor(colors.red)
-                crd_online.set_value("Off-line")
+                crd_online.set_value("离线")
             end
         end)
 
@@ -163,7 +163,7 @@ local function new_view(root)
         local plc_page = app.new_page(nil, 2)
         plc_page.tasks = { update }
 
-        TextBox{parent=p_div,y=1,text="PLC Devices",alignment=ALIGN.CENTER}
+        TextBox{parent=p_div,y=1,text="PLC 设备",alignment=ALIGN.CENTER}
 
         local plc_list = ListBox{parent=p_div,y=3,scroll_height=100,nav_fg_bg=cpair(colors.lightGray,colors.gray),nav_active=cpair(colors.white,colors.gray)}
         local plc_elems = {}    ---@type graphics_element[]
@@ -177,7 +177,7 @@ local function new_view(root)
         local rtu_page = app.new_page(nil, 3)
         rtu_page.tasks = { update }
 
-        TextBox{parent=r_div,y=1,text="RTU Gateway Devices",alignment=ALIGN.CENTER}
+        TextBox{parent=r_div,y=1,text="RTU 网关设备",alignment=ALIGN.CENTER}
 
         local rtu_list = ListBox{parent=r_div,y=3,scroll_height=100,nav_fg_bg=cpair(colors.lightGray,colors.gray),nav_active=cpair(colors.white,colors.gray)}
         local rtu_elems = {}    ---@type graphics_element[]
@@ -191,7 +191,7 @@ local function new_view(root)
         local pkt_page = app.new_page(nil, 4)
         pkt_page.tasks = { update }
 
-        TextBox{parent=pk_div,y=1,text="Pocket Devices",alignment=ALIGN.CENTER}
+        TextBox{parent=pk_div,y=1,text="Pocket 设备",alignment=ALIGN.CENTER}
 
         local pkt_list = ListBox{parent=pk_div,y=3,scroll_height=100,nav_fg_bg=cpair(colors.lightGray,colors.gray),nav_active=cpair(colors.white,colors.gray)}
         local pkt_elems = {}    ---@type graphics_element[]
@@ -210,22 +210,22 @@ local function new_view(root)
                 plc_elems[id] = Div{parent=plc_list,height=7}
                 local rect = Rectangle{parent=plc_elems[id],height=6,x=2,width=20,border=border(1,colors.white,true),thin=true,fg_bg=cpair(colors.white,colors.gray)}
 
-                local title = TextBox{parent=rect,text="PLC (Unit ?)"}
-                title.register(ps, pfx .. "_unit", function (unit) title.set_value("PLC (Unit " .. unit .. ")") end)
+                local title = TextBox{parent=rect,text="PLC (机组 ?)"}
+                title.register(ps, pfx .. "_unit", function (unit) title.set_value("PLC (机组 " .. unit .. ")") end)
 
                 create_common_indicators(pfx, rect)
             elseif type == DEV_TYPE.RTU then
                 rtu_elems[id] = Div{parent=rtu_list,height=7}
                 local rect = Rectangle{parent=rtu_elems[id],height=6,x=2,width=20,border=border(1,colors.white,true),thin=true,fg_bg=cpair(colors.white,colors.gray)}
 
-                TextBox{parent=rect,text="RTU Gateway"}
+                TextBox{parent=rect,text="RTU 网关"}
 
                 create_common_indicators(pfx, rect)
             elseif type == DEV_TYPE.PKT then
                 pkt_elems[id] = Div{parent=pkt_list,height=7}
                 local rect = Rectangle{parent=pkt_elems[id],height=6,x=2,width=20,border=border(1,colors.white,true),thin=true,fg_bg=cpair(colors.white,colors.gray)}
 
-                TextBox{parent=rect,text="Pocket Computer"}
+                TextBox{parent=rect,text="Pocket 电脑"}
 
                 create_common_indicators(pfx, rect)
             end

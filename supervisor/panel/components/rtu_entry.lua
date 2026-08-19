@@ -38,7 +38,7 @@ local function init(parent, id)
     TextBox{parent=entry,y=3,text="",width=8,fg_bg=s_hi_box}
     rtu_addr.register(databus.ps, ps_prefix .. "addr", rtu_addr.set_value)
 
-    TextBox{parent=entry,x=10,y=2,text="UNITS:",width=7}
+    TextBox{parent=entry,x=10,y=2,text="机组:",width=7}
     local unit_count = DataIndicator{parent=entry,x=17,y=2,label="",unit="",format="%2d",value=0,width=2,fg_bg=style.fp.label_d_fg}
     unit_count.register(databus.ps, ps_prefix .. "units", unit_count.set_value)
 

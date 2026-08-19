@@ -39,7 +39,7 @@ return function (app, panes, sps_pane, ps, update)
     local sps_page = app.new_page(nil, #panes)
     sps_page.tasks = { update }
 
-    TextBox{parent=sps_div,y=1,text="Facility SPS",alignment=ALIGN.CENTER}
+    TextBox{parent=sps_div,y=1,text="设施SPS",alignment=ALIGN.CENTER}
     local status = StateIndicator{parent=sps_div,x=5,y=3,states=style.sps.states,value=1,min_width=12}
     status.register(ps, "SPSStateStatus", status.update)
 
@@ -51,9 +51,9 @@ return function (app, panes, sps_pane, ps, update)
     po_bar.register(ps, "input_fill", po_bar.update)
     am_bar.register(ps, "output_fill", am_bar.update)
 
-    TextBox{parent=sps_div,y=9,text="Input Rate",width=10,fg_bg=label}
+    TextBox{parent=sps_div,y=9,text="输入速率",width=10,fg_bg=label}
     local input_rate = DataIndicator{parent=sps_div,label="",format="%16.2f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
-    TextBox{parent=sps_div,y=12,text="Production Rate",width=15,fg_bg=label}
+    TextBox{parent=sps_div,y=12,text="生产速率",width=15,fg_bg=label}
     local proc_rate = DataIndicator{parent=sps_div,label="",format="%16d",value=0,unit="\xb5B/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
 
     proc_rate.register(ps, "process_rate", function (r) proc_rate.update(r * 1000) end)
@@ -65,19 +65,19 @@ return function (app, panes, sps_pane, ps, update)
     local sps_ext_page = app.new_page(sps_page, #panes)
     sps_ext_page.tasks = { update }
 
-    PushButton{parent=sps_div,x=9,y=18,text="MORE",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=sps_ext_page.nav_to}
-    PushButton{parent=sps_ext_div,x=9,y=18,text="BACK",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=sps_page.nav_to}
+    PushButton{parent=sps_div,x=9,y=18,text="更多",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=sps_ext_page.nav_to}
+    PushButton{parent=sps_ext_div,x=9,y=18,text="返回",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=sps_page.nav_to}
 
-    TextBox{parent=sps_ext_div,y=1,text="More SPS Info",alignment=ALIGN.CENTER}
+    TextBox{parent=sps_ext_div,y=1,text="更多SPS信息",alignment=ALIGN.CENTER}
 
-    TextBox{parent=sps_ext_div,text="Polonium",y=3,width=13,fg_bg=label}
+    TextBox{parent=sps_ext_div,text="钋",y=3,width=13,fg_bg=label}
     local input_p = DataIndicator{parent=sps_ext_div,x=14,y=3,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local input_amnt = DataIndicator{parent=sps_ext_div,y=4,lu_colors=lu_col,label="",unit="mB",format="%18.0f",value=0,commas=true,width=21,fg_bg=text_fg}
 
     input_p.register(ps, "input_fill", function (x) input_p.update(x * 100) end)
     input_amnt.register(ps, "input", function (x) input_amnt.update(x.amount) end)
 
-    TextBox{parent=sps_ext_div,text="Antimatter",y=6,width=15,fg_bg=label}
+    TextBox{parent=sps_ext_div,text="反物质",y=6,width=15,fg_bg=label}
     local output_p = DataIndicator{parent=sps_ext_div,x=14,y=6,lu_colors=lu_col,label="",unit="%",format="%6.2f",value=0,width=8,fg_bg=text_fg}
     local output_amnt = DataIndicator{parent=sps_ext_div,y=7,lu_colors=lu_col,label="",unit="\xb5B",format="%18.3f",value=0,commas=true,width=21,fg_bg=text_fg}
 

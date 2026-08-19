@@ -29,7 +29,7 @@ local frame = Div{parent=root,y=1}
 local app = db.nav.register_app(APP_ID.WASTE, frame, nil, false, true)
 local load_div = Div{parent=frame,y=1}
 local main = Div{parent=frame,y=1}
-TextBox{parent=load_div,y=12,text="Loading...",alignment=ALIGN.CENTER}
+TextBox{parent=load_div,y=12,text="加载中...",alignment=ALIGN.CENTER}
 WaitingAnim{parent=load_div,x=math.floor(main.get_width()/2)-1,y=8,fg_bg=cpair(colors.brown,colors._INHERIT)}
 local load_pane = MultiPane{parent=main,y=1,panes={load_div,main}}
 app.set_sidebar({ { label = " # ", tall = true, color = core.cpair(colors.black, colors.green), callback = db.nav.go_home } })
@@ -47,15 +47,15 @@ last_update = util.time_ms()
 end
 end
 local function make_sna_view(sna_div, ps)
-TextBox{parent=sna_div,y=3,text="Connected",fg_bg=label_fg_bg}
+TextBox{parent=sna_div,y=3,text="已连接",fg_bg=label_fg_bg}
 local count = DataIndicator{parent=sna_div,x=20,y=3,label="",format="%2d",value=0,unit="",lu_colors=lu_col,width=2,fg_bg=text_fg}
-TextBox{parent=sna_div,y=5,text="Peak Possible Rate\n In\n Out",fg_bg=label_fg_bg}
+TextBox{parent=sna_div,y=5,text="峰值可能速率\n 入\n 出",fg_bg=label_fg_bg}
 local peak_i = DataIndicator{parent=sna_div,x=6,y=6,label="",format="%11.2f",value=0,unit="mB/t",lu_colors=lu_col,width=17,fg_bg=text_fg}
 local peak_o = DataIndicator{parent=sna_div,x=6,label="",format="%11.2f",value=0,unit="mB/t",lu_colors=lu_col,width=17,fg_bg=text_fg}
-TextBox{parent=sna_div,y=9,text="Current Maximum Rate\n In\n Out",fg_bg=label_fg_bg}
+TextBox{parent=sna_div,y=9,text="当前最大速率\n 入\n 出",fg_bg=label_fg_bg}
 local max_i = DataIndicator{parent=sna_div,x=6,y=10,label="",format="%11.2f",value=0,unit="mB/t",lu_colors=lu_col,width=17,fg_bg=text_fg}
 local max_o = DataIndicator{parent=sna_div,x=6,label="",format="%11.2f",value=0,unit="mB/t",lu_colors=lu_col,width=17,fg_bg=text_fg}
-TextBox{parent=sna_div,y=13,text="Current Rate\n In\n Out",fg_bg=label_fg_bg}
+TextBox{parent=sna_div,y=13,text="当前速率\n 入\n 出",fg_bg=label_fg_bg}
 local cur_i = DataIndicator{parent=sna_div,x=6,y=14,label="",format="%11.2f",value=0,unit="mB/t",lu_colors=lu_col,width=17,fg_bg=text_fg}
 local cur_o = DataIndicator{parent=sna_div,x=6,label="",format="%11.2f",value=0,unit="mB/t",lu_colors=lu_col,width=17,fg_bg=text_fg}
 count.register(ps, "sna_count", count.update)
@@ -76,17 +76,17 @@ table.insert(panes, u_div)
 local u_page = app.new_page(nil, #panes)
 u_page.tasks = { update }
 table.insert(u_pages, u_page)
-TextBox{parent=u_div,y=1,text="Reactor Unit #"..i,alignment=ALIGN.CENTER}
+TextBox{parent=u_div,y=1,text="反应堆机组 #"..i,alignment=ALIGN.CENTER}
 local function set_waste(mode) process.set_unit_waste(i, mode) end
 local waste_prod = StateIndicator{parent=u_div,x=16,y=3,states=style.get_waste().states_abbrv,value=1,min_width=6}
 local waste_mode = RadioButton{parent=u_div,y=3,options=style.get_waste().unit_opts,callback=set_waste,radio_colors=cpair(colors.lightGray,colors.gray),select_color=colors.white}
 waste_prod.register(u_ps, "U_WasteProduct", waste_prod.update)
 waste_mode.register(u_ps, "U_WasteMode", waste_mode.set_value)
-TextBox{parent=u_div,y=8,text="Plutonium (Pellets)",fg_bg=label_fg_bg}
+TextBox{parent=u_div,y=8,text="钚（粒）",fg_bg=label_fg_bg}
 local pu = DataIndicator{parent=u_div,label="",format="%16.3f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
-TextBox{parent=u_div,y=11,text="Polonium",fg_bg=label_fg_bg}
+TextBox{parent=u_div,y=11,text="钋",fg_bg=label_fg_bg}
 local po = DataIndicator{parent=u_div,label="",format="%16.3f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
-TextBox{parent=u_div,y=14,text="Polonium (Pellets)",fg_bg=label_fg_bg}
+TextBox{parent=u_div,y=14,text="钋（粒）",fg_bg=label_fg_bg}
 local popl = DataIndicator{parent=u_div,label="",format="%16.3f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
 pu.register(u_ps, "pu_rate", pu.update)
 po.register(u_ps, "po_rate", po.update)
@@ -95,9 +95,9 @@ local sna_div = Div{parent=u_pane,x=2,width=page_div.get_width()-2}
 table.insert(panes, sna_div)
 local sps_page = app.new_page(u_page, #panes)
 sps_page.tasks = { update }
-PushButton{parent=u_div,x=6,y=18,text="SNA DATA",min_width=12,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=sps_page.nav_to}
-PushButton{parent=sna_div,x=9,y=18,text="BACK",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=u_page.nav_to}
-TextBox{parent=sna_div,y=1,text="Unit "..i.." SNAs",alignment=ALIGN.CENTER}
+PushButton{parent=u_div,x=6,y=18,text="SNA数据",min_width=12,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=sps_page.nav_to}
+PushButton{parent=sna_div,x=9,y=18,text="返回",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=u_page.nav_to}
+TextBox{parent=sna_div,y=1,text="机组 "..i.." SNAs",alignment=ALIGN.CENTER}
 make_sna_view(sna_div, u_ps)
 end
 end
@@ -106,38 +106,38 @@ local c_div = Div{parent=c_pane,x=2,width=main.get_width()-2}
 table.insert(panes, c_div)
 local wst_ctrl = app.new_page(nil, #panes)
 wst_ctrl.tasks = { update }
-TextBox{parent=c_div,y=1,text="Waste Control",alignment=ALIGN.CENTER}
+TextBox{parent=c_div,y=1,text="废料控制",alignment=ALIGN.CENTER}
 local status = StateIndicator{parent=c_div,x=3,y=3,states=style.get_waste().states,value=1,min_width=17}
 local waste_prod = RadioButton{parent=c_div,y=5,options=style.get_waste().options,callback=process.set_process_waste,radio_colors=cpair(colors.lightGray,colors.gray),select_color=colors.white}
 status.register(f_ps, "current_waste_product", status.update)
 waste_prod.register(f_ps, "process_waste_product", waste_prod.set_value)
-local fb_active = IconIndicator{parent=c_div,y=9,label="Fallback Active",states=wht_ind_s}
-local sps_disabled = IconIndicator{parent=c_div,y=10,label="SPS Disabled LC",states=yel_ind_s}
+local fb_active = IconIndicator{parent=c_div,y=9,label="备用激活",states=wht_ind_s}
+local sps_disabled = IconIndicator{parent=c_div,y=10,label="SPS低电禁用",states=yel_ind_s}
 fb_active.register(f_ps, "pu_fallback_active", fb_active.update)
 sps_disabled.register(f_ps, "sps_disabled_low_power", sps_disabled.update)
-TextBox{parent=c_div,y=12,text="Nuclear Waste In",fg_bg=label_fg_bg}
+TextBox{parent=c_div,y=12,text="核废料入",fg_bg=label_fg_bg}
 local sum_raw_waste = DataIndicator{parent=c_div,label="",format="%16.3f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
 sum_raw_waste.register(f_ps, "burn_sum", sum_raw_waste.update)
-TextBox{parent=c_div,y=15,text="Spent Waste Out",fg_bg=label_fg_bg}
+TextBox{parent=c_div,y=15,text="乏燃料出",fg_bg=label_fg_bg}
 local sum_sp_waste = DataIndicator{parent=c_div,label="",format="%16.3f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
 sum_sp_waste.register(f_ps, "spent_waste_rate", sum_sp_waste.update)
 local stats_div = Div{parent=c_pane,x=2,width=page_div.get_width()-2}
 table.insert(panes, stats_div)
 local stats_page = app.new_page(wst_ctrl, #panes)
 stats_page.tasks = { update }
-PushButton{parent=c_div,x=6,y=18,text="PROD RATES",min_width=12,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=stats_page.nav_to}
-PushButton{parent=stats_div,x=9,y=18,text="BACK",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=wst_ctrl.nav_to}
-TextBox{parent=stats_div,y=1,text="Production Rates",alignment=ALIGN.CENTER}
-TextBox{parent=stats_div,y=3,text="Plutonium (Pellets)",fg_bg=label_fg_bg}
+PushButton{parent=c_div,x=6,y=18,text="产率",min_width=12,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=stats_page.nav_to}
+PushButton{parent=stats_div,x=9,y=18,text="返回",min_width=6,fg_bg=cpair(colors.lightGray,colors.gray),active_fg_bg=cpair(colors.gray,colors.lightGray),callback=wst_ctrl.nav_to}
+TextBox{parent=stats_div,y=1,text="生产速率",alignment=ALIGN.CENTER}
+TextBox{parent=stats_div,y=3,text="钚（粒）",fg_bg=label_fg_bg}
 local pu = DataIndicator{parent=stats_div,label="",format="%16.3f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
-TextBox{parent=stats_div,y=6,text="Polonium",fg_bg=label_fg_bg}
+TextBox{parent=stats_div,y=6,text="钋",fg_bg=label_fg_bg}
 local po = DataIndicator{parent=stats_div,label="",format="%16.3f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
-TextBox{parent=stats_div,y=9,text="Polonium (Pellets)",fg_bg=label_fg_bg}
+TextBox{parent=stats_div,y=9,text="钋（粒）",fg_bg=label_fg_bg}
 local popl = DataIndicator{parent=stats_div,label="",format="%16.3f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
 pu.register(f_ps, "pu_rate", pu.update)
 po.register(f_ps, "po_rate", po.update)
 popl.register(f_ps, "po_pl_rate", popl.update)
-TextBox{parent=stats_div,y=12,text="Antimatter",fg_bg=label_fg_bg}
+TextBox{parent=stats_div,y=12,text="反物质",fg_bg=label_fg_bg}
 local am = DataIndicator{parent=stats_div,label="",format="%16d",value=0,unit="\xb5B/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
 am.register(f_ps, "sps_process_rate", function (r) am.update(r * 1000) end)
 local o_pane = Div{parent=page_div}
@@ -145,11 +145,11 @@ local o_div = Div{parent=o_pane,x=2,width=main.get_width()-2}
 table.insert(panes, o_pane)
 local opt_page = app.new_page(nil, #panes)
 opt_page.tasks = { update }
-TextBox{parent=o_div,y=1,text="Waste Options",alignment=ALIGN.CENTER}
-local pu_fallback = Checkbox{parent=o_div,x=2,y=3,label="Pu Fallback",callback=process.set_pu_fallback,box_fg_bg=cpair(colors.white,colors.gray)}
-TextBox{parent=o_div,x=2,y=5,height=3,text="Switch to Pu when SNAs cannot keep up with waste.",fg_bg=label_fg_bg}
-local lc_sps = Checkbox{parent=o_div,x=2,y=9,label="Low Charge SPS",callback=process.set_sps_low_power,box_fg_bg=cpair(colors.white,colors.gray)}
-TextBox{parent=o_div,x=2,y=11,height=3,text="Use SPS at low charge, otherwise switches to Po.",fg_bg=label_fg_bg}
+TextBox{parent=o_div,y=1,text="废料选项",alignment=ALIGN.CENTER}
+local pu_fallback = Checkbox{parent=o_div,x=2,y=3,label="钚备用",callback=process.set_pu_fallback,box_fg_bg=cpair(colors.white,colors.gray)}
+TextBox{parent=o_div,x=2,y=5,height=3,text="当SNAs无法跟上废料时切换到钚。",fg_bg=label_fg_bg}
+local lc_sps = Checkbox{parent=o_div,x=2,y=9,label="低电SPS",callback=process.set_sps_low_power,box_fg_bg=cpair(colors.white,colors.gray)}
+TextBox{parent=o_div,x=2,y=11,height=3,text="低电时使用SPS，否则切换到钋。",fg_bg=label_fg_bg}
 pu_fallback.register(f_ps, "process_pu_fallback", pu_fallback.set_value)
 lc_sps.register(f_ps, "process_sps_low_power", lc_sps.set_value)
 local s_pane = Div{parent=page_div}
@@ -157,13 +157,13 @@ local s_div = Div{parent=s_pane,x=2,width=main.get_width()-2}
 table.insert(panes, s_pane)
 local sps_page = app.new_page(nil, #panes)
 sps_page.tasks = { update }
-TextBox{parent=s_div,y=1,text="Facility SPS",alignment=ALIGN.CENTER}
+TextBox{parent=s_div,y=1,text="设施SPS",alignment=ALIGN.CENTER}
 local sps_status = StateIndicator{parent=s_div,x=5,y=3,states=style.sps.states,value=1,min_width=12}
 sps_status.register(db.facility.sps_ps_tbl[1], "SPSStateStatus", sps_status.update)
-TextBox{parent=s_div,y=5,text="Input Rate",width=10,fg_bg=label_fg_bg}
+TextBox{parent=s_div,y=5,text="输入速率",width=10,fg_bg=label_fg_bg}
 local sps_in = DataIndicator{parent=s_div,label="",format="%16.2f",value=0,unit="mB/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
 sps_in.register(f_ps, "po_am_rate", sps_in.update)
-TextBox{parent=s_div,y=8,text="Production Rate",width=15,fg_bg=label_fg_bg}
+TextBox{parent=s_div,y=8,text="生产速率",width=15,fg_bg=label_fg_bg}
 local sps_rate = DataIndicator{parent=s_div,label="",format="%16d",value=0,unit="\xb5B/t",lu_colors=lu_col,width=21,fg_bg=text_fg}
 sps_rate.register(f_ps, "sps_process_rate", function (r) sps_rate.update(r * 1000) end)
 local sna_pane = Div{parent=page_div}
@@ -171,7 +171,7 @@ local sna_div = Div{parent=sna_pane,x=2,width=main.get_width()-2}
 table.insert(panes, sna_pane)
 local sna_page = app.new_page(nil, #panes)
 sna_page.tasks = { update }
-TextBox{parent=sna_div,y=1,text="Facility SNAs",alignment=ALIGN.CENTER}
+TextBox{parent=sna_div,y=1,text="设施SNAs",alignment=ALIGN.CENTER}
 make_sna_view(sna_div, f_ps)
 local w_pane = MultiPane{parent=page_div,y=1,panes=panes}
 app.set_root_pane(w_pane)

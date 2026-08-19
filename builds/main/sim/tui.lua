@@ -32,61 +32,61 @@ end
 return s .. k
 end
 local function link_txt(linked)
-if linked then return "LINKED" else return "DOWN" end
+if linked then return "已连接" else return "断开" end
 end
 local function draw_status()
 local w, h = term.getSize()
 local lines = {}
 local ln = 1
-lines[ln] = "=== SCADA SIMULATOR v" .. SIM_VERSION .. " ==="; ln = ln + 1
+lines[ln] = "=== SCADA 模拟器 v" .. SIM_VERSION .. " ==="; ln = ln + 1
 lines[ln] = "PLC [" .. link_txt(plc.linked) .. "]   RTU [" .. link_txt(rtu.linked) .. "]"
 ln = ln + 2
 local unit = facility.units[plc.reactor_id]
 if unit then
 local r = unit.reactor
 local st = r.status
-local act = st.active and "ACTIVE" or "STOPPED"
-local trip = r.tripped and ("  TRIP:" .. r.trip_cause) or ""
-lines[ln] = "REACTOR  " .. act .. "  TEMP " .. string.format("%.1f", st.temp) .. "K" ..
-"  HEAT " .. commas(st.heating_rate) .. trip
+local act = st.active and "运行中" or "已停止"
+local trip = r.tripped and ("  跳闸:" .. r.trip_cause) or ""
+lines[ln] = "反应堆  " .. act .. "  温度 " .. string.format("%.1f", st.temp) .. "K" ..
+"  热量 " .. commas(st.heating_rate) .. trip
 ln = ln + 1
-lines[ln] = "BURN " .. string.format("%.1f", st.burn_rate) .. "/" ..
-string.format("%.1f", st.act_burn_rate) .. " mB/t   DMG " ..
+lines[ln] = "燃烧 " .. string.format("%.1f", st.burn_rate) .. "/" ..
+string.format("%.1f", st.act_burn_rate) .. " mB/t   损伤 " ..
 string.format("%.1f", st.damage) .. "%"
 ln = ln + 1
 local bw = math.max(10, w - 22)
-lines[ln] = "FUEL  " .. bar(st.fuel_fill, bw) .. string.format(" %3.0f%%", st.fuel_fill * 100); ln = ln + 1
-lines[ln] = "WASTE " .. bar(st.waste_fill, bw) .. string.format(" %3.0f%%", st.waste_fill * 100); ln = ln + 1
-lines[ln] = "COOL  " .. bar(st.coolant_fill, bw) .. string.format(" %3.0f%%", st.coolant_fill * 100); ln = ln + 1
-lines[ln] = "HCOOL " .. bar(st.hcoolant_fill, bw) .. string.format(" %3.0f%%", st.hcoolant_fill * 100); ln = ln + 2
+lines[ln] = "燃料  " .. bar(st.fuel_fill, bw) .. string.format(" %3.0f%%", st.fuel_fill * 100); ln = ln + 1
+lines[ln] = "废料 " .. bar(st.waste_fill, bw) .. string.format(" %3.0f%%", st.waste_fill * 100); ln = ln + 1
+lines[ln] = "冷却 " .. bar(st.coolant_fill, bw) .. string.format(" %3.0f%%", st.coolant_fill * 100); ln = ln + 1
+lines[ln] = "热冷却 " .. bar(st.hcoolant_fill, bw) .. string.format(" %3.0f%%", st.hcoolant_fill * 100); ln = ln + 2
 if #unit.boilers > 0 then
 local b = unit.boilers[1]
-lines[ln] = "BOILER  TEMP " .. string.format("%.1f", b.state.temperature) .. "K" ..
-"  BOIL " .. string.format("%.0f", b.state.boil_rate)
+lines[ln] = "锅炉  温度 " .. string.format("%.1f", b.state.temperature) .. "K" ..
+"  沸腾 " .. string.format("%.0f", b.state.boil_rate)
 ln = ln + 1
-lines[ln] = "STEAM " .. bar(b.tanks.steam_fill, bw) .. string.format(" %3.0f%%", b.tanks.steam_fill * 100) ..
-"  WATER " .. bar(b.tanks.water_fill, bw) .. string.format(" %3.0f%%", b.tanks.water_fill * 100)
+lines[ln] = "蒸汽 " .. bar(b.tanks.steam_fill, bw) .. string.format(" %3.0f%%", b.tanks.steam_fill * 100) ..
+"  水 " .. bar(b.tanks.water_fill, bw) .. string.format(" %3.0f%%", b.tanks.water_fill * 100)
 ln = ln + 2
 end
 if #unit.turbines > 0 then
 local t = unit.turbines[1]
-lines[ln] = "TURBINE  FLOW " .. string.format("%.0f", t.state.flow_rate) ..
-"  PROD " .. commas(t.state.prod_rate) .. " RF/t"
+lines[ln] = "涡轮机  流量 " .. string.format("%.0f", t.state.flow_rate) ..
+"  发电 " .. commas(t.state.prod_rate) .. " RF/t"
 ln = ln + 1
-lines[ln] = "STEAM " .. bar(t.tanks.steam_fill, bw) .. string.format(" %3.0f%%", t.tanks.steam_fill * 100) ..
-"  ENERGY " .. bar(t.tanks.energy_fill, bw) .. string.format(" %3.0f%%", t.tanks.energy_fill * 100)
+lines[ln] = "蒸汽 " .. bar(t.tanks.steam_fill, bw) .. string.format(" %3.0f%%", t.tanks.steam_fill * 100) ..
+"  能量 " .. bar(t.tanks.energy_fill, bw) .. string.format(" %3.0f%%", t.tanks.energy_fill * 100)
 ln = ln + 2
 end
 local ess = facility.ess
 lines[ln] = "ESS  " .. bar(ess.tanks.energy_fill, bw) .. string.format(" %3.0f%%", ess.tanks.energy_fill * 100) ..
-"  IN " .. commas(ess.state.last_input) .. "  OUT " .. commas(ess.state.last_output)
+"  入 " .. commas(ess.state.last_input) .. "  出 " .. commas(ess.state.last_output)
 ln = ln + 1
 local sps = facility.sps
-lines[ln] = "SPS  PROC " .. string.format("%.1f", sps.state.process_rate) ..
-"  IN " .. bar(sps.tanks.input_fill, bw) .. string.format(" %3.0f%%", sps.tanks.input_fill * 100)
+lines[ln] = "SPS  处理 " .. string.format("%.1f", sps.state.process_rate) ..
+"  入 " .. bar(sps.tanks.input_fill, bw) .. string.format(" %3.0f%%", sps.tanks.input_fill * 100)
 ln = ln + 2
 end
-lines[ln] = "[1]status [2]log  [b]burn [s]scram [a]start [+]-burn [-]-burn [h]heat [f]fuel [q]quit"
+lines[ln] = "[1]状态 [2]日志  [b]燃烧 [s]急停 [a]启动 [+]-燃烧 [-]-燃烧 [h]热量 [f]燃料 [q]退出"
 ln = ln + 1
 term.clear()
 for i = 1, math.min(ln - 1, h) do
@@ -98,7 +98,7 @@ end
 local function draw_log()
 local w, h = term.getSize()
 local lines = {}
-lines[1] = "=== SCADA SIMULATOR LOG ==="
+lines[1] = "=== SCADA 模拟器日志 ==="
 lines[2] = ""
 local logs = databus.get_log(nil, h - 4)
 local i = 3
@@ -108,7 +108,7 @@ lines[i] = entry.text
 i = i + 1
 end
 end
-lines[math.min(i, h)] = "[1]status [2]log  [q]quit"
+lines[math.min(i, h)] = "[1]状态 [2]日志  [q]退出"
 term.clear()
 for row = 1, math.min(#lines, h) do
 term.setCursorPos(1, row)
@@ -137,7 +137,7 @@ elseif key == keys.b then
 local _, h = term.getSize()
 term.setCursorPos(1, h)
 term.clearLine()
-write("Burn rate (mB/t): ")
+write("燃烧速率 (mB/t): ")
 local value = tonumber(read())
 term.clearLine()
 if value then control.set_burn(value) end

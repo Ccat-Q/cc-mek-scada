@@ -171,12 +171,12 @@ local function show_pkg_change(name, v)
 	if v.v_local then
 		local is_up = is_update(v)
 		if is_up ~= 0 then
-			local updn = (is_up > 0) and "updating" or "downgrading"
+			local updn = (is_up > 0) and "正在更新" or "正在降级"
 			pkg_v_msg(name, updn, v.v_local, v.v_remote)
 		elseif mode == "install" then
-			pkg_v_msg(name, "reinstalling", v.v_local)
+			pkg_v_msg(name, "重新安装", v.v_local)
 		end
-	else pkg_v_msg(name, "new install of", v.v_remote) end
+	else pkg_v_msg(name, "全新安装", v.v_remote) end
 
 	return v.v_local ~= v.v_remote
 end
@@ -209,13 +209,13 @@ local function read_remote_manifest()
 		resp = http.get(alt_url)
 	end
 	if resp == nil then
-		orange();pln("Failed to read installation manifest from GitHub, cannot update or install.")
-		red();pln("HTTP error, see console output");white()
+		orange();pln("无法从 GitHub 读取安装清单，无法更新或安装。")
+		red();pln("HTTP 错误，请查看控制台输出");white()
 		return false, {}
 	end
 
 	local ok, manifest = pcall(function () return textutils.unserializeJSON(resp.readAll()) end)
-	if not ok then red();pln("error parsing remote installation manifest");white() end
+	if not ok then red();pln("解析远程安装清单时出错");white() end
 
 	return ok, manifest
 end
@@ -255,7 +255,7 @@ local function http_get_file(file, w_path)
 		end
 
 		if dl then
-			if i > 1 then green();pln("success!");lgray() end
+			if i > 1 then green();pln("成功！");lgray() end
 
 			local f = fs.open(w_path..file, "w")
 			if not f then return 2 end
@@ -264,15 +264,15 @@ local function http_get_file(file, w_path)
 			f.close()
 			if not ok then
 				if string.find(msg or "", "Out of space") ~= nil then
-					red();pln("[out of space]");lgray()
+					red();pln("[空间不足]");lgray()
 					return 3
 				else return 2 end
 			end
 			break
 		else
-			red();pln("HTTP Error: "..err)
+			red();pln("HTTP 错误："..err)
 			if i < 3 then
-				lgray();print("> retrying...")
+				lgray();print("> 正在重试...")
 				os.sleep(i/3)
 			else return 1 end
 		end
@@ -317,9 +317,9 @@ local function _clean_dir(dir, tree)
 		local path = dir.."/"..l
 		if fs.isDir(path) then
 			_clean_dir(path, tree[l])
-			if #fs.list(path) == 0 then fs.delete(path);pln("deleted "..path) end
+			if #fs.list(path) == 0 then fs.delete(path);pln("已删除 "..path) end
 		elseif (not _in_array(l, tree)) and l ~= "config.lua" then
-			fs.delete(path);pln("deleted "..path)
+			fs.delete(path);pln("已删除 "..path)
 		end
 	end
 end
@@ -340,13 +340,13 @@ local function clean(manifest)
 	local ls = fs.list("/")
 	for _, val in pairs(ls) do
 		if fs.isDriveRoot(val) then
-			yellow();pln("skipped mount '"..val.."'")
+			yellow();pln("已跳过挂载点 '"..val.."'")
 		elseif fs.isDir(val) then
 			if tree[val] ~= nil then lgray();_clean_dir("/"..val, tree[val])
-			else white(); if ask_y_n("delete the unused directory '"..val.."'") then lgray();_clean_dir("/"..val) end end
-			if #fs.list(val) == 0 then fs.delete(val);lgray();pln("deleted empty directory '"..val.."'") end
+			else white(); if ask_y_n("删除未使用的目录 '"..val.."'") then lgray();_clean_dir("/"..val) end end
+			if #fs.list(val) == 0 then fs.delete(val);lgray();pln("已删除空目录 '"..val.."'") end
 		elseif not _in_array(val, tree) and (string.find(val, ".settings") == nil) then
-			white();if ask_y_n("delete the unused file '"..val.."'") then fs.delete(val);lgray();pln("deleted "..val) end
+			white();if ask_y_n("删除未使用的文件 '"..val.."'") then fs.delete(val);lgray();pln("已删除 "..val) end
 		end
 	end
 
@@ -356,36 +356,36 @@ end
 -- startup header
 
 tsc(colors.magenta)
-if IS_PKT then pln("- SCADA Installer v"..CCMSI_VERSION.." -")
-else pln("-- ComputerCraft Mekanism SCADA Installer v"..CCMSI_VERSION.." --") end
+if IS_PKT then pln("- SCADA 安装器 v"..CCMSI_VERSION.." -")
+else pln("-- ComputerCraft Mekanism SCADA 安装器 v"..CCMSI_VERSION.." --") end
 white()
 
 -- handle command line options
 
 if #OPTS == 0 or OPTS[1] == "help" then
-	pln("usage: ccmsi <mode> <app> <branch>")
+	pln("用法：ccmsi <mode> <app> <branch>")
 
 	blue();pln("<mode>")
 	if IS_PKT then
-		lgray();pln(" check - check latest\n install - fresh install\n update - update app\n uninstall - remove app")
+		lgray();pln(" check - 检查最新\n install - 全新安装\n update - 更新应用\n uninstall - 卸载应用")
 		blue();pln("<app>")
-		lgray();pln(" pocket\n installer (update only)")
+		lgray();pln(" pocket\n installer（仅更新）")
 		blue();pln("<branch>")
 	else
-		lgray();pln(" check       - check latest versions available")
+		lgray();pln(" check       - 检查可用的最新版本")
 		yellow();pln("               ccmsi check <branch> (skip <app>)")
-		lgray();pln(" install     - fresh install\n update      - update files\n uninstall   - delete files INCLUDING config/logs")
-		blue();print("<app>");cyan();pln(" omit to auto-detect installed app")
-		lgray();pln(" reactor-plc - Fission Reactor PLC firmware\n rtu         - RTU Gateway firmware\n supervisor  - Supervisor server application\n coordinator - Coordinator application\n pocket      - Pocket application\n sim         - PLC/RTU simulator application\n installer   - CCMSI installer (update only)")
-		blue();print("<branch>");cyan();pln(" omit for 'main'")
+		lgray();pln(" install     - 全新安装\n update      - 更新文件\n uninstall   - 删除文件，包括配置/日志")
+		blue();print("<app>");cyan();pln(" 省略时自动检测已安装的应用")
+		lgray();pln(" reactor-plc - 裂变反应堆 PLC 固件\n rtu         - RTU 网关固件\n supervisor  - 监控端服务器应用\n coordinator - 协调器应用\n pocket      - 口袋电脑应用\n sim         - PLC/RTU 模拟器应用\n installer   - CCMSI 安装器（仅更新）")
+		blue();print("<branch>");cyan();pln(" 省略时默认为 'main'")
 	end
-	lgray();pln(" main (default) | devel");white()
+	lgray();pln(" main（默认） | devel");white()
 
 	return
 else
 	mode = get_opt(OPTS[1], { "check", "install", "update", "uninstall" })
 	if mode == nil then
-		red();pln("Invalid mode.");white()
+		red();pln("无效的模式。");white()
 		return
 	end
 
@@ -399,18 +399,18 @@ else
 	end
 
 	if app == nil and mode ~= "check" then
-		red();pln("Invalid application.");white()
+		red();pln("无效的应用。");white()
 		return
 	elseif mode == "check" then
 		next_opt = 2
 	elseif app == "installer" and mode ~= "update" then
-		red();pln("Installer only supports 'update'.");white()
+		red();pln("安装器仅支持 'update'。");white()
 		return
 	end
 
 	target = OPTS[next_opt] or "main"
 	if target ~= "main" and target ~= "devel" then
-		red();pln("Invalid branch target.");white()
+		red();pln("无效的分支目标。");white()
 		return
 	end
 
@@ -429,7 +429,7 @@ if mode == "check" then
 
 	ok, l_manifest = read_local_manifest()
 	if not ok then
-		yellow();pln("failed to load local installation information");white()
+		yellow();pln("无法加载本地安装信息");white()
 		l_manifest = { versions = { installer = CCMSI_VERSION } }
 	else
 		l_manifest.versions.installer = CCMSI_VERSION
@@ -446,15 +446,15 @@ if mode == "check" then
 			if IS_PKT then pln(tag) end
 			blue();print(l_manifest.versions[k])
 			if v ~= l_manifest.versions[k] then
-				white();print(" (");cyan();print(v);white();pln(" available)")
-			else green();pln(" (up to date)") end
+				white();print(" (");cyan();print(v);white();pln(" 可用)")
+			else green();pln("（已是最新）") end
 		elseif not IS_PKT then
-			lgray();print("not installed");white();print(" (latest ");cyan();print(v);white();pln(")")
+			lgray();print("未安装");white();print("（最新 ");cyan();print(v);white();pln("）")
 		end
 	end
 
 	if r_manifest.versions.installer ~= l_manifest.versions.installer and not IS_PKT then
-		yellow();pln("\nA different version of the installer is available, it is STRONGLY recommended to update (use 'ccmsi update installer').");white()
+		yellow();pln("\n安装器有新版本可用，强烈建议更新（使用 'ccmsi update installer'）。");white()
 	end
 elseif mode == "install" or mode == "update" then
 	local update_installer = app == "installer"
@@ -482,35 +482,35 @@ elseif mode == "install" or mode == "update" then
 		ver.lockbox.v_local = l_manifest.versions.lockbox
 
 		if l_manifest.versions[app] == nil then
-			red();pln("Another application is already installed, please uninstall it before installing a new application.");white()
+			red();pln("已安装其他应用，请先卸载它再安装新应用。");white()
 			return
 		end
 	elseif mode == "update" and not update_installer then
-		red();pln("Failed to load local installation information, cannot update.");white()
+		red();pln("无法加载本地安装信息，无法更新。");white()
 		return
 	end
 
 	-- installer update handling
 	if r_manifest.versions.installer ~= CCMSI_VERSION then
-		if not update_installer then yellow();pln("A different version of the installer is available, it is STRONGLY recommended to update to it.");white() end
-		if update_installer or ask_y_n("Would you like to update it now", true) then
+		if not update_installer then yellow();pln("安装器有新版本可用，强烈建议更新到该版本。");white() end
+		if update_installer or ask_y_n("是否现在更新它", true) then
 			lgray();pln("GET ccmsi.lua")
 			local dl, err = http.get(build_url.."ccmsi.lua")
 
 			if dl == nil then
-				red();pln("HTTP Error: "..err)
-				pln("Installer download failed.")
+				red();pln("HTTP 错误："..err)
+				pln("安装器下载失败。")
 			else
 				local f = fs.open(debug.getinfo(1, "S").source:sub(2), "w") -- this file
 				f.write(dl.readAll());f.close()
-				green();pln("Installer updated successfully.")
+				green();pln("安装器更新成功。")
 			end
 
 			white()
 			return
 		end
 	elseif update_installer then
-		green();pln("Installer already up-to-date.");white()
+		green();pln("安装器已是最新版本。");white()
 		return
 	end
 
@@ -522,14 +522,14 @@ elseif mode == "install" or mode == "update" then
 	ver.lockbox.v_remote = r_manifest.versions.lockbox
 
 	green()
-	if mode == "install" then print("Installing ") else print("Updating ") end
-	pln(app.." files...");white()
+	if mode == "install" then print("正在安装 ") else print("正在更新 ") end
+	pln(app.." 文件...");white()
 
 	ver.boot.changed = show_pkg_change("bootldr", ver.boot)
 	ver.common.changed = show_pkg_change("common", ver.common)
 	ver.comms.changed = show_pkg_change("comms", ver.comms)
 	if ver.comms.changed and ver.comms.v_local ~= nil then
-		pkg_msg("comms", "all networked devices must be updated", true)
+		pkg_msg("comms", "所有联网设备必须同步更新", true)
 	end
 	ver.app.changed = show_pkg_change(app, ver.app)
 	ver.graphics.changed = show_pkg_change("graphics", ver.graphics)
@@ -565,12 +565,12 @@ elseif mode == "install" or mode == "update" then
 	end
 
 	if mode == "update" and not any_change then
-		yellow();pln("Nothing to do, everything is already up-to-date!");white()
+		yellow();pln("无需操作，所有内容都已是最新！");white()
 		return
 	end
 
 	-- ask for confirmation
-	if not ask_y_n("Continue", false) then return end
+	if not ask_y_n("继续", false) then return end
 
 	local single_file_mode = space_avail < space_req
 
@@ -596,21 +596,21 @@ elseif mode == "install" or mode == "update" then
 	local function handle_dl_fail(dl_stat, file, attempt, sf_install)
 		red()
 		if dl_stat == 1 then
-			pln("failed to download "..file)
+			pln("下载失败 "..file)
 		elseif dl_stat > 1 then
-			if dl_stat == 2 then pln("filesystem error with "..file) else pln("not enough space for "..file) end
+			if dl_stat == 2 then pln("文件系统错误："..file) else pln("空间不足，无法下载 "..file) end
 			if attempt == 1 then
-				orange();pln("re-attempting operation...");white()
+				orange();pln("正在重新尝试操作...");white()
 				sf_install(2)
 			elseif attempt == 2 then
 				yellow()
-				if dl_stat == 2 then pln("There was an error writing to a file.") else pln("Insufficient space available.") end
+				if dl_stat == 2 then pln("写入文件时出错。") else pln("可用空间不足。") end
 				lgray()
 				if dl_stat == 2 then
-					pln("This may be due to insufficent space available or file permission issues. The installer can now attempt to delete files not used by the SCADA system.")
-				else pln("The installer can now attempt to delete files not used by the SCADA system.") end
+					pln("这可能是由于可用空间不足或文件权限问题。安装器现在可以尝试删除 SCADA 系统未使用的文件。")
+				else pln("安装器现在可以尝试删除 SCADA 系统未使用的文件。") end
 				white()
-				if not ask_y_n("Continue", false) then
+				if not ask_y_n("继续", false) then
 					success = false
 					return
 				end
@@ -618,11 +618,11 @@ elseif mode == "install" or mode == "update" then
 				sf_install(3)
 			elseif attempt == 3 then
 				yellow()
-				if dl_stat == 2 then pln("There again was an error writing to a file.") else pln("Insufficient space available.") end
+				if dl_stat == 2 then pln("写入文件时再次出错。") else pln("可用空间不足。") end
 				lgray()
 				if dl_stat == 2 then
-					pln("This may be due to insufficent space available or file permission issues. Please delete any unused files you have on this computer then try again. Do not delete the "..app..".settings file unless you want to re-configure.")
-				else pln("Please delete any unused files you have on this computer then try again. Do not delete the "..app..".settings file unless you want to re-configure.") end
+					pln("这可能是由于可用空间不足或文件权限问题。请删除此电脑上未使用的文件后重试。除非您想重新配置，否则不要删除 "..app..".settings 文件。")
+				else pln("请删除此电脑上未使用的文件后重试。除非您想重新配置，否则不要删除 "..app..".settings 文件。") end
 				white()
 				success = false
 			end
@@ -639,21 +639,21 @@ elseif mode == "install" or mode == "update" then
 
 		for k, dep in pairs(sf_deps) do
 			if mode == "update" and unchanged(dep) then
-				pkg_msg(dep, "skipping install of unchanged package", true)
+				pkg_msg(dep, "跳过未变更包的安装", true)
 				sf_deps[k] = nil
 			else
-				pkg_msg(dep, "installing package...")
+				pkg_msg(dep, "正在安装包...")
 				lgray()
 
 				-- beginning on the second try, delete the directory before starting
 				if attempt >= 2 then
 					if dep == "common" then
 						if fs.exists("/scada-common") then
-							fs.delete("/scada-common");pln("deleted /scada-common")
+							fs.delete("/scada-common");pln("已删除 /scada-common")
 						end
 					elseif dep ~= "system" then
 						if fs.exists("/"..dep) then
-							fs.delete("/"..dep);pln("deleted /"..dep)
+							fs.delete("/"..dep);pln("已删除 /"..dep)
 						end
 					end
 				end
@@ -675,7 +675,7 @@ elseif mode == "install" or mode == "update" then
 					print_reset(s)
 				end
 
-				if not abort_attempt then pkg_msg(dep, "installed!");sf_deps[k] = nil end
+				if not abort_attempt then pkg_msg(dep, "安装完成！");sf_deps[k] = nil end
 				term.clearLine()
 			end
 			if abort_attempt or not success then break end
@@ -690,9 +690,9 @@ elseif mode == "install" or mode == "update" then
 		-- download all dependencies
 		for _, dep in pairs(deps) do
 			if mode == "update" and unchanged(dep) then
-				pkg_msg(dep, "skipping download of unchanged package", true)
+				pkg_msg(dep, "跳过未变更包的下载", true)
 			else
-				pkg_msg(dep, "downloading package...")
+				pkg_msg(dep, "正在下载包...")
 				lgray()
 
 				local files, n = file_list[dep], 1
@@ -702,14 +702,14 @@ elseif mode == "install" or mode == "update" then
 					local dl_stat = http_get_file(file, INSTALL_DIR.."/")
 					success = dl_stat == 0
 					if dl_stat == 1 then
-						red();pln("failed to download "..file)
+						red();pln("下载失败 "..file)
 						break
 					elseif dl_stat == 2 then
-						red();pln("filesystem error with "..file)
+						red();pln("文件系统错误："..file)
 						break
 					elseif dl_stat == 3 then
 						-- this shouldn't occur in this mode
-						red();pln("not enough space for "..file)
+						red();pln("空间不足，无法下载 "..file)
 						break
 					end
 					show_progress(n/#files)
@@ -717,7 +717,7 @@ elseif mode == "install" or mode == "update" then
 					print_reset(s)
 				end
 
-				if success then pkg_msg(dep, "download complete!") end
+				if success then pkg_msg(dep, "下载完成！") end
 				term.clearLine()
 			end
 			if not success then break end
@@ -727,9 +727,9 @@ elseif mode == "install" or mode == "update" then
 		if success then
 			for _, dep in pairs(deps) do
 				if mode == "update" and unchanged(dep) then
-					pkg_msg(dep, "skipping install of unchanged package", true)
+					pkg_msg(dep, "跳过未变更包的安装", true)
 				else
-					pkg_msg(dep, "installing package...")
+					pkg_msg(dep, "正在安装包...")
 					lgray()
 
 					local files = file_list[dep]
@@ -740,7 +740,7 @@ elseif mode == "install" or mode == "update" then
 						fs.move(temp_file, file)
 					end
 
-					pkg_msg(dep, "installed!")
+					pkg_msg(dep, "安装完成！")
 				end
 			end
 		end
@@ -751,37 +751,37 @@ elseif mode == "install" or mode == "update" then
 	if success then
 		write_install_manifest(r_manifest, deps)
 		green()
-		if mode == "install" then print("Installation") else print("Update") end
-		pln(" completed successfully.")
-		white();pln("Ready to clean up unused files, press any key to continue...")
+		if mode == "install" then print("安装") else print("更新") end
+		pln(" 已成功完成。")
+		white();pln("准备清理未使用的文件，按任意键继续...")
 		any_key();clean(r_manifest)
-		white();pln("Done.")
+		white();pln("完成。")
 	else
 		red()
 		if single_file_mode then
-			if mode == "install" then print("Installation") else print("Update") end
-			pln(" failed, files may have been skipped.")
+			if mode == "install" then print("安装") else print("更新") end
+			pln(" 失败，可能有文件被跳过。")
 		else
-			if mode == "install" then pln("Installation failed.")
-			else orange();pln("Update failed, existing files unmodified.") end
+			if mode == "install" then pln("安装失败。")
+			else orange();pln("更新失败，现有文件未改动。") end
 		end
 	end
 elseif mode == "uninstall" then
 	ok, l_manifest = read_local_manifest()
 	if not ok then
-		red();pln("Error parsing local installation manifest.");white()
+		red();pln("解析本地安装清单时出错。");white()
 		return
 	end
 
 	if l_manifest.versions[app] == nil then
-		red();pln("Error: '"..app.."' is not installed.")
+		red();pln("错误：'"..app.."' 未安装。")
 		return
 	end
 
-	orange();pln("Uninstalling all "..app.." files...");white()
+	orange();pln("正在卸载 "..app.." 的所有文件...");white()
 
 	-- ask for confirmation
-	if not ask_y_n("Continue", false) then return end
+	if not ask_y_n("继续", false) then return end
 
 	-- delete unused files first
 	clean(l_manifest)
@@ -796,7 +796,7 @@ elseif mode == "uninstall" then
 	for _, dep in pairs(deps) do
 		local files = file_list[dep]
 		for _, file in pairs(files) do
-			if fs.exists(file) then fs.delete(file);pln("deleted "..file) end
+			if fs.exists(file) then fs.delete(file);pln("已删除 "..file) end
 		end
 
 		local folder = files[1]
@@ -806,7 +806,7 @@ elseif mode == "uninstall" then
 		end
 
 		if fs.isDir(folder) then
-			fs.delete(folder);pln("deleted directory "..folder)
+			fs.delete(folder);pln("已删除目录 "..folder)
 		end
 	end
 
@@ -817,23 +817,23 @@ elseif mode == "uninstall" then
 		if log ~= nil then
 			log_deleted = true
 			if fs.exists(log) then
-				fs.delete(log);pln("deleted log file "..log)
+				fs.delete(log);pln("已删除日志文件 "..log)
 			end
 		end
 	end
 
 	if not log_deleted then
-		red();pln("Failed to delete log file (it may not exist).");lgray()
+		red();pln("无法删除日志文件（它可能不存在）。");lgray()
 	end
 
 	if fs.exists(cfg) then
-		fs.delete(cfg);pln("deleted "..cfg)
+		fs.delete(cfg);pln("已删除 "..cfg)
 	end
 
 	fs.delete("install_manifest.json")
-	pln("deleted install_manifest.json")
+	pln("已删除 install_manifest.json")
 
-	green();pln("Done!")
+	green();pln("完成！")
 end
 
 white()

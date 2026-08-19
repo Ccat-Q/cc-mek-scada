@@ -15,7 +15,7 @@ local function init(main)
 local s_header = style.theme.header
 local fac   = ioctl.get_db().facility
 local units = ioctl.get_db().units
-local header = TextBox{parent=main,y=1,text="Nuclear Generation Facility SCADA Coordinator",alignment=ALIGN.CENTER,fg_bg=s_header}
+local header = TextBox{parent=main,y=1,text="核能发电设施 SCADA 协调器",alignment=ALIGN.CENTER,fg_bg=s_header}
 local ping = DataIndicator{parent=main,y=1,label="SVTT",format="%d",value=0,unit="ms",lu_colors=style.lg_white,width=12,fg_bg=s_header}
 local datetime = TextBox{parent=main,x=(header.get_width()-42),y=1,text="",alignment=ALIGN.RIGHT,width=42,fg_bg=s_header}
 ping.register(fac.ps, "sv_ping", ping.update)

@@ -23,7 +23,7 @@ local frame = Div{parent=root,y=1}
 local app = db.nav.register_app(APP_ID.RADMON, frame, nil, false, true)
 local load_div = Div{parent=frame,y=1}
 local main = Div{parent=frame,y=1}
-TextBox{parent=load_div,y=12,text="Loading...",alignment=ALIGN.CENTER}
+TextBox{parent=load_div,y=12,text="加载中...",alignment=ALIGN.CENTER}
 WaitingAnim{parent=load_div,x=math.floor(main.get_width()/2)-1,y=8,fg_bg=cpair(colors.yellow,colors._INHERIT)}
 local load_pane = MultiPane{parent=main,y=1,panes={load_div,main}}
 app.set_sidebar({ { label = " # ", tall = true, color = core.cpair(colors.black, colors.green), callback = db.nav.go_home } })
@@ -58,7 +58,7 @@ for _, id in pairs(ids) do
 if not elem_list[id] then
 elem_list[id] = Div{parent=mon_list,height=5}
 local mon_rect = Rectangle{parent=elem_list[id],height=4,x=2,width=20,border=border(1,colors.gray,true),thin=true,fg_bg=cpair(colors.black,colors.lightGray)}
-TextBox{parent=mon_rect,text="Env. Detector "..id}
+TextBox{parent=mon_rect,text="环境探测器 "..id}
 local mon_rad = RadIndicator{parent=mon_rect,x=2,label="",format="%13.3f",lu_colors=cpair(colors.gray,colors.gray),width=18}
 mon_rad.register(ps, "radiation@" .. id, mon_rad.update)
 end
@@ -72,8 +72,8 @@ local unit = db.units[i]
 local u_ps = unit.unit_ps
 local u_page = app.new_page(nil, i)
 u_page.tasks = { update }
-TextBox{parent=u_div,y=1,text="Unit #"..i.." Monitors",alignment=ALIGN.CENTER}
-TextBox{parent=u_div,x=2,y=3,text="Max Radiation",fg_bg=label_fg_bg}
+TextBox{parent=u_div,y=1,text="机组 #"..i.." 监测",alignment=ALIGN.CENTER}
+TextBox{parent=u_div,x=2,y=3,text="最大辐射",fg_bg=label_fg_bg}
 local radiation = RadIndicator{parent=u_div,x=2,label="",format="%17.3f",lu_colors=lu_col,width=21}
 radiation.register(u_ps, "radiation", radiation.update)
 new_mon_list(u_div, u_ps)
@@ -82,15 +82,15 @@ local s_pane = panes[db.facility.num_units + 1]
 local s_div = Div{parent=s_pane,x=2,width=main.get_width()-2}
 local stat_page = app.new_page(nil, db.facility.num_units + 1)
 stat_page.tasks = { update }
-TextBox{parent=s_div,y=1,text=" Radiation Monitoring",alignment=ALIGN.CENTER}
-TextBox{parent=s_div,y=3,text="Max Facility Rad.",fg_bg=label_fg_bg}
+TextBox{parent=s_div,y=1,text=" 辐射监测",alignment=ALIGN.CENTER}
+TextBox{parent=s_div,y=3,text="设施最大辐射",fg_bg=label_fg_bg}
 local s_f_rad = RadIndicator{parent=s_div,label="",format="%17.3f",lu_colors=lu_col,width=21}
 s_f_rad.register(f_ps, "radiation", s_f_rad.update)
 for i = 1, db.facility.num_units do
 local unit = db.units[i]
 local u_ps = unit.unit_ps
 s_div.line_break()
-TextBox{parent=s_div,text="Max Unit "..i.." Radiation",fg_bg=label_fg_bg}
+TextBox{parent=s_div,text="机组 "..i.." 最大辐射",fg_bg=label_fg_bg}
 local s_u_rad = RadIndicator{parent=s_div,label="",format="%17.3f",lu_colors=lu_col,width=21}
 s_u_rad.register(u_ps, "radiation", s_u_rad.update)
 end
@@ -98,8 +98,8 @@ local f_pane = panes[db.facility.num_units + 2]
 local f_div = Div{parent=f_pane,width=main.get_width()}
 local fac_page = app.new_page(nil, db.facility.num_units + 2)
 fac_page.tasks = { update }
-TextBox{parent=f_div,y=1,text="Facility Monitors",alignment=ALIGN.CENTER}
-TextBox{parent=f_div,x=2,y=3,text="Max Radiation",fg_bg=label_fg_bg}
+TextBox{parent=f_div,y=1,text="设施监测器",alignment=ALIGN.CENTER}
+TextBox{parent=f_div,x=2,y=3,text="最大辐射",fg_bg=label_fg_bg}
 local f_rad = RadIndicator{parent=f_div,x=2,label="",format="%17.3f",lu_colors=lu_col,width=21}
 f_rad.register(f_ps, "radiation", f_rad.update)
 new_mon_list(f_div, f_ps)

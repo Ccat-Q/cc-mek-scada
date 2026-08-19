@@ -37,7 +37,7 @@ local function new_view(root, x, y, ps, id)
 
     local db = ioctl.get_db()
 
-    local title = "INDUCTION MATRIX"
+    local title = "感应矩阵"
     if type(id) == "number" then title = title .. id end
 
     local matrix = Div{parent=root,fg_bg=style.root,width=33,height=24,x=x,y=y}
@@ -51,14 +51,14 @@ local function new_view(root, x, y, ps, id)
     local rect = Rectangle{parent=matrix,border=border(1,colors.gray,true),width=33,height=22,y=3}
 
     local status    = StateIndicator{parent=rect,x=10,y=1,states=style.ess.states,value=1,min_width=14}
-    local capacity  = PowerIndicator{parent=rect,x=7,y=3,lu_colors=lu_col,label="Capacity:",unit=db.energy_label,format="%8.2f",value=0,width=26,fg_bg=text_fg}
-    local energy    = PowerIndicator{parent=rect,x=7,y=4,lu_colors=lu_col,label="Energy:  ",unit=db.energy_label,format="%8.2f",value=0,width=26,fg_bg=text_fg}
-    local avg_chg   = PowerIndicator{parent=rect,x=7,y=5,lu_colors=lu_col,label="\xb7Average:",unit=db.energy_label,format="%8.2f",value=0,width=26,fg_bg=text_fg}
-    local input     = PowerIndicator{parent=rect,x=7,y=6,lu_colors=lu_col,label="Input:   ",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
-    local avg_in    = PowerIndicator{parent=rect,x=7,y=7,lu_colors=lu_col,label="\xb7Average:",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
-    local output    = PowerIndicator{parent=rect,x=7,y=8,lu_colors=lu_col,label="Output:  ",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
-    local avg_out   = PowerIndicator{parent=rect,x=7,y=9,lu_colors=lu_col,label="\xb7Average:",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
-    local trans_cap = PowerIndicator{parent=rect,x=7,y=10,lu_colors=lu_col,label="Max I/O: ",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
+    local capacity  = PowerIndicator{parent=rect,x=7,y=3,lu_colors=lu_col,label="容量：",unit=db.energy_label,format="%8.2f",value=0,width=26,fg_bg=text_fg}
+    local energy    = PowerIndicator{parent=rect,x=7,y=4,lu_colors=lu_col,label="能量：  ",unit=db.energy_label,format="%8.2f",value=0,width=26,fg_bg=text_fg}
+    local avg_chg   = PowerIndicator{parent=rect,x=7,y=5,lu_colors=lu_col,label="\xb7平均：",unit=db.energy_label,format="%8.2f",value=0,width=26,fg_bg=text_fg}
+    local input     = PowerIndicator{parent=rect,x=7,y=6,lu_colors=lu_col,label="输入：   ",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
+    local avg_in    = PowerIndicator{parent=rect,x=7,y=7,lu_colors=lu_col,label="\xb7平均：",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
+    local output    = PowerIndicator{parent=rect,x=7,y=8,lu_colors=lu_col,label="输出：  ",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
+    local avg_out   = PowerIndicator{parent=rect,x=7,y=9,lu_colors=lu_col,label="\xb7平均：",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
+    local trans_cap = PowerIndicator{parent=rect,x=7,y=10,lu_colors=lu_col,label="最大I/O：",unit=db.energy_label,format="%8.2f",rate=true,value=0,width=26,fg_bg=text_fg}
 
     status.register(ps, "computed_status", status.update)
     capacity.register(ps, "max_energy", function (val) capacity.update(db.energy_convert(val)) end)
@@ -70,17 +70,17 @@ local function new_view(root, x, y, ps, id)
     avg_out.register(ps, "avg_outflow", avg_out.update)
     trans_cap.register(ps, "transfer_cap", function (val) trans_cap.update(db.energy_convert(val)) end)
 
-    local fill      = DataIndicator{parent=rect,x=11,y=12,lu_colors=lu_col,label="Fill:     ",format="%7.2f",unit="%",value=0,width=20,fg_bg=text_fg}
-    local cells     = DataIndicator{parent=rect,x=11,y=13,lu_colors=lu_col,label="Cells:    ",format="%7d",value=0,width=18,fg_bg=text_fg}
-    local providers = DataIndicator{parent=rect,x=11,y=14,lu_colors=lu_col,label="Providers:",format="%7d",value=0,width=18,fg_bg=text_fg}
+    local fill      = DataIndicator{parent=rect,x=11,y=12,lu_colors=lu_col,label="储量：     ",format="%7.2f",unit="%",value=0,width=20,fg_bg=text_fg}
+    local cells     = DataIndicator{parent=rect,x=11,y=13,lu_colors=lu_col,label="电池组：    ",format="%7d",value=0,width=18,fg_bg=text_fg}
+    local providers = DataIndicator{parent=rect,x=11,y=14,lu_colors=lu_col,label="供电方：",format="%7d",value=0,width=18,fg_bg=text_fg}
 
     fill.register(ps, "energy_fill", function (val) fill.update(val * 100) end)
     cells.register(ps, "cells", cells.update)
     providers.register(ps, "providers", providers.update)
 
-    local chging = IndicatorLight{parent=rect,x=11,y=16,label="Charging",colors=ind_wht}
-    local dischg = IndicatorLight{parent=rect,x=11,y=17,label="Discharging",colors=ind_wht}
-    local max_io = IndicatorLight{parent=rect,x=11,y=18,label="Max I/O Rate",colors=ind_yel}
+    local chging = IndicatorLight{parent=rect,x=11,y=16,label="充能中",colors=ind_wht}
+    local dischg = IndicatorLight{parent=rect,x=11,y=17,label="放电中",colors=ind_wht}
+    local max_io = IndicatorLight{parent=rect,x=11,y=18,label="最大I/O速率",colors=ind_yel}
 
     chging.register(ps, "is_charging", chging.update)
     dischg.register(ps, "is_discharging", dischg.update)
@@ -90,7 +90,7 @@ local function new_view(root, x, y, ps, id)
     local in_cap  = VerticalBar{parent=rect,x=7,y=12,fg_bg=cpair(colors.red,colors.gray),height=7,width=1}
     local out_cap = VerticalBar{parent=rect,x=9,y=12,fg_bg=cpair(colors.blue,colors.gray),height=7,width=1}
 
-    TextBox{parent=rect,text="FILL I/O",x=2,y=20,width=8,fg_bg=label_fg}
+    TextBox{parent=rect,text="储量I/O",x=2,y=20,width=8,fg_bg=label_fg}
 
     local function calc_saturation(val)
         local data = db.facility.induction_data_tbl[id or 1]
@@ -103,7 +103,7 @@ local function new_view(root, x, y, ps, id)
     in_cap.register(ps, "last_input", function (val) in_cap.update(calc_saturation(val)) end)
     out_cap.register(ps, "last_output", function (val) out_cap.update(calc_saturation(val)) end)
 
-    local eta = TextBox{parent=rect,x=11,y=20,width=20,text="ETA Unknown",alignment=ALIGN.CENTER,fg_bg=style.theme.field_box}
+    local eta = TextBox{parent=rect,x=11,y=20,width=20,text="剩余时间未知",alignment=ALIGN.CENTER,fg_bg=style.theme.field_box}
 
     eta.register(ps, "eta_string", eta.set_value)
 end

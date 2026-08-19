@@ -39,7 +39,7 @@ local PERIODICS = {
 function imatrix.new(session_id, unit_id, advert, out_queue)
     -- checks
     if advert.type ~= RTU_UNIT_TYPE.IMATRIX then
-        log.error("attempt to instantiate imatrix RTU for type " .. types.rtu_type_to_string(advert.type))
+        log.error("尝试为类型 " .. types.rtu_type_to_string(advert.type) .. " 实例化 imatrix RTU")
         return nil
     end
 
