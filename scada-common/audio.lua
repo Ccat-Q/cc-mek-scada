@@ -315,16 +315,22 @@ function audio.new_stream()
     -- check if the next audio block has data
     function public.has_next_block() return #self.quad_buffer[self.next_block] > 0 end
 
-    -- get the next audio block
-    function public.get_next_block()
-        local block = self.quad_buffer[self.next_block]
+    -- peek the next audio block without advancing the stream
+    function public.peek_next_block() return self.quad_buffer[self.next_block] end
 
+    -- advance the stream to the next audio block
+    function public.advance_next_block()
         self.next_block = self.next_block + 1
 
         if self.next_block > 4 then
             self.next_block = 1
         end
+    end
 
+    -- get the next audio block (advances the stream)
+    function public.get_next_block()
+        local block = public.peek_next_block()
+        public.advance_next_block()
         return block
     end
 
