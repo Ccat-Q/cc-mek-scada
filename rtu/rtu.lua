@@ -261,17 +261,33 @@ function rtu.init_sounder(speaker)
         name = ppm.get_iface(speaker),
         playing = false,
         stream = audio.new_stream(),
+        err_log_at = 0,
         play = function () end,
         stop = function () end,
         continue = function () end
     }
 
+    -- 限频记录失败日志，避免刷爆日志文件
+    local function log_failure()
+        if util.time() >= spkr_ctl.err_log_at then
+            log.warning(util.c("rtu_sounder(", spkr_ctl.name, "): 音频播放失败，等待下一次播放事件重试"))
+            spkr_ctl.err_log_at = util.time() + 30000
+        end
+    end
+
     -- continue audio stream if playing
     function spkr_ctl.continue()
         if spkr_ctl.playing then
             if spkr_ctl.speaker ~= nil and spkr_ctl.stream.has_next_block() then
-                local success = spkr_ctl.speaker.playAudio(spkr_ctl.stream.get_next_block(), config.SpeakerVolume)
-                if not success then log.error(util.c("rtu_sounder(", spkr_ctl.name, "): error playing audio")) end
+                local block = spkr_ctl.stream.peek_next_block()
+                local success = spkr_ctl.speaker.playAudio(block, config.SpeakerVolume)
+
+                if success then
+                    spkr_ctl.stream.advance_next_block()
+                else
+                    -- 播放失败：不推进音频块指针，等待下一次事件重试
+                    log_failure()
+                end
             end
         end
     end
@@ -287,7 +303,7 @@ function rtu.init_sounder(speaker)
     -- stop audio stream playback
     function spkr_ctl.stop()
         spkr_ctl.playing = false
-        spkr_ctl.speaker.stop()
+        if spkr_ctl.speaker ~= nil then spkr_ctl.speaker.stop() end
         spkr_ctl.stream.stop()
     end
 
